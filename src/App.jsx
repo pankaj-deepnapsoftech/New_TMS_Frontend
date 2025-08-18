@@ -1,10 +1,13 @@
 import React from 'react';
-import LoginPage from '@pages/Auth/Login';
+import AppRoutes from './routes/AppRoutes';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const App = () => {
   return (
     <>
-      <LoginPage />
+      <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+        <AppRoutes />;
+      </GoogleOAuthProvider>
     </>
   );
 };

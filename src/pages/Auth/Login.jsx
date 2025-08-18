@@ -1,66 +1,85 @@
-import { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
+import { useState } from 'react';
+import { FcGoogle } from 'react-icons/fc';
+import { Link } from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
+import { motion } from 'framer-motion';
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+function LoginForm() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Email:", email, "Password:", password);
+    console.log('Login:', { email, password });
   };
 
+  // Manual Google Login (custom button)
+  const googleLogin = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      try {
+        console.log('Google token response:', tokenResponse);
+      } catch (error) {
+        console.error('JWT Decode failed:', error);
+      }
+    },
+    onError: () => {
+      console.error('Google Sign In Failed');
+    },
+  });
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-cyan-200 to-green-200">
-      <div className="bg-white shadow-lg rounded-2xl flex w-[900px] h-[500px] overflow-hidden">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-200 to-purple-300">
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="bg-white shadow-xl rounded-2xl flex w-[1000px] h-[700px] overflow-hidden">
         {/* Left Section */}
-        <div className="w-1/2 p-10 flex flex-col justify-center">
-          <h2 className="text-2xl font-bold mb-6">Log in.</h2>
+        <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="w-1/2 p-10 flex flex-col justify-center">
+          <h2 className="text-3xl font-bold mb-6 text-purple-700">Log in</h2>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <input
-              type="email"
-              placeholder="Your email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-            <a href="#" className="text-sm text-purple-600 self-end">
-              Forgot password?
-            </a>
-            <button
-              type="submit"
-              className="w-full bg-purple-600 text-white py-3 rounded-md font-semibold hover:bg-purple-700 transition"
-            >
+            <div className="relative">
+              <input type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+            </div>
+            <div className="relative">
+              <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+            </div>
+            <div className="flex justify-between items-center text-sm">
+              <Link to="/forgot-password" className="text-purple-600 hover:underline">
+                Forgot password?
+              </Link>
+            </div>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="submit" className="w-full bg-purple-600 text-white py-3 rounded-md font-semibold hover:bg-purple-700 transition">
               Log in
-            </button>
-            <button
-              type="button"
-              className="flex items-center justify-center gap-2 w-full border py-3 rounded-md font-medium hover:bg-gray-100 transition"
-            >
-              <FcGoogle size={22} /> Sign in with Google
-            </button>
+            </motion.button>
+
+            {/* ✅ Custom Google Button (full width, no weird spacing) */}
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="button" onClick={() => googleLogin()} className="w-full border border-gray-300 py-3 rounded-md font-semibold flex items-center justify-center gap-2 hover:bg-gray-50 transition">
+              <FcGoogle className="text-xl" />
+              <span>Continue with Google</span>
+            </motion.button>
           </form>
+
           <p className="mt-4 text-sm text-gray-600">
-            Don’t have an account? <a href="#" className="text-purple-600 font-semibold">Register</a>
+            Don’t have an account?{' '}
+            <Link to="/register" className="text-purple-600 font-semibold">
+              Register
+            </Link>
           </p>
-        </div>
+        </motion.div>
 
         {/* Right Section */}
-        <div className="w-1/2 bg-purple-50 flex flex-col items-center justify-center text-center p-6">
+        <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.3 }} className="w-1/2 bg-purple-50 flex flex-col items-center justify-center text-center p-6">
           <h3 className="text-lg text-gray-600">Nice to see you again</h3>
-          <h2 className="text-2xl font-bold text-purple-700 mb-6">Welcome back</h2>
-          <img src="/Images/login-illustration.png" alt="login illustration" className="w-72" />
-        </div>
-      </div>
+          <h2 className="text-3xl font-bold text-purple-700 mb-6">Welcome back</h2>
+          <motion.img src="/Login.png" alt="Login illustration" className="w-200" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1, ease: 'easeOut' }} />
+        </motion.div>
+      </motion.div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
+      <LoginForm />
+    </GoogleOAuthProvider>
   );
 }
