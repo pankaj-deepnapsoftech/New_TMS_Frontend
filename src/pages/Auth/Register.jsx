@@ -29,7 +29,7 @@ function RegisterForm() {
   const googleRegister = useGoogleLogin({
     onSuccess: (tokenResponse) => {
       try {
-        console.log('Google token response:', tokenResponse);  
+        console.log('Google token response:', tokenResponse);
       } catch (error) {
         console.error('Google auth failed:', error);
       }
@@ -64,7 +64,7 @@ function RegisterForm() {
               Register
             </motion.button>
 
-            {/* ✅ Google Register Button */}
+            {/*Google Register Button */}
             <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} type="button" onClick={() => googleRegister()} className="flex items-center justify-center gap-2 w-full border py-3 rounded-md font-medium hover:bg-gray-50 transition">
               <FcGoogle size={22} /> Sign up with Google
             </motion.button>
