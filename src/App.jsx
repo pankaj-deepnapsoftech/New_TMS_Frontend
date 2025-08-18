@@ -1,7 +1,12 @@
 import React from 'react';
+import LoginPage from '@pages/Auth/Login';
 
 const App = () => {
-  return <div className="text-3xl">App</div>;
+  return (
+    <>
+      <LoginPage />
+    </>
+  );
 };
 
 export default App;
