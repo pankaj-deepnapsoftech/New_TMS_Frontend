@@ -1,1 +1,10 @@
 @import 'tailwindcss';
+
+@font-face {
+    font-family: LexendExa;
+    src: url("/fonts/LexendExa.ttf");
+}
+
+html {
+    font-family: LexendExa;
+}
