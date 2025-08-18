@@ -1,11 +1,13 @@
 {
-    "compilerOptions": {
-        "baseUrl": ".",
-        "paths": {
-            "@/*":["/src/*"],
-            "@pages/*":["/src/pages/*"],
-            "@components/*":["/src/components/*"],
-            "@store/*":["/src/store"]
-        }
-    }
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["/src/*"],
+      "@pages/*": ["/src/pages/*"],
+      "@components/*": ["/src/components/*"],
+      "@store/*": ["/src/store"]
+    },
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  }
 }
