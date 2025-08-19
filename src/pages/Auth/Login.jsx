@@ -29,8 +29,8 @@ function LoginForm() {
   });
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-200 to-purple-300">
-      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="bg-white shadow-xl rounded-2xl flex w-[1000px] h-[700px] overflow-hidden">
+    <div className="flex items-center bg-gradient-to-r from-gray-200 to-gray-300 justify-center h-screen bg-cover bg-center overflow-hidden">
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="bg-white/20 backdrop-blur-xl shadow-xl rounded-2xl flex w-[1000px] h-[700px] overflow-hidden border border-white/30">
         {/* Left Section */}
         <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="w-1/2 p-10 flex flex-col justify-center">
           <h2 className="text-3xl font-bold mb-6 text-purple-700">Log in</h2>
@@ -66,10 +66,10 @@ function LoginForm() {
         </motion.div>
 
         {/* Right Section */}
-        <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.3 }} className="w-1/2 bg-purple-50 flex flex-col items-center justify-center text-center p-6">
+        <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.3 }} className="w-1/2 bg-purple-100 flex flex-col items-center justify-center text-center p-6">
           <h3 className="text-lg text-gray-600">Nice to see you again</h3>
           <h2 className="text-3xl font-bold text-purple-700 mb-6">Welcome back</h2>
-          <motion.img src="/Login.png" alt="Login illustration" className="w-200" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1, ease: 'easeOut' }} />
+          <motion.img src="/Images/Login.png" alt="Login illustration" className="w-200" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1, ease: 'easeOut' }} />
         </motion.div>
       </motion.div>
     </div>

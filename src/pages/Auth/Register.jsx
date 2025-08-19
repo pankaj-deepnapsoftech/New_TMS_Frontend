@@ -40,8 +40,8 @@ function RegisterForm() {
   });
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-200 via-purple-300 to-purple-400">
-      <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="bg-white shadow-2xl rounded-2xl flex w-[1000px] h-[700px] overflow-hidden">
+    <div className="flex items-center bg-gradient-to-r from-gray-200 to-gray-300 justify-center h-screen bg-cover bg-center overflow-hidden">
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="bg-white/20 backdrop-blur-xl shadow-xl rounded-2xl flex w-[1000px] h-[700px] overflow-hidden border border-white/30">
         {/* Left Section */}
         <div className="w-1/2 p-10 flex flex-col justify-center">
           <motion.h2 initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="text-3xl font-bold mb-6 text-purple-700">
@@ -79,10 +79,10 @@ function RegisterForm() {
         </div>
 
         {/* Right Section */}
-        <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="w-1/2 bg-purple-50 flex flex-col items-center justify-center text-center p-6">
+        <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="w-1/2 bg-purple-100 flex flex-col items-center justify-center text-center p-6">
           <h3 className="text-lg text-gray-600">Join us Today</h3>
           <h2 className="text-3xl font-bold text-purple-700 mb-6">Start your journey</h2>
-          <motion.img src="/Login.png" alt="Register illustration" className="w-200" initial={{ scale: 0.9 }} animate={{ scale: 1 }} transition={{ duration: 0.8, ease: 'easeOut' }} />
+          <motion.img src="/Images/Login.png" alt="Register illustration" className="w-200" initial={{ scale: 0.9 }} animate={{ scale: 1 }} transition={{ duration: 0.8, ease: 'easeOut' }} />
         </motion.div>
       </motion.div>
     </div>
