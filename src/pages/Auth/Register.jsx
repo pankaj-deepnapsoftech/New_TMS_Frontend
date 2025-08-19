@@ -1,38 +1,46 @@
-import { useState } from 'react';
 import { FcGoogle } from 'react-icons/fc';
 import { Link } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
-
-// Google OAuth
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
+import { useRegisterMutation } from '../../services/Auth.service';
+
+// Formik + Yup
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
 function RegisterForm() {
-  const [form, setForm] = useState({
-    fullName: '',
-    username: '',
-    email: '',
-    phone: '',
-    password: '',
+  // RTK Query mutation
+  const [register, { isLoading }] = useRegisterMutation();
+
+  // Validation Schema
+  const validationSchema = Yup.object().shape({
+    full_name: Yup.string().required('Full name is required'),
+    username: Yup.string().min(3, 'Username must be at least 3 characters').required('Username is required'),
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    phone: Yup.string()
+      .matches(/^[0-9]{10}$/, 'Phone must be 10 digits')
+      .required('Phone number is required'),
+    password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
   });
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  // Form Submit
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    try {
+      const res = await register(values).unwrap();
+      console.log('Register success:', res);
+      resetForm();
+    } catch (error) {
+      console.error('Register failed:', error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Register:', form);
-  };
-
-  // Custom Google Register
+  // Google Register
   const googleRegister = useGoogleLogin({
     onSuccess: (tokenResponse) => {
-      try {
-        console.log('Google token response:', tokenResponse);
-      } catch (error) {
-        console.error('Google auth failed:', error);
-      }
+      console.log('Google token response:', tokenResponse);
     },
     onError: () => {
       console.error('Google Sign Up Failed');
@@ -48,27 +56,65 @@ function RegisterForm() {
             Create Account
           </motion.h2>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {/* Name + Username grid */}
-            <div className="grid grid-cols-2 gap-4">
-              <input type="text" name="fullName" placeholder="Full Name" value={form.fullName} onChange={handleChange} required className="border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500" />
-              <input type="text" name="username" placeholder="Username" value={form.username} onChange={handleChange} required className="border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500" />
-            </div>
+          {/* ✅ Formik Form */}
+          <Formik
+            initialValues={{
+              full_name: '',
+              username: '',
+              email: '',
+              phone: '',
+              password: '',
+            }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ isSubmitting }) => (
+              <Form className="flex flex-col gap-4">
+                {/* Full Name + Username */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Field type="text" name="full_name" placeholder="Full Name" className="border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 w-full" />
+                    <ErrorMessage name="full_name" component="div" className="text-red-500 text-sm mt-1" />
+                  </div>
+                  <div>
+                    <Field type="text" name="username" placeholder="Username" className="border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 w-full" />
+                    <ErrorMessage name="username" component="div" className="text-red-500 text-sm mt-1" />
+                  </div>
+                </div>
 
-            <input type="email" name="email" placeholder="Email Address" value={form.email} onChange={handleChange} required className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500" />
-            <input type="tel" name="phone" placeholder="Phone Number" value={form.phone} onChange={handleChange} required className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500" />
-            <input type="password" name="password" placeholder="Create Password" value={form.password} onChange={handleChange} required className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                <div>
+                  <Field type="email" name="email" placeholder="Email Address" className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                  <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-1" />
+                </div>
 
-            {/* Register Button */}
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="submit" className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-md font-semibold shadow-md hover:shadow-lg transition">
-              Register
-            </motion.button>
+                <div>
+                  <Field type="tel" name="phone" placeholder="Phone Number" className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                  <ErrorMessage name="phone" component="div" className="text-red-500 text-sm mt-1" />
+                </div>
 
-            {/*Google Register Button */}
-            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} type="button" onClick={() => googleRegister()} className="flex items-center justify-center gap-2 w-full border py-3 rounded-md font-medium hover:bg-gray-50 transition">
-              <FcGoogle size={22} /> Sign up with Google
-            </motion.button>
-          </form>
+                <div>
+                  <Field type="password" name="password" placeholder="Create Password" className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                  <ErrorMessage name="password" component="div" className="text-red-500 text-sm mt-1" />
+                </div>
+
+                {/* Register Button */}
+                <motion.button
+                  disabled={isSubmitting || isLoading}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-md font-semibold shadow-md hover:shadow-lg transition disabled:opacity-50"
+                >
+                  {isLoading || isSubmitting ? 'Registering...' : 'Register'}
+                </motion.button>
+
+                {/* Google Register */}
+                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} type="button" onClick={() => googleRegister()} className="flex items-center justify-center gap-2 w-full border py-3 rounded-md font-medium hover:bg-gray-50 transition">
+                  <FcGoogle size={22} /> Sign up with Google
+                </motion.button>
+              </Form>
+            )}
+          </Formik>
 
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-6 text-sm text-gray-600">
             Already have an account?{' '}
@@ -89,6 +135,7 @@ function RegisterForm() {
   );
 }
 
+// Page Wrapper with GoogleOAuthProvider
 export default function RegisterPage() {
   return (
     <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">

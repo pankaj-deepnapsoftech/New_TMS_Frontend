@@ -14,9 +14,26 @@ const AuthService = Api.injectEndpoints({
             invalidatesTags:["User"]
         }),
         // --------------- register api here ----------------
+        register:build.mutation({
+            query:(body)=>({
+                url:"/user/register",
+                method:"POST",
+                body
+            }),
+            invalidatesTags:["User"]
+        }),
+        // --------------- logout api here -------------------
+        logout:build.mutation({
+            query:(body)=>({
+                url:"/user/logout-user",
+                method:"POST",
+                body
+            }),
+            invalidatesTags:["User"]
+        }),
     })
 })
 
 
 // ---------------------- all mutations here --------------------
-export const {useLoginMutation} = AuthService;
+export const {useLoginMutation, useRegisterMutation} = AuthService;
