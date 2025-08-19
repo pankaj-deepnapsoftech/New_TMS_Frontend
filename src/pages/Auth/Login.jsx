@@ -4,14 +4,28 @@ import { Link } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
+import { useLoginMutation } from '../../services/Auth.service';
 
 function LoginForm() {
+  // --------------- here is all the redux query -----------
+
+  const [login,{isLoading}] = useLoginMutation();
+
+
+  
+
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    console.log('Login:', { email, password });
+    try {
+      const res = await login({ username:email, password }).unwrap();
+      console.log(res)
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   // Manual Google Login (custom button)
@@ -46,7 +60,7 @@ function LoginForm() {
                 Forgot password?
               </Link>
             </div>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="submit" className="w-full bg-purple-600 text-white py-3 rounded-md font-semibold hover:bg-purple-700 transition">
+            <motion.button disabled={isLoading} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} type="submit" className="w-full bg-purple-600 text-white py-3 rounded-md font-semibold hover:bg-purple-700 transition">
               Log in
             </motion.button>
 
