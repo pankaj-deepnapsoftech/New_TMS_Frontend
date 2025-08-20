@@ -20,7 +20,7 @@ const Sidebar = () => {
       const res = await logout().unwrap();
       console.log(res);
       localStorage.clear();
-      navigate('/');
+      navigate('/login');
     } catch (error) {
       console.log(error);
     }

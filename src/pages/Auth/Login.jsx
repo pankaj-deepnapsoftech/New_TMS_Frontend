@@ -58,7 +58,7 @@ function LoginForm() {
                 console.log("Login success:", res);
 
                 // Redirect after login
-                navigate("/home");
+                navigate("/");
                 // window.location.reload(); // if you want a full page reload
               } catch (error) {
                 console.error("Login failed:", error);
