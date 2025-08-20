@@ -1,8 +1,6 @@
 import React, {useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend, PieChart, Pie, Cell } from 'recharts';
 import {   Star } from 'lucide-react';
-import Sidebar from '@components/shared/Sidebar';
-import Header from '@components/shared/Header';
 import { Card } from '@components/ui/DashboardCards';
 import { Donut } from '@components/charts/DonutChart';
 

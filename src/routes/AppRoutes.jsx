@@ -4,6 +4,7 @@ import RegisterPage from "@pages/Auth/Register";
 import ForgotPasswordPage from "@pages/Auth/ForgotPassword";
 import MainDashboard from "@pages/Dashboard/Home";
 import Adminlayout from "./layout/Admin.layout";
+import DepartmentTable from "@pages/Dashboard/Department";
 
 const AppRoutes = () => {
   return (
@@ -14,6 +15,7 @@ const AppRoutes = () => {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route element={<Adminlayout />}>
           <Route path="/home" element={<MainDashboard />} />
+          <Route path="/department" element={<DepartmentTable/>}/>
         </Route>
       </Routes>
     </Router>
