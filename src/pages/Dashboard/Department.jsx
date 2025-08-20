@@ -7,12 +7,9 @@ export default function DepartmentTable() {
   const [inputValue, setInputValue] = useState('');
 
   const [create] = useCreateMutation();
-console.log(inputValue)
   const createHandler = async () => {
-    
     try {
       const res = await create({ name: inputValue }).unwrap();
-       
       console.log(res);
       localStorage.clear();
     } catch (error) {
@@ -22,7 +19,7 @@ console.log(inputValue)
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && inputValue.trim() !== '') {
-      createHandler(inputValue.trim());
+      createHandler(inputValue.trim()); 
       setInputValue('');
     }
   };
@@ -48,14 +45,7 @@ console.log(inputValue)
 
         {/* Input Row */}
         <div className="px-6 py-4 border-b border-gray-200">
-          <input
-            type="text"
-            placeholder="Add department"
-            className="w-[200px] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
+          <input type="text" placeholder="Add department" className="w-[200px] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={handleKeyDown} />
         </div>
 
         {/* Department List */}
