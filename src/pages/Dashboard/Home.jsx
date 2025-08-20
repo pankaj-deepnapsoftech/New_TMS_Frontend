@@ -1,83 +1,19 @@
-import React, { useMemo, useState } from 'react';
+import React, {useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend, PieChart, Pie, Cell } from 'recharts';
-import { LayoutDashboard, CheckSquare, Users, FileText, Settings, LogOut, Bell, Search, Plus, Calendar, MessageSquare, Star } from 'lucide-react';
-import { useLogoutMutation } from '../../services/Auth.service';
-import { useNavigate } from 'react-router-dom';
+import {   Star } from 'lucide-react';
+import Sidebar from '@components/shared/Sidebar';
+import Header from '@components/shared/Header';
+import { Card } from '@components/ui/DashboardCards';
+import { Donut } from '@components/charts/DonutChart';
 
-// --- Helper UI Components ---
-// eslint-disable-next-line no-unused-vars
-function SidebarItem({ icon: Icon, label, active, expanded, disabled, onClick }) {
-  return (
-    <button
-      disabled={disabled}
-      onClick={onClick}
-      className={`flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer  transition-colors select-none
-      ${active ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100'}`}
-      title={!expanded ? label : undefined}
-    >
-      <Icon className="w-5 h-5 shrink-0" />
-      {expanded && <span className="text-sm font-medium truncate">{label}</span>}
-    </button>
-  );
-}
-
-function Card({ title, subtitle, right, children, className = '' }) {
-  return (
-    <div className={`bg-white border border-gray-200 rounded-2xl shadow-sm ${className}`}>
-      {(title || right) && (
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-          <div>
-            <h3 className="text-sm font-semibold text-gray-800">{title}</h3>
-            {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
-          </div>
-          {right}
-        </div>
-      )}
-      <div className="p-4">{children}</div>
-    </div>
-  );
-}
-
-function Donut({ percent = 72, label = '', value = '', color = '#3b82f6' }) {
-  const bg = useMemo(
-    () => ({
-      background: `conic-gradient(${color} ${percent}%, #e5e7eb ${percent}%)`,
-    }),
-    [percent, color],
-  );
-  return (
-    <div className="relative w-36 h-36">
-      <div className="absolute inset-0 rounded-full" style={bg} />
-      <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-2xl font-bold leading-tight">{value}</div>
-          <div className="text-xs text-gray-500 -mt-0.5">{label}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // --- Main Dashboard ---
 export default function TaskDashboard() {
-  const [sidebarOpen, setSidebarOpen] = useState(false); // hover to expand
-  const [activeTab, setActiveTab] = useState('Overview');
+
   const [selectedProject, setSelectedProject] = useState('Project Alpha');
-  const navigate = useNavigate();
-  const [logout, { isLoading }] = useLogoutMutation();
+  
+  
 
-  const LogoutHandler = async () => {
-    try {
-      const res = await logout().unwrap();
-      console.log(res);
-      localStorage.clear();
-      navigate('/');
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // Sparkline data (overall progress)
   const progressLine = [
     { m: 'jan', v: 46 },
     { m: 'feb', v: 52 },
@@ -154,73 +90,7 @@ export default function TaskDashboard() {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-50 text-gray-900">
-      {/* Sidebar (hover-expand) */}
-      <aside onMouseEnter={() => setSidebarOpen(true)} onMouseLeave={() => setSidebarOpen(false)} className={`group relative z-20 h-full bg-white border-r border-gray-200 shadow-sm transition-[width] duration-300 ease-in-out ${sidebarOpen ? 'w-64' : 'w-16'}`}>
-        {/* Brand */}
-        <div className="flex items-center gap-3 px-3 py-4 border-b border-gray-100">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 grid place-items-center text-white font-bold">T</div>
-          {sidebarOpen && <span className="font-semibold">TaskFlow</span>}
-        </div>
-
-        {/* Nav Items */}
-        <nav className="p-3 space-y-1">
-          <SidebarItem icon={LayoutDashboard} label="Overview" expanded={sidebarOpen} active />
-          <SidebarItem icon={Users} label="Users" expanded={sidebarOpen} />
-          <SidebarItem icon={CheckSquare} label="Department" expanded={sidebarOpen} />
-          <SidebarItem icon={Users} label="Roles" expanded={sidebarOpen} />
-          <SidebarItem icon={FileText} label="Reports" expanded={sidebarOpen} />
-          <SidebarItem icon={Calendar} label="Calendar" expanded={sidebarOpen} />
-          <SidebarItem icon={MessageSquare} label="Messages" expanded={sidebarOpen} />
-        </nav>
-
-        {/* Bottom fixed */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100 space-y-1 bg-white">
-          <SidebarItem icon={LogOut} label="Logout" disabled={isLoading} expanded={sidebarOpen} onClick={() => LogoutHandler()} />
-        </div>
-      </aside>
-
-      {/* Main Column */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar + tabs */}
-        <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-200">
-          <div className="max-w-full px-6 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button className="inline-flex items-center gap-2 bg-indigo-600 text-white px-3 py-2 rounded-xl text-sm font-medium shadow hover:bg-indigo-500">
-                <Plus className="w-4 h-4" />
-                New Task
-              </button>
-              <div className="hidden md:flex items-center bg-gray-100 px-3 py-2 rounded-xl">
-                <Search className="w-4 h-4 text-gray-500" />
-                <input placeholder="Search tasks, projects, people…" className="bg-transparent outline-none ml-2 text-sm w-64" />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <button className="relative p-2 rounded-lg hover:bg-gray-100">
-                <Bell className="w-5 h-5 text-gray-600" />
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              <div className="w-8 h-8 rounded-full overflow-hidden">
-                <img src="https://i.pravatar.cc/64?img=15" alt="avatar" />
-              </div>
-            </div>
-          </div>
-
-          {/* Tabs row */}
-          <div className="px-6 pb-3">
-            <div className="flex flex-wrap items-center gap-2">
-              {['Overview', 'Projects', 'Team', 'Workload', 'Reports', 'Reputation'].map((tab) => (
-                <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-full text-sm border transition shadow-sm ${activeTab === tab ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'}`}>
-                  {tab}
-                </button>
-              ))}
-            </div>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+    <main className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
           {/* Row 1 */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Overall Progress */}
@@ -439,7 +309,5 @@ export default function TaskDashboard() {
             </Card>
           </div>
         </main>
-      </div>
-    </div>
   );
 }
