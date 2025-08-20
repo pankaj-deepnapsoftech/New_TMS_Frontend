@@ -1,23 +1,74 @@
 import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
-import { useCreateMutation, useDeleteDepartmentMutation, useGetDepartmentQuery } from '../../services/Department.service';
+import { useCreateMutation, useDeleteDepartmentMutation, useGetDepartmentQuery, useUpdateDapartmentMutation } from '../../services/Department.service';
 
 export default function DepartmentTable() {
-  const [inputValue, setInputValue] = useState('');
+    const [inputValue, setInputValue] = useState('');
+    const [clickInput,setClickInput] = useState(false)
+    const [ClickId,setClickId] = useState("")
+    const [create] = useCreateMutation();
+    const { data, isLoading, refetch } = useGetDepartmentQuery();
+    const [upddatDepart,setUpdateDepart] = useState("")
 
-  const [create] = useCreateMutation();
-  const { data, isLoading, refetch } = useGetDepartmentQuery();
 
-  const [deleteDepartment, { isLoading: DepDeleteLoad }] = useDeleteDepartmentMutation();
+    const [deleteDepartment, { isLoading: DepDeleteLoad }] = useDeleteDepartmentMutation();
+    const [updateDapartment] = useUpdateDapartmentMutation()
 
-  const createHandler = async () => {
-    try {
-      const res = await create({ name: inputValue }).unwrap();
+    const createHandler = async () => {
+        try {
+            const res = await create({ name: inputValue }).unwrap();
 
-      console.log(res);
-      refetch();
-    } catch (error) {
-      console.log(error);
+            console.log(res);
+            setInputValue("")
+            refetch()
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const deleteHandle = async (id) => {
+        try {
+            const res = await deleteDepartment(id).unwrap();
+
+            console.log(res);
+            refetch()
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+   const updateHandler = async (id,data) => {
+        try {
+            const res = await updateDapartment({ id, data }).unwrap();
+
+            console.log(res);
+            setClickInput(false)
+            setClickId("")
+            setUpdateDepart("")
+            refetch()
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && inputValue.trim() !== '') {
+            createHandler(inputValue.trim());
+            setInputValue('');
+        }
+
+         if (e.key === 'Enter' && upddatDepart.trim() !== '') {
+            updateHandler(ClickId,{name:upddatDepart.trim()});
+            setInputValue('');
+        }
+    };
+
+
+
+    if (isLoading) {
+        return <div>
+            loading .....
+        </div>
     }
   };
 

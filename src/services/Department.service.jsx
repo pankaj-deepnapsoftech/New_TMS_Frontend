@@ -19,11 +19,11 @@ const DepartmentService = Api.injectEndpoints({
     }),
 
     // --------------- update department ----------------
-    update: build.mutation({
-      query: ({id,body}) => ({
+    updateDapartment: build.mutation({
+      query: ({id,data}) => ({
         url: `/department/update/${id} `,
         method: 'PUT',
-        body,
+        body:data,
       }),
       invalidatesTags: ['department'],
     }),
@@ -40,7 +40,7 @@ const DepartmentService = Api.injectEndpoints({
 });
 
 // ---------------------- all mutations here --------------------
-export const { useCreateMutation,  useUpdateMutation, useDeleteDepartmentMutation } = DepartmentService;
+export const { useCreateMutation,  useUpdateDapartmentMutation, useDeleteDepartmentMutation } = DepartmentService;
 
 
 // ---------------- all query here ----------------------
