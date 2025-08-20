@@ -9,40 +9,39 @@ const DepartmentService = Api.injectEndpoints({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ['department'],
     }),
 
     // --------------- get department here --------------
-    get: build.mutation({
-      query: (body) => ({
-        url: '/department/get/',
-        method: 'GET',
-        body,
-      }),
-      invalidatesTags: ['User'],
+    getDepartment: build.query({
+     query:()=>"/department/get",
+     providesTags:["department"]
     }),
 
     // --------------- update department ----------------
     update: build.mutation({
-      query: (body) => ({
-        url: '/department/update/:id',
+      query: ({id,body}) => ({
+        url: `/department/update/${id} `,
         method: 'PUT',
         body,
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ['department'],
     }),
 
     // ---------------- delete department ----------------
-    delete: build.mutation({
-      query: (body) => ({
-        url: '/department/delete/:id',
+    deleteDepartment: build.mutation({
+      query: (id) => ({
+        url: `/department/delete/${id}`,
         method: 'DELETE',
-        body,
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ['department'],
     }),
   }),
 });
 
 // ---------------------- all mutations here --------------------
-export const { useCreateMutation, useGetMutation, useUpdateMutation, useDeleteMutation } = DepartmentService;
+export const { useCreateMutation,  useUpdateMutation, useDeleteDepartmentMutation } = DepartmentService;
+
+
+// ---------------- all query here ----------------------
+export const {useGetDepartmentQuery} = DepartmentService;
