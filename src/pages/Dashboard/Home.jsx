@@ -1,19 +1,27 @@
 import React, { useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend, PieChart, Pie, Cell } from 'recharts';
 import { LayoutDashboard, CheckSquare, Users, FileText, Settings, LogOut, Bell, Search, Plus, Calendar, MessageSquare, Star } from 'lucide-react';
+import { useLogoutMutation } from '../../services/Auth.service';
 
 // --- Helper UI Components ---
 // eslint-disable-next-line no-unused-vars
-function SidebarItem({ icon: Icon, label, active, expanded }) {
+function SidebarItem({ icon: Icon, label, active, expanded, disabled }) {
+
+
+  
+   
+     
   return (
-    <div
+    <button
+  
+    disabled={disabled}
       className={`flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer transition-colors select-none
       ${active ? 'bg-purple-100 text-purple-700' : 'text-gray-700 hover:bg-gray-100'}`}
       title={!expanded ? label : undefined}
     >
       <Icon className="w-5 h-5 shrink-0" />
       {expanded && <span className="text-sm font-medium truncate">{label}</span>}
-    </div>
+    </button>
   );
 }
 
@@ -59,6 +67,17 @@ export default function TaskDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false); // hover to expand
   const [activeTab, setActiveTab] = useState('Overview');
   const [selectedProject, setSelectedProject] = useState('Project Alpha');
+
+   const [logout, { isLoading }] = useLogoutMutation();
+
+    const LogoutHandler = async () => {
+      try {
+        const res = await logout().unwrap()
+        console.log(res)
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
   // Sparkline data (overall progress)
   const progressLine = [
@@ -159,8 +178,7 @@ export default function TaskDashboard() {
 
         {/* Bottom fixed */}
         <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100 space-y-1 bg-white">
-          <SidebarItem icon={Settings} label="Settings" expanded={sidebarOpen} />
-          <SidebarItem icon={LogOut} label="Logout" expanded={sidebarOpen} />
+          <SidebarItem icon={LogOut}  label="Logout" disabled={isLoading} expanded={sidebarOpen} onClick = {() => LogoutHandler()} />
         </div>
       </aside>
 

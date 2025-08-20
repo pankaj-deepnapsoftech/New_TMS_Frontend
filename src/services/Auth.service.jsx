@@ -36,4 +36,4 @@ const AuthService = Api.injectEndpoints({
 
 
 // ---------------------- all mutations here --------------------
-export const {useLoginMutation, useRegisterMutation} = AuthService;
+export const {useLoginMutation, useRegisterMutation, useLogoutMutation} = AuthService;

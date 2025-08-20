@@ -26,7 +26,7 @@ function LoginForm() {
     onError: () => {
       console.error("Google Sign In Failed");
     },
-  });
+  }); 
 
   return (
     <div className="flex items-center bg-gradient-to-r from-gray-200 to-gray-300 justify-center h-screen bg-cover bg-center overflow-hidden">
