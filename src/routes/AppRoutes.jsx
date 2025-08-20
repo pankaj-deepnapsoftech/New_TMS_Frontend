@@ -2,18 +2,18 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "@pages/Auth/Login";
 import RegisterPage from "@pages/Auth/Register";
 import ForgotPasswordPage from "@pages/Auth/ForgotPassword";
-import MainDashboard from "@pages/Dashboard/Home";
 import Adminlayout from "./layout/Admin.layout";
+import { DashbaordNavLinks } from "@/constant/dashboardNavigation";
 
 const AppRoutes = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route element={<Adminlayout />}>
-          <Route path="/home" element={<MainDashboard />} />
+          {DashbaordNavLinks.map((item) => <Route key={item.value} path={item.value} element={item.component} />)}
         </Route>
       </Routes>
     </Router>

@@ -15,7 +15,9 @@ const Adminlayout = () => {
                 <Header />
 
                 {/* Content */}
+                <div className='flex-1 overflow-y-scroll' >
                 <Outlet />
+                </div>
             </div>
         </div>
     )
