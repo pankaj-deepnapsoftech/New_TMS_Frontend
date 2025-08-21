@@ -1,7 +1,8 @@
-import { LayoutDashboard, CheckSquare, Users, Store, UserCog } from 'lucide-react';
+import { LayoutDashboard, Store, UserCog, UserRoundPlus } from 'lucide-react';
 import TaskDashboard from '@pages/Dashboard/Home';
 import Department from '@pages/Dashboard/Department';
 import Roles from '@pages/Dashboard/Roles';
+import UsersPage from '@pages/Dashboard/UsersPage';
 
 export const DashbaordNavLinks = [
   {
@@ -14,8 +15,8 @@ export const DashbaordNavLinks = [
   {
     label: 'Users',
     value: '/users',
-    icon: Users,
-    component: <Users />,
+    icon: UserRoundPlus,
+    component: <UsersPage />,
   },
   {
     label: 'Department',

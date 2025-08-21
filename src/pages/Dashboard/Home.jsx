@@ -59,20 +59,13 @@ export default function TaskDashboard() {
       time: '5 hours ago',
       source: 'Sprint Board',
       text: 'Moved ‘Marketing site QA’ to Review. Great progress; waiting on copy approval.',
-      avatar: 'https://i.pravatar.cc/40?img=1',
       chips: ['marketing', 'frontend', 'priority:medium'],
-      attachments: [
-        'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=200&q=40',
-        'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=200&q=40',
-        'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=200&q=40',
-      ],
     },
     {
       name: 'Sheila Lee',
       time: '2 days ago',
       source: 'Automations',
       text: 'Recurring task ‘Weekly analytics report’ completed and archived.',
-      avatar: 'https://i.pravatar.cc/40?img=5',
       chips: ['reporting', 'data', 'automation'],
       attachments: [],
     },
@@ -81,7 +74,6 @@ export default function TaskDashboard() {
       time: '5 days ago',
       source: 'Mentions',
       text: '@Sarah marked ‘Mobile onboarding redesign’ as blocked by API changes.',
-      avatar: 'https://i.pravatar.cc/40?img=10',
       chips: ['mobile', 'ux', 'blocked'],
       attachments: [],
     },
@@ -156,7 +148,6 @@ export default function TaskDashboard() {
               <div className="space-y-5">
                 {updates.map((u, idx) => (
                   <div key={idx} className="flex gap-3">
-                    <img src={u.avatar} className="w-10 h-10 rounded-full" />
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <div className="font-semibold">{u.name}</div>
