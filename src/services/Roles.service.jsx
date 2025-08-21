@@ -14,7 +14,7 @@ const RolesService = Api.injectEndpoints({
 
     // --------------- get role here --------------
     getRole: build.query({
-      query: () => '/role/get',
+      query: (creator) => `/role/get/${creator}`,
       providesTags: ['role'],
     }),
 
@@ -40,7 +40,7 @@ const RolesService = Api.injectEndpoints({
 });
 
 // ---------------------- all mutations here --------------------
-export const { useCreateroleMutation, useDeleteroleMutation, useUpdateroleMutation } = RolesService;
+export const { useCreateRoleMutation, useDeleteRoleMutation, useUpdateRoleMutation } = RolesService;
 
 // ---------------- all query here ----------------------
-export const { useGetroleQuery } = RolesService;
+export const { useGetRoleQuery } = RolesService;
