@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { MultiSelect } from 'primereact/multiselect';
+import { DashbaordNavLinks } from '@/constant/dashboardNavigation';
 
 export function RolesModal({ onClose }) {
   const [roleName, setRoleName] = useState('');
-  const [tag, setTag] = useState('');
+  const [selectedPages,setSelectedPages] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,12 +34,8 @@ export function RolesModal({ onClose }) {
           {/* Select Tag */}
           <div>
             <label className="block text-sm text-gray-600 mb-1">Select Pages</label>
-            <select value={tag} onChange={(e) => setTag(e.target.value)} className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-              <option value="">-- Select Pages --</option>
-              <option value=""></option>
-              <option value=""></option>
-              <option value=""></option>
-            </select>
+
+            <MultiSelect value={selectedPages} onChange={(e) => setSelectedPages(e.value)} options={DashbaordNavLinks} optionLabel="name" placeholder="Select Cities" maxSelectedLabels={3} className="w-full md:w-20rem" />
           </div>
 
           {/* Buttons */}
