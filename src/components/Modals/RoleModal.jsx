@@ -1,28 +1,14 @@
 import { useState } from 'react';
 import { MultiSelect } from 'primereact/multiselect';
-import { useCreateroleMutation } from '../../services/Roles.service';
+import { DashbaordNavLinks } from '@/constant/dashboardNavigation';
 
 export function RolesModal({ onClose }) {
   const [roleName, setRoleName] = useState('');
   const [selectedPages, setSelectedPages] = useState([]);
-  const [createRole, { isLoading: createRoleLoad }] = useCreateroleMutation();
   console.log(selectedPages);
-  const createHandle = async () => {
-    try {
-      const res = await createRole().unwrap();
-      console.log(res);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  
 
-  // Example page options
-  const pageOptions = [
-    { label: 'Dashboard', value: 'dashboard' },
-    { label: 'Users', value: 'users' },
-    { label: 'Settings', value: 'settings' },
-    { label: 'Reports', value: 'reports' },
-  ];
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -52,7 +38,7 @@ export function RolesModal({ onClose }) {
           {/* MultiSelect Pages */}
           <div>
             <label className="block text-sm text-gray-600 mb-1">Select Pages</label>
-            <MultiSelect value={selectedPages} onChange={(e) => setSelectedPages(e.value)} options={pageOptions} optionLabel="label" placeholder="Select pages" display="chip" className="w-full h-fit" />
+            <MultiSelect value={selectedPages} onChange={(e) => setSelectedPages(e.value)} options={DashbaordNavLinks.map((item)=>({label:item.label,name:item.value}))} optionLabel="label" placeholder="Select pages" display="chip" className="w-full h-fit" />
           </div>
 
           {/* Buttons */}
@@ -60,7 +46,7 @@ export function RolesModal({ onClose }) {
             <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border text-gray-600 hover:bg-gray-100">
               Cancel
             </button>
-            <button onClick={createHandle} disabled={createRoleLoad} type="submit" className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+            <button  type="submit" className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
               Save
             </button>
           </div>
