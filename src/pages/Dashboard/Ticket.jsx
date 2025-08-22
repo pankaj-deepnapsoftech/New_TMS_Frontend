@@ -38,8 +38,8 @@ export default function TicketsPage() {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+        },
       });
 
       if (response.ok) {
@@ -60,7 +60,7 @@ export default function TicketsPage() {
   // Delete ticket function
   const handleDeleteTicket = async (ticketId, e) => {
     e.stopPropagation(); // Prevent ticket click event
-    
+
     if (!confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
       return;
     }
@@ -68,18 +68,18 @@ export default function TicketsPage() {
     try {
       setDeletingTicket(ticketId);
       const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/delete/${ticketId}`;
-      
+
       const response = await fetch(apiUrl, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-        }
+          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+        },
       });
 
       if (response.ok) {
         // Remove the ticket from the local state
-        setTickets(prevTickets => prevTickets.filter(ticket => ticket._id !== ticketId));
+        setTickets((prevTickets) => prevTickets.filter((ticket) => ticket._id !== ticketId));
         // You can add a success notification here
         console.log('Ticket deleted successfully');
       } else {
@@ -103,11 +103,7 @@ export default function TicketsPage() {
 
   // Handle ticket update
   const handleTicketUpdate = (updatedTicket) => {
-    setTickets(prevTickets => 
-      prevTickets.map(ticket => 
-        ticket._id === updatedTicket._id ? updatedTicket : ticket
-      )
-    );
+    setTickets((prevTickets) => prevTickets.map((ticket) => (ticket._id === updatedTicket._id ? updatedTicket : ticket)));
   };
 
   useEffect(() => {
@@ -122,7 +118,7 @@ export default function TicketsPage() {
     navigate(`/tickets/${ticket.ticket_id || ticket._id}`);
   };
 
-  const filteredTickets = tickets.filter(ticket => {
+  const filteredTickets = tickets.filter((ticket) => {
     const idText = (ticket.ticket_id || '').toLowerCase();
     const titleText = (ticket.title || '').toLowerCase();
     const matchesSearch = idText.includes(searchTerm.toLowerCase()) || titleText.includes(searchTerm.toLowerCase());
@@ -137,10 +133,10 @@ export default function TicketsPage() {
 
   const stats = {
     total: tickets.length,
-    open: tickets.filter(t => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
-    inProgress: tickets.filter(t => getCurrentStatus(t) === 'In Progress').length,
-    resolved: tickets.filter(t => getCurrentStatus(t) === 'Resolved').length,
-    overdue: tickets.filter(t => new Date(t.due_date) < new Date()).length
+    open: tickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
+    inProgress: tickets.filter((t) => getCurrentStatus(t) === 'In Progress').length,
+    resolved: tickets.filter((t) => getCurrentStatus(t) === 'Resolved').length,
+    overdue: tickets.filter((t) => new Date(t.due_date) < new Date()).length,
   };
 
   const formatDate = (dateString) => {
@@ -148,7 +144,7 @@ export default function TicketsPage() {
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -168,10 +164,14 @@ export default function TicketsPage() {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'High': return 'from-red-100 to-red-200 text-red-700';
-      case 'Medium': return 'from-yellow-100 to-yellow-200 text-yellow-700';
-      case 'Low': return 'from-green-100 to-green-200 text-green-700';
-      default: return 'from-gray-100 to-gray-200 text-gray-700';
+      case 'High':
+        return 'from-red-100 to-red-200 text-red-700';
+      case 'Medium':
+        return 'from-yellow-100 to-yellow-200 text-yellow-700';
+      case 'Low':
+        return 'from-green-100 to-green-200 text-green-700';
+      default:
+        return 'from-gray-100 to-gray-200 text-gray-700';
     }
   };
 
@@ -193,11 +193,7 @@ export default function TicketsPage() {
         <p className="text-gray-500 text-sm mt-1">Oversee, track and manage all tickets across the team in real-time.</p>
       </div>
 
-      {error && (
-        <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
+      {error && <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">{error}</div>}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
         {[
@@ -212,9 +208,7 @@ export default function TicketsPage() {
               <p className="text-sm font-medium text-gray-500">{stat.title}</p>
               <h2 className="text-3xl font-extrabold text-gray-800">{stat.count}</h2>
             </div>
-            <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} opacity-90 group-hover:opacity-100 transition`}>
-              {stat.icon}
-            </div>
+            <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} opacity-90 group-hover:opacity-100 transition`}>{stat.icon}</div>
           </div>
         ))}
       </div>
@@ -222,13 +216,7 @@ export default function TicketsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-3 text-gray-400" size={18} />
-          <input
-            type="text"
-            placeholder="Search tickets..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full border rounded-xl pl-10 pr-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm"
-          />
+          <input type="text" placeholder="Search tickets..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full border rounded-xl pl-10 pr-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm" />
         </div>
 
         <div className="flex flex-wrap gap-3">
@@ -263,9 +251,7 @@ export default function TicketsPage() {
       <div className="grid grid-cols-1 gap-6">
         {filteredTickets.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">
-              {searchTerm || filterStatus !== 'All Statuses' || filterPriority !== 'All Priorities' || filterDepartment !== 'All Departments' ? 'No tickets match your filters.' : 'No tickets found.'}
-            </p>
+            <p className="text-gray-500 text-lg">{searchTerm || filterStatus !== 'All Statuses' || filterPriority !== 'All Priorities' || filterDepartment !== 'All Departments' ? 'No tickets match your filters.' : 'No tickets found.'}</p>
           </div>
         ) : (
           filteredTickets.map((ticket) => (
@@ -273,26 +259,13 @@ export default function TicketsPage() {
               {/* Action Buttons */}
               <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
                 {/* Edit Button */}
-                <button
-                  onClick={(e) => handleEditTicket(ticket, e)}
-                  className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200"
-                  title="Edit ticket"
-                >
+                <button onClick={(e) => handleEditTicket(ticket, e)} className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200" title="Edit ticket">
                   <Edit size={16} />
                 </button>
-                
+
                 {/* Delete Button */}
-                <button
-                  onClick={(e) => handleDeleteTicket(ticket._id, e)}
-                  disabled={deletingTicket === ticket._id}
-                  className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Delete ticket"
-                >
-                  {deletingTicket === ticket._id ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  ) : (
-                    <Trash2 size={16} />
-                  )}
+                <button onClick={(e) => handleDeleteTicket(ticket._id, e)} disabled={deletingTicket === ticket._id} className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" title="Delete ticket">
+                  {deletingTicket === ticket._id ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> : <Trash2 size={16} />}
                 </button>
               </div>
 
@@ -305,7 +278,7 @@ export default function TicketsPage() {
               </div>
 
               <h3 className="text-lg font-bold text-gray-800 mb-1">{ticket.title}</h3>
-              {ticket.description && (<p className="text-sm text-gray-600 mb-4">{ticket.description}</p>)}
+              {ticket.description && <p className="text-sm text-gray-600 mb-4">{ticket.description}</p>}
 
               <div className="flex justify-between items-center text-sm">
                 <div className="flex items-center gap-2 text-gray-700">
@@ -313,7 +286,7 @@ export default function TicketsPage() {
                   <span className="font-medium">Due:</span>
                   <span className="bg-gray-100 px-2 py-1 rounded-full text-xs shadow-sm">{formatDate(ticket.due_date)}</span>
                 </div>
-                {new Date(ticket.due_date) < new Date() && (<span className="text-red-500 font-semibold animate-pulse">⏳ Overdue</span>)}
+                {new Date(ticket.due_date) < new Date() && <span className="text-red-500 font-semibold animate-pulse">⏳ Overdue</span>}
               </div>
             </div>
           ))
@@ -321,7 +294,7 @@ export default function TicketsPage() {
       </div>
 
       {/* Create Ticket Modal */}
-      <TicketModal 
+      <TicketModal
         isOpen={isOpen}
         onClose={() => {
           setIsOpen(false);

@@ -60,7 +60,7 @@ export default function DepartmentTable() {
       updateHandler(ClickId, { name: upddatDepart.trim() });
       setInputValue('');
     }
-  }; 
+  };
 
   if (isLoading) {
     return <div>loading .....</div>;
