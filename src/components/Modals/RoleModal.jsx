@@ -131,7 +131,7 @@ export function RolesModal({ onClose, editData = null }) {
     <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 backdrop-blur-sm">
       <div className="bg-white rounded-3xl shadow-2xl w-[700px] max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100">
         {/* Header with gradient */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-t-3xl p-6 text-white">
+        <div className="bg-gradient-to-r from-blue-500 to-sky-700 rounded-t-3xl p-6 text-white">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-white/20 rounded-xl">
@@ -378,7 +378,7 @@ export function RolesModal({ onClose, editData = null }) {
               <button 
                 type="submit" 
                 disabled={isLoading}
-                className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2"
+                className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-sky-700 text-white hover:from-blue-700 hover:to-sky-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2"
               >
                 {isLoading ? (
                   <>
