@@ -1,19 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { LayoutDashboard, CheckSquare, Users, FileText, LogOut, Calendar, MessageSquare } from 'lucide-react';
-import { SidebarItem } from '@components/ui/SideItems'
+import { SidebarItem } from '@components/ui/SideItems';
 import { useLogoutMutation } from '@/services/Auth.service';
 import { useNavigate } from 'react-router-dom';
 import { DashbaordNavLinks } from '@/constant/dashboardNavigation';
 
 const Sidebar = () => {
-
   const [logout, { isLoading }] = useLogoutMutation();
 
   const navigate = useNavigate();
 
-
   const [sidebarOpen, setSidebarOpen] = useState(false); // hover to expand
-
 
   const LogoutHandler = async () => {
     try {
@@ -28,8 +25,8 @@ const Sidebar = () => {
 
   const isActive = (route) => {
     const path = window.location.pathname;
-    return route === path
-  }
+    return route === path;
+  };
   return (
     <aside onMouseEnter={() => setSidebarOpen(true)} onMouseLeave={() => setSidebarOpen(false)} className={`group relative z-20 h-full bg-white border-r border-gray-200 shadow-sm transition-[width] duration-300 ease-in-out ${sidebarOpen ? 'w-64' : 'w-16'}`}>
       {/* Brand */}
@@ -40,12 +37,11 @@ const Sidebar = () => {
 
       {/* Nav Items */}
       <nav className="p-3 space-y-1">
-
-        {DashbaordNavLinks.map((item)=><React.Fragment key={item.value}>
-        <SidebarItem icon={item.icon} label={item.label} expanded={sidebarOpen} onClick={()=>navigate(item.value)} active={isActive(item.value)} />
-        </React.Fragment>)}
-        
-        
+        {DashbaordNavLinks.map((item) => (
+          <React.Fragment key={item.value}>
+            <SidebarItem icon={item.icon} label={item.label} expanded={sidebarOpen} onClick={() => navigate(item.value)} active={isActive(item.value)} />
+          </React.Fragment>
+        ))}
       </nav>
 
       {/* Bottom fixed */}
@@ -53,7 +49,7 @@ const Sidebar = () => {
         <SidebarItem icon={LogOut} label="Logout" disabled={isLoading} expanded={sidebarOpen} onClick={() => LogoutHandler()} />
       </div>
     </aside>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

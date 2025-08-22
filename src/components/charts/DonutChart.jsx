@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo } from 'react';
 
 export function Donut({ percent = 72, label = '', value = '', color = '#3b82f6' }) {
   const bg = useMemo(

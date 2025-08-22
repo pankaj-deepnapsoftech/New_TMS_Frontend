@@ -8,16 +8,16 @@ export default function TicketModal({ isOpen, onClose }) {
     description: '',
     department: '',
     priority: 'Medium',
-    due_date: ''
+    due_date: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -55,7 +55,7 @@ export default function TicketModal({ isOpen, onClose }) {
           description: '',
           department: '',
           priority: 'Medium',
-          due_date: ''
+          due_date: '',
         });
         onClose();
         // You can add a success notification here
@@ -65,7 +65,7 @@ export default function TicketModal({ isOpen, onClose }) {
       }
     } catch (err) {
       console.error('Network error details:', err);
-      
+
       if (err.name === 'TypeError' && err.message.includes('fetch')) {
         setError('Cannot connect to server. Please check if the backend is running.');
       } else if (err.name === 'SyntaxError') {
@@ -94,49 +94,24 @@ export default function TicketModal({ isOpen, onClose }) {
 
             {/* Body */}
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                  {error}
-                </div>
-              )}
+              {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{error}</div>}
 
               {/* Ticket Title */}
               <div>
                 <label className="text-sm font-medium">Ticket Title *</label>
-                <input 
-                  type="text" 
-                  name="title"
-                  value={formData.title} 
-                  onChange={handleInputChange} 
-                  placeholder="Enter ticket title..." 
-                  className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" 
-                  required
-                />
+                <input type="text" name="title" value={formData.title} onChange={handleInputChange} placeholder="Enter ticket title..." className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required />
               </div>
 
               {/* Description */}
               <div>
                 <label className="text-sm font-medium">Description</label>
-                <textarea 
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Describe the ticket..." 
-                  rows="3" 
-                  className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                />
+                <textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="Describe the ticket..." rows="3" className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
               </div>
 
               {/* Department */}
               <div>
                 <label className="text-sm font-medium">Department *</label>
-                <select 
-                  name="department"
-                  value={formData.department}
-                  onChange={handleInputChange}
-                  className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                  required
-                >
+                <select name="department" value={formData.department} onChange={handleInputChange} className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required>
                   <option value="">Select Department</option>
                   <option value="68a5c292e7b0c7fd04d669f1">Development</option>
                   <option value="68a5c292e7b0c7fd04d669f2">Design</option>
@@ -147,12 +122,7 @@ export default function TicketModal({ isOpen, onClose }) {
               {/* Priority */}
               <div>
                 <label className="text-sm font-medium">Priority</label>
-                <select 
-                  name="priority"
-                  value={formData.priority}
-                  onChange={handleInputChange}
-                  className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                >
+                <select name="priority" value={formData.priority} onChange={handleInputChange} className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
                   <option value="Low">Low</option>
                   <option value="Medium">Medium</option>
                   <option value="High">High</option>
@@ -163,13 +133,7 @@ export default function TicketModal({ isOpen, onClose }) {
               {/* Due Date */}
               <div>
                 <label className="text-sm font-medium">Due Date</label>
-                <input 
-                  type="datetime-local" 
-                  name="due_date"
-                  value={formData.due_date}
-                  onChange={handleInputChange}
-                  className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" 
-                />
+                <input type="datetime-local" name="due_date" value={formData.due_date} onChange={handleInputChange} className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
               </div>
 
               {/* Team Assignment */}
@@ -181,18 +145,10 @@ export default function TicketModal({ isOpen, onClose }) {
 
             {/* Footer */}
             <div className="flex justify-end gap-3 border-t px-6 py-4">
-              <button 
-                onClick={onClose} 
-                className="px-4 py-2 border rounded-lg hover:bg-gray-100"
-                disabled={loading}
-              >
+              <button onClick={onClose} className="px-4 py-2 border rounded-lg hover:bg-gray-100" disabled={loading}>
                 Cancel
               </button>
-              <button 
-                onClick={handleSubmit}
-                disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
-              >
+              <button onClick={handleSubmit} disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
                 {loading ? 'Creating...' : 'Create Ticket'}
               </button>
             </div>

@@ -9,7 +9,7 @@ const RolesService = Api.injectEndpoints({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['role'],
+      invalidatesTags: ['Role'],
     }),
 
     // --------------- get role here --------------
@@ -25,7 +25,7 @@ const RolesService = Api.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['role'],
+      invalidatesTags: ['Role'],
     }),
 
     // ---------------- delete role ----------------
@@ -34,7 +34,13 @@ const RolesService = Api.injectEndpoints({
         url: `/role/delete/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['role'],
+      invalidatesTags: ['Role'],
+    }),
+
+    // --------------- all roles ---------------------
+    allRoles:build.query({
+      query:()=>"/role/all-role",
+      providesTags:["Role"]
     }),
   }),
 });
@@ -43,4 +49,4 @@ const RolesService = Api.injectEndpoints({
 export const { useCreateRoleMutation, useDeleteRoleMutation, useUpdateRoleMutation } = RolesService;
 
 // ---------------- all query here ----------------------
-export const { useGetRoleQuery } = RolesService;
+export const { useGetRoleQuery,useAllRolesQuery } = RolesService;

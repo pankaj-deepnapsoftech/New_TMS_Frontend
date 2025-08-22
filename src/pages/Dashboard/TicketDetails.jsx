@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 export default function TicketDetails() {
   const navigate = useNavigate();
   const { ticketId: _ticketId } = useParams();
-  
+
   const [ticket, setTicket] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +37,7 @@ export default function TicketDetails() {
     title: '',
     description: '',
     due_date: '',
-    isSchedule: false
+    isSchedule: false,
   });
 
   // Fetch ticket details
@@ -48,7 +48,7 @@ export default function TicketDetails() {
 
       // First, get all tickets to find the specific one
       const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/get`;
-      
+
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
@@ -60,8 +60,8 @@ export default function TicketDetails() {
 
       if (response.ok) {
         const result = await response.json();
-        const foundTicket = result.data.find(t => t.ticket_id === _ticketId || t._id === _ticketId);
-        
+        const foundTicket = result.data.find((t) => t.ticket_id === _ticketId || t._id === _ticketId);
+
         if (foundTicket) {
           setTicket(foundTicket);
           setTasks(foundTicket.task || []);
@@ -92,11 +92,11 @@ export default function TicketDetails() {
       setError('');
 
       const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/task/create`;
-      
+
       const taskData = {
         ...newTask,
         ticket_id: ticket._id,
-        due_date: new Date(newTask.due_date).toISOString()
+        due_date: new Date(newTask.due_date).toISOString(),
       };
 
       console.log('Creating task with data:', taskData);
@@ -120,19 +120,19 @@ export default function TicketDetails() {
         // Add the new task to the local state
         const newTaskData = {
           ...result.data,
-          description: newTask.description // Ensure description is included
+          description: newTask.description, // Ensure description is included
         };
-        setTasks(prevTasks => [...prevTasks, newTaskData]);
-        
+        setTasks((prevTasks) => [...prevTasks, newTaskData]);
+
         // Reset form and close modal
         setNewTask({
           title: '',
           description: '',
           due_date: '',
-          isSchedule: false
+          isSchedule: false,
         });
         setShowAddTask(false);
-        
+
         console.log('Task created successfully:', result.data);
         console.log('New task data being added to state:', newTaskData);
       } else {
@@ -435,11 +435,16 @@ export default function TicketDetails() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Completed': return 'from-green-100 to-green-200 text-green-700';
-      case 'In Progress': return 'from-yellow-100 to-yellow-200 text-yellow-700';
-      case 'Pending': return 'from-blue-100 to-blue-200 text-blue-700';
-      case 'Not Started': return 'from-gray-100 to-gray-200 text-gray-700';
-      default: return 'from-gray-100 to-gray-200 text-gray-700';
+      case 'Completed':
+        return 'from-green-100 to-green-200 text-green-700';
+      case 'In Progress':
+        return 'from-yellow-100 to-yellow-200 text-yellow-700';
+      case 'Pending':
+        return 'from-blue-100 to-blue-200 text-blue-700';
+      case 'Not Started':
+        return 'from-gray-100 to-gray-200 text-gray-700';
+      default:
+        return 'from-gray-100 to-gray-200 text-gray-700';
     }
   };
 
@@ -449,7 +454,7 @@ export default function TicketDetails() {
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -476,13 +481,8 @@ export default function TicketDetails() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6">
         <div className="text-center">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
-            {error}
-          </div>
-          <button 
-            onClick={() => navigate('/ticket')}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>
+          <button onClick={() => navigate('/ticket')} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
             Back to Tickets
           </button>
         </div>
@@ -495,10 +495,7 @@ export default function TicketDetails() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6">
         <div className="text-center">
           <p className="text-gray-600 text-lg">Ticket not found</p>
-          <button 
-            onClick={() => navigate('/ticket')}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
+          <button onClick={() => navigate('/ticket')} className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
             Back to Tickets
           </button>
         </div>
@@ -510,44 +507,27 @@ export default function TicketDetails() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6">
       {/* Header */}
       <div className="mb-8">
-        <button 
-          onClick={() => navigate('/ticket')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
-        >
+        <button onClick={() => navigate('/ticket')} className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4">
           <X size={20} /> Back to Tickets
         </button>
         <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">Ticket Details</h1>
       </div>
 
-      {error && (
-        <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
+      {error && <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">{error}</div>}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Ticket Information */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
             <div className="flex flex-wrap gap-2 text-xs mb-4">
-              <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1 rounded-lg font-medium">
-                {ticket.ticket_id}
-              </span>
-              <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1 rounded-lg font-medium`}>
-                {getCurrentStatus(ticket)}
-              </span>
-              <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1 rounded-lg font-medium">
-                {ticket.priority}
-              </span>
-              <span className="bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 px-3 py-1 rounded-lg font-medium">
-                Development
-              </span>
+              <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1 rounded-lg font-medium">{ticket.ticket_id}</span>
+              <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1 rounded-lg font-medium`}>{getCurrentStatus(ticket)}</span>
+              <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1 rounded-lg font-medium">{ticket.priority}</span>
+              <span className="bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 px-3 py-1 rounded-lg font-medium">Development</span>
             </div>
 
             <h2 className="text-2xl font-bold text-gray-800 mb-3">{ticket.title}</h2>
-            {ticket.description && (
-              <p className="text-gray-600 mb-6 bg-gray-50 p-4 rounded-lg">{ticket.description}</p>
-            )}
+            {ticket.description && <p className="text-gray-600 mb-6 bg-gray-50 p-4 rounded-lg">{ticket.description}</p>}
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
@@ -622,10 +602,7 @@ export default function TicketDetails() {
           <div className="bg-white rounded-2xl shadow-md p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-gray-800">Tasks ({tasks.length})</h3>
-              <button
-                onClick={() => setShowAddTask(true)}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-4 py-2 flex items-center gap-2 font-medium shadow-lg hover:scale-105 transition-transform"
-              >
+              <button onClick={() => setShowAddTask(true)} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-4 py-2 flex items-center gap-2 font-medium shadow-lg hover:scale-105 transition-transform">
                 <Plus size={16} /> Add Task
               </button>
             </div>
@@ -708,11 +685,8 @@ export default function TicketDetails() {
               <button className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
                 Mark Complete
               </button>
-              <button className="w-full bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700">
-                Add Comment
-              </button>
-              <button className="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
-                Close Ticket
+              <button onClick={handleAddTask} disabled={addingTask} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed">
+                {addingTask ? 'Adding...' : 'Add Task'}
               </button>
             </div>
           </div>
