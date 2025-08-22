@@ -88,7 +88,7 @@ export default function DepartmentTable() {
 
         {/* Department List */}
         <div>
-          {data.data.map((dept, index) => (
+          {data?.data?.map((dept, index) => (
             <div key={index} className="flex items-center justify-between px-6 py-3 border-b border-gray-100 hover:bg-gray-50">
               <div className="px-6 py-4 border-b border-gray-200">
                 {clickInput && ClickId === dept._id ? (
@@ -118,7 +118,7 @@ export default function DepartmentTable() {
             </div>
           ))}
 
-          {data.data.length === 0 && <div className="px-6 py-6 text-center text-gray-400 text-sm">No departments added yet. Start by typing above and pressing Enter.</div>}
+          {data?.data?.length === 0 && <div className="px-6 py-6 text-center text-gray-400 text-sm">No departments added yet. Start by typing above and pressing Enter.</div>}
         </div>
       </div>
     </div>
