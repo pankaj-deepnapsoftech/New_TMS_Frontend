@@ -139,8 +139,8 @@ export default function TicketModal({ isOpen, onClose }) {
                 >
                   <option value="">Select Department</option>
                   <option value="68a5c292e7b0c7fd04d669f1">Development</option>
-                  <option value="design-dept-id">Design</option>
-                  <option value="support-dept-id">Support</option>
+                  <option value="68a5c292e7b0c7fd04d669f2">Design</option>
+                  <option value="68a5c292e7b0c7fd04d669f3">Support</option>
                 </select>
               </div>
 
