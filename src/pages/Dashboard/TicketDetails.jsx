@@ -22,6 +22,16 @@ export default function TicketDetails() {
     status: 'Not Started'
   });
   const [deletingStatus, setDeletingStatus] = useState(false);
+  const [showEditTaskModal, setShowEditTaskModal] = useState(false);
+  const [editingTask, setEditingTask] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [editTaskData, setEditTaskData] = useState({
+    title: '',
+    description: '',
+    due_date: '',
+    isSchedule: false
+  });
+  const [deletingTask, setDeletingTask] = useState(false);
 
   const [newTask, setNewTask] = useState({
     title: '',
@@ -294,6 +304,123 @@ export default function TicketDetails() {
     }
   };
 
+  // Edit existing task
+  const handleEditTask = async () => {
+    if (!selectedTask) return;
+
+    try {
+      setEditingTask(true);
+      setError('');
+
+      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/task/update/${selectedTask._id}`;
+      
+      const taskData = {
+        title: editTaskData.title,
+        description: editTaskData.description,
+        due_date: new Date(editTaskData.due_date).toISOString(),
+        isSchedule: editTaskData.isSchedule
+      };
+
+      console.log('Updating task with data:', taskData);
+
+      const response = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        },
+        body: JSON.stringify(taskData)
+      });
+
+      const result = await response.json();
+      console.log('Task edit response:', result);
+
+      if (response.ok) {
+        // Update the task in local state
+        setTasks(prevTasks => prevTasks.map(task => 
+          task._id === selectedTask._id 
+            ? { ...task, ...editTaskData }
+            : task
+        ));
+        
+        // Close modal and reset form
+        setShowEditTaskModal(false);
+        setSelectedTask(null);
+        setEditTaskData({
+          title: '',
+          description: '',
+          due_date: '',
+          isSchedule: false
+        });
+        
+        console.log('Task updated successfully');
+      } else {
+        setError(result.message || 'Failed to update task');
+      }
+    } catch (err) {
+      console.error('Error updating task:', err);
+      setError('Network error. Please try again.');
+    } finally {
+      setEditingTask(false);
+    }
+  };
+
+  // Open edit task modal
+  const openEditTaskModal = (task) => {
+    setSelectedTask(task);
+    setEditTaskData({
+      title: task.title || '',
+      description: task.description || '',
+      due_date: task.due_date ? new Date(task.due_date).toISOString().slice(0, 16) : '',
+      isSchedule: task.isSchedule || false
+    });
+    setShowEditTaskModal(true);
+  };
+
+  // Delete task
+  const handleDeleteTask = async (taskId) => {
+    if (!taskId) return;
+
+    // Show confirmation dialog
+    if (!window.confirm('Are you sure you want to delete this task?')) {
+      return;
+    }
+
+    try {
+      setDeletingTask(true);
+      setError('');
+
+      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/task/delete/${taskId}`;
+
+      console.log('Deleting task with ID:', taskId);
+
+      const response = await fetch(apiUrl, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        }
+      });
+
+      const result = await response.json();
+      console.log('Task delete response:', result);
+
+      if (response.ok) {
+        // Remove the task from local state
+        setTasks(prevTasks => prevTasks.filter(task => task._id !== taskId));
+        
+        console.log('Task deleted successfully');
+      } else {
+        setError(result.message || 'Failed to delete task');
+      }
+    } catch (err) {
+      console.error('Error deleting task:', err);
+      setError('Network error. Please try again.');
+    } finally {
+      setDeletingTask(false);
+    }
+  };
+
   // Load ticket details on component mount
   useEffect(() => {
     fetchTicketDetails();
@@ -510,9 +637,34 @@ export default function TicketDetails() {
                      <div key={task._id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
                        <div className="flex justify-between items-start mb-2">
                          <h4 className="font-semibold text-gray-800">{task.title}</h4>
-                         <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(task))} px-3 py-1 rounded-lg text-xs font-medium`}>
-                           {getCurrentStatus(task)}
-                         </span>
+                         <div className="flex items-center gap-2">
+                           <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(task))} px-3 py-1 rounded-lg text-xs font-medium`}>
+                             {getCurrentStatus(task)}
+                           </span>
+                           <button
+                             onClick={() => openEditTaskModal(task)}
+                             className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
+                             title="Edit task"
+                           >
+                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                             </svg>
+                           </button>
+                           <button
+                             onClick={() => handleDeleteTask(task._id)}
+                             disabled={deletingTask}
+                             className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                             title="Delete task"
+                           >
+                             {deletingTask ? (
+                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                             ) : (
+                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                               </svg>
+                             )}
+                           </button>
+                         </div>
                        </div>
                        {task.description && task.description.trim() !== '' ? (
                          <p className="text-gray-600 text-sm mb-3 bg-gray-50 p-2 rounded border-l-2 border-blue-500">
@@ -831,6 +983,113 @@ export default function TicketDetails() {
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
                 >
                   {editingStatus ? 'Updating...' : 'Update Status'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Task Modal */}
+        {showEditTaskModal && selectedTask && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="flex justify-between items-center border-b px-6 py-4">
+                <h2 className="text-lg font-semibold flex items-center gap-2">Edit Task</h2>
+                <button 
+                  onClick={() => {
+                    setShowEditTaskModal(false);
+                    setSelectedTask(null);
+                    setEditTaskData({
+                      title: '',
+                      description: '',
+                      due_date: '',
+                      isSchedule: false
+                    });
+                  }} 
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✖
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 space-y-4">
+                {/* Task Title */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Task Title *</label>
+                  <input
+                    type="text"
+                    value={editTaskData.title}
+                    onChange={(e) => setEditTaskData({...editTaskData, title: e.target.value})}
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="Enter task title..."
+                    required
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Description</label>
+                  <textarea
+                    value={editTaskData.description}
+                    onChange={(e) => setEditTaskData({...editTaskData, description: e.target.value})}
+                    rows="3"
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="Enter task description..."
+                  />
+                </div>
+
+                {/* Due Date */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Due Date *</label>
+                  <input
+                    type="datetime-local"
+                    value={editTaskData.due_date}
+                    onChange={(e) => setEditTaskData({...editTaskData, due_date: e.target.value})}
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                    required
+                  />
+                </div>
+
+                {/* Is Schedule */}
+                <div>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={editTaskData.isSchedule}
+                      onChange={(e) => setEditTaskData({...editTaskData, isSchedule: e.target.checked})}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm font-medium text-gray-600">Is Scheduled</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex justify-end gap-3 border-t px-6 py-4">
+                <button 
+                  onClick={() => {
+                    setShowEditTaskModal(false);
+                    setSelectedTask(null);
+                    setEditTaskData({
+                      title: '',
+                      description: '',
+                      due_date: '',
+                      isSchedule: false
+                    });
+                  }} 
+                  className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                  disabled={editingTask}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleEditTask}
+                  disabled={editingTask}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                >
+                  {editingTask ? 'Updating...' : 'Update Task'}
                 </button>
               </div>
             </div>
