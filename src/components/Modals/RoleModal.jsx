@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { MultiSelect } from 'primereact/multiselect';
+import { useState, useEffect, useRef } from 'react';
 import { DashbaordNavLinks } from '@/constant/dashboardNavigation';
 import { useCreateRoleMutation, useUpdateRoleMutation } from '@/services/Roles.service';
 import { toast } from 'react-toastify';
@@ -7,6 +6,8 @@ import { toast } from 'react-toastify';
 export function RolesModal({ onClose, editData = null }) {
   const [roleName, setRoleName] = useState('');
   const [selectedPages, setSelectedPages] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
   const [updateRole, { isLoading: isUpdating }] = useUpdateRoleMutation();
   
@@ -20,6 +21,42 @@ export function RolesModal({ onClose, editData = null }) {
       setSelectedPages(editData.allowedPage);
     }
   }, [editData]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Handle checkbox selection
+  const handleCheckboxChange = (page) => {
+    const isSelected = selectedPages.some(selected => selected.value === page.value);
+    
+    if (isSelected) {
+      // Remove from selection
+      setSelectedPages(selectedPages.filter(selected => selected.value !== page.value));
+    } else {
+      // Add to selection
+      setSelectedPages([...selectedPages, page]);
+    }
+  };
+
+  // Handle select all
+  const handleSelectAll = () => {
+    if (selectedPages.length === DashbaordNavLinks.length) {
+      setSelectedPages([]);
+    } else {
+      setSelectedPages(DashbaordNavLinks.map(item => ({ label: item.label, value: item.value })));
+    }
+  };
 
   console.log(selectedPages);
   
@@ -171,18 +208,94 @@ export function RolesModal({ onClose, editData = null }) {
                   <p className="text-xs text-gray-500">Select the modules this role can access</p>
                 </div>
               </div>
-              <MultiSelect 
-                value={selectedPages} 
-                onChange={(e) => setSelectedPages(e.value)} 
-                options={DashbaordNavLinks.map((item)=>({label:item.label,value:item.value}))} 
-                optionLabel="label" 
-                optionValue="value"
-                placeholder="Choose permissions..." 
-                display="chip" 
-                className="w-full" 
-                maxSelectedLabels={0}
-                showSelectAll={false}
-              />
+              
+              {/* Custom Multi-Select Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-left flex items-center justify-between"
+                >
+                  <div className="flex flex-wrap gap-1 min-h-[20px]">
+                    {selectedPages.length === 0 ? (
+                      <span className="text-gray-500">Choose permissions...</span>
+                    ) : (
+                      selectedPages.map((page, index) => (
+                        <span
+                          key={page.value}
+                          className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
+                        >
+                          {page.label}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCheckboxChange(page);
+                            }}
+                            className="hover:bg-blue-200 rounded-full p-0.5"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </span>
+                      ))
+                    )}
+                  </div>
+                  <svg
+                    className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                      isDropdownOpen ? 'rotate-180' : ''
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                    {/* Select All Option */}
+                    <div className="p-3 border-b border-gray-100">
+                      <label className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={selectedPages.length === DashbaordNavLinks.length}
+                          onChange={handleSelectAll}
+                          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                        />
+                        <span className="font-semibold text-gray-700">Select All</span>
+                      </label>
+                    </div>
+
+                    {/* Individual Options */}
+                    <div className="p-2">
+                      {DashbaordNavLinks.map((page) => {
+                        const isSelected = selectedPages.some(selected => selected.value === page.value);
+                        return (
+                          <label
+                            key={page.value}
+                            className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => handleCheckboxChange(page)}
+                              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                            />
+                            <div className="flex items-center space-x-2">
+                              <page.icon className="w-4 h-4 text-gray-500" />
+                              <span className="text-gray-700">{page.label}</span>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
               
               {/* Selected Permissions Display */}
               {selectedPages.length > 0 && (
@@ -195,7 +308,7 @@ export function RolesModal({ onClose, editData = null }) {
                   </div>
                   <div className="space-y-2">
                     {selectedPages.map((page, index) => (
-                      <div key={page._id || index} className="flex items-center justify-between bg-blue-50 rounded-lg px-3 py-2">
+                      <div key={page.value || index} className="flex items-center justify-between bg-blue-50 rounded-lg px-3 py-2">
                         <div className="flex items-center space-x-2">
                           <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                           <span className="text-sm font-medium text-gray-800">{page.label}</span>
@@ -257,9 +370,9 @@ export function RolesModal({ onClose, editData = null }) {
                 onClick={onClose} 
                 className="px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 font-medium flex items-center space-x-2"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {/* <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                </svg> */}
                 <span>Cancel</span>
             </button>
               <button 
@@ -286,9 +399,9 @@ export function RolesModal({ onClose, editData = null }) {
                       </>
                     ) : (
                       <>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {/* <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
+                        </svg> */}
                         <span>Create Role</span>
                       </>
                     )}

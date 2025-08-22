@@ -122,7 +122,7 @@ export default function RolesPage() {
               onClick={handleAddRole} 
               className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2"
             >
-              <span>➕</span>
+              {/* <span>➕</span> */}
               <span>Add New Role</span>
         </button>
           </div>
