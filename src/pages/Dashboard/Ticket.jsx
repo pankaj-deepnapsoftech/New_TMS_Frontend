@@ -38,8 +38,9 @@ export default function TicketsPage() {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-        }
+          // Remove Authorization header - cookies will be sent automatically
+        },
+        credentials: 'include' // This will send cookies automatically
       });
 
       if (response.ok) {
@@ -73,8 +74,9 @@ export default function TicketsPage() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-        }
+          // Remove Authorization header - cookies will be sent automatically
+        },
+        credentials: 'include' // This will send cookies automatically
       });
 
       if (response.ok) {

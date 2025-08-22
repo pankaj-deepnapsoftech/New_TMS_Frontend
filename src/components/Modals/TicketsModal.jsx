@@ -36,9 +36,9 @@ export default function TicketModal({ isOpen, onClose }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Add authorization header if needed
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          // Remove Authorization header - cookies will be sent automatically
         },
+        credentials: 'include', // This will send cookies automatically
         body: JSON.stringify(formData)
       });
 

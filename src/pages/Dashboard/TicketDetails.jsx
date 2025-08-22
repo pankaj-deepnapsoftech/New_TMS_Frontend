@@ -53,8 +53,9 @@ export default function TicketDetails() {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-        }
+          // Remove Authorization header - cookies will be sent automatically
+        },
+        credentials: 'include' // This will send cookies automatically
       });
 
       if (response.ok) {
@@ -105,8 +106,9 @@ export default function TicketDetails() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          // Remove Authorization header - cookies will be sent automatically
         },
+        credentials: 'include', // This will send cookies automatically
         body: JSON.stringify(taskData)
       });
 
@@ -163,8 +165,9 @@ export default function TicketDetails() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          // Remove Authorization header - cookies will be sent automatically
         },
+        credentials: 'include', // This will send cookies automatically
         body: JSON.stringify(statusData)
       });
 
@@ -214,8 +217,9 @@ export default function TicketDetails() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          // Remove Authorization header - cookies will be sent automatically
         },
+        credentials: 'include', // This will send cookies automatically
         body: JSON.stringify(statusData)
       });
 
@@ -278,8 +282,9 @@ export default function TicketDetails() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-        }
+          // Remove Authorization header - cookies will be sent automatically
+        },
+        credentials: 'include' // This will send cookies automatically
       });
 
       const result = await response.json();
@@ -327,8 +332,9 @@ export default function TicketDetails() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          // Remove Authorization header - cookies will be sent automatically
         },
+        credentials: 'include', // This will send cookies automatically
         body: JSON.stringify(taskData)
       });
 
@@ -398,8 +404,9 @@ export default function TicketDetails() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-        }
+          // Remove Authorization header - cookies will be sent automatically
+        },
+        credentials: 'include' // This will send cookies automatically
       });
 
       const result = await response.json();
