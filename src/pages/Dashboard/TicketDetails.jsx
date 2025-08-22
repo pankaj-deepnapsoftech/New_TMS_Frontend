@@ -12,6 +12,16 @@ export default function TicketDetails() {
   const [error, setError] = useState('');
   const [showAddTask, setShowAddTask] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [newStatus, setNewStatus] = useState('Not Started');
+  const [showEditStatusModal, setShowEditStatusModal] = useState(false);
+  const [editingStatus, setEditingStatus] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [editStatusData, setEditStatusData] = useState({
+    status: 'Not Started'
+  });
+  const [deletingStatus, setDeletingStatus] = useState(false);
 
   const [newTask, setNewTask] = useState({
     title: '',
@@ -121,6 +131,166 @@ export default function TicketDetails() {
       setError('Network error. Please try again.');
     } finally {
       setAddingTask(false);
+    }
+  };
+
+  // Update ticket status
+  const handleUpdateStatus = async () => {
+    try {
+      setUpdatingStatus(true);
+      setError('');
+
+      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/add`;
+      
+      const statusData = {
+        status: newStatus,
+        ticket_id: ticket._id
+      };
+
+      console.log('Updating status with data:', statusData);
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        },
+        body: JSON.stringify(statusData)
+      });
+
+      const result = await response.json();
+      console.log('Status update response:', result);
+
+      if (response.ok) {
+        // Update the ticket's status in local state
+        setTicket(prevTicket => ({
+          ...prevTicket,
+          status: [...(prevTicket.status || []), result.data]
+        }));
+        
+        // Close modal and reset form
+        setShowStatusModal(false);
+        setNewStatus('Not Started');
+        
+        console.log('Status updated successfully:', result.data);
+      } else {
+        setError(result.message || 'Failed to update status');
+      }
+    } catch (err) {
+      console.error('Error updating status:', err);
+      setError('Network error. Please try again.');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  // Edit existing status
+  const handleEditStatus = async () => {
+    if (!selectedStatus) return;
+
+    try {
+      setEditingStatus(true);
+      setError('');
+
+      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/update/${selectedStatus._id}`;
+      
+      const statusData = {
+        status: editStatusData.status
+      };
+
+      console.log('Updating status with data:', statusData);
+
+      const response = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        },
+        body: JSON.stringify(statusData)
+      });
+
+      const result = await response.json();
+      console.log('Status edit response:', result);
+
+      if (response.ok) {
+        // Update the status in local state
+        setTicket(prevTicket => ({
+          ...prevTicket,
+          status: prevTicket.status.map(status => 
+            status._id === selectedStatus._id 
+              ? { ...status, status: editStatusData.status }
+              : status
+          )
+        }));
+        
+        // Close modal and reset form
+        setShowEditStatusModal(false);
+        setSelectedStatus(null);
+        setEditStatusData({ status: 'Not Started' });
+        
+        console.log('Status updated successfully');
+      } else {
+        setError(result.message || 'Failed to update status');
+      }
+    } catch (err) {
+      console.error('Error updating status:', err);
+      setError('Network error. Please try again.');
+    } finally {
+      setEditingStatus(false);
+    }
+  };
+
+  // Open edit status modal
+  const openEditStatusModal = (status) => {
+    setSelectedStatus(status);
+    setEditStatusData({ status: status.status });
+    setShowEditStatusModal(true);
+  };
+
+  // Delete status
+  const handleDeleteStatus = async (statusId) => {
+    if (!statusId) return;
+
+    // Show confirmation dialog
+    if (!window.confirm('Are you sure you want to delete this status?')) {
+      return;
+    }
+
+    try {
+      setDeletingStatus(true);
+      setError('');
+
+      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/delete/${statusId}`;
+
+      console.log('Deleting status with ID:', statusId);
+
+      const response = await fetch(apiUrl, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        }
+      });
+
+      const result = await response.json();
+      console.log('Status delete response:', result);
+
+      if (response.ok) {
+        // Remove the status from local state
+        setTicket(prevTicket => ({
+          ...prevTicket,
+          status: prevTicket.status.filter(status => status._id !== statusId)
+        }));
+        
+        console.log('Status deleted successfully');
+      } else {
+        setError(result.message || 'Failed to delete status');
+      }
+    } catch (err) {
+      console.error('Error deleting status:', err);
+      setError('Network error. Please try again.');
+    } finally {
+      setDeletingStatus(false);
     }
   };
 
@@ -255,9 +425,66 @@ export default function TicketDetails() {
                 <p className="mt-1 text-red-500 font-semibold">{formatDate(ticket.due_date)}</p>
               </div>
             </div>
-          </div>
+                     </div>
 
-          {/* Tasks Section */}
+           {/* Status History Section */}
+           <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+             <div className="flex justify-between items-center mb-6">
+               <h3 className="text-xl font-bold text-gray-800">Status History</h3>
+             </div>
+
+             {/* Status List */}
+             <div className="space-y-3">
+               {(!ticket.status || ticket.status.length === 0) ? (
+                 <div className="text-center py-4">
+                   <p className="text-gray-500">No status history found.</p>
+                 </div>
+               ) : (
+                 ticket.status.map((status) => (
+                   <div key={status._id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                     <div className="flex justify-between items-start mb-2">
+                       <div className="flex items-center gap-3">
+                         <span className={`bg-gradient-to-r ${getStatusColor(status.status)} px-3 py-1 rounded-lg text-xs font-medium`}>
+                           {status.status}
+                         </span>
+                         <span className="text-xs text-gray-500">
+                           Update #{status.updateCount || 0}
+                         </span>
+                       </div>
+                       <button
+                         onClick={() => openEditStatusModal(status)}
+                         className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
+                         title="Edit status"
+                       >
+                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                         </svg>
+                       </button>
+                       <button
+                         onClick={() => handleDeleteStatus(status._id)}
+                         disabled={deletingStatus}
+                         className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                         title="Delete status"
+                       >
+                         {deletingStatus ? (
+                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                         ) : (
+                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                           </svg>
+                         )}
+                       </button>
+                     </div>
+                     <div className="text-xs text-gray-500">
+                       Status ID: {status._id}
+                     </div>
+                   </div>
+                 ))
+               )}
+             </div>
+           </div>
+
+           {/* Tasks Section */}
           <div className="bg-white rounded-2xl shadow-md p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-gray-800">Tasks ({tasks.length})</h3>
@@ -312,10 +539,13 @@ export default function TicketDetails() {
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl shadow-md p-6">
             <h3 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
-            <div className="space-y-3">
-              <button className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                Update Status
-              </button>
+                         <div className="space-y-3">
+               <button 
+                 onClick={() => setShowStatusModal(true)}
+                 className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+               >
+                 Update Status
+               </button>
               <button className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
                 Mark Complete
               </button>
@@ -435,7 +665,177 @@ export default function TicketDetails() {
              </div>
            </div>
          </div>
-       )}
-     </div>
-   );
- }
+               )}
+
+        {/* Status Update Modal */}
+        {showStatusModal && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="flex justify-between items-center border-b px-6 py-4">
+                <h2 className="text-lg font-semibold flex items-center gap-2">Update Ticket Status</h2>
+                <button 
+                  onClick={() => {
+                    setShowStatusModal(false);
+                    setNewStatus('Not Started');
+                  }} 
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✖
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 space-y-4">
+                {/* Current Status */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Current Status</label>
+                  <p className="mt-1 text-gray-800 font-medium bg-gray-50 p-2 rounded">
+                    {getCurrentStatus(ticket)}
+                  </p>
+                </div>
+
+                {/* New Status */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600">New Status *</label>
+                  <select
+                    value={newStatus}
+                    onChange={(e) => setNewStatus(e.target.value)}
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                    required
+                  >
+                    <option value="Not Started">Not Started</option>
+                    <option value="On Hold">On Hold</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Re Open">Re Open</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+                </div>
+
+                {/* Status Description */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Status Description</label>
+                  <textarea
+                    rows="3"
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="Add any notes about this status change..."
+                  />
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex justify-end gap-3 border-t px-6 py-4">
+                <button 
+                  onClick={() => {
+                    setShowStatusModal(false);
+                    setNewStatus('Not Started');
+                  }} 
+                  className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                  disabled={updatingStatus}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleUpdateStatus}
+                  disabled={updatingStatus}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                >
+                  {updatingStatus ? 'Updating...' : 'Update Status'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Status Modal */}
+        {showEditStatusModal && selectedStatus && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="flex justify-between items-center border-b px-6 py-4">
+                <h2 className="text-lg font-semibold flex items-center gap-2">Edit Status</h2>
+                <button 
+                  onClick={() => {
+                    setShowEditStatusModal(false);
+                    setSelectedStatus(null);
+                    setEditStatusData({ status: 'Not Started' });
+                  }} 
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✖
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 space-y-4">
+                {/* Current Status */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Current Status</label>
+                  <p className="mt-1 text-gray-800 font-medium bg-gray-50 p-2 rounded">
+                    {selectedStatus.status}
+                  </p>
+                </div>
+
+                {/* Status ID */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Status ID</label>
+                  <p className="mt-1 text-gray-800 font-mono text-sm bg-gray-50 p-2 rounded">
+                    {selectedStatus._id}
+                  </p>
+                </div>
+
+                {/* New Status */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600">New Status *</label>
+                  <select
+                    value={editStatusData.status}
+                    onChange={(e) => setEditStatusData({...editStatusData, status: e.target.value})}
+                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                    required
+                  >
+                    <option value="Not Started">Not Started</option>
+                    <option value="On Hold">On Hold</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Re Open">Re Open</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+                </div>
+
+                {/* Update Count */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Update Count</label>
+                  <p className="mt-1 text-gray-800 font-medium bg-gray-50 p-2 rounded">
+                    {selectedStatus.updateCount || 0}
+                  </p>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex justify-end gap-3 border-t px-6 py-4">
+                <button 
+                  onClick={() => {
+                    setShowEditStatusModal(false);
+                    setSelectedStatus(null);
+                    setEditStatusData({ status: 'Not Started' });
+                  }} 
+                  className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                  disabled={editingStatus}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleEditStatus}
+                  disabled={editingStatus}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                >
+                  {editingStatus ? 'Updating...' : 'Update Status'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
