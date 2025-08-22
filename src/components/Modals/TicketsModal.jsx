@@ -114,8 +114,8 @@ export default function TicketModal({ isOpen, onClose }) {
                 <select name="department" value={formData.department} onChange={handleInputChange} className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required>
                   <option value="">Select Department</option>
                   <option value="68a5c292e7b0c7fd04d669f1">Development</option>
-                  <option value="design-dept-id">Design</option>
-                  <option value="support-dept-id">Support</option>
+                  <option value="68a5c292e7b0c7fd04d669f2">Design</option>
+                  <option value="68a5c292e7b0c7fd04d669f3">Support</option>
                 </select>
               </div>
 
