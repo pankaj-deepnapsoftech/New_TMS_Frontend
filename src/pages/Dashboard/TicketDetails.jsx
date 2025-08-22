@@ -701,7 +701,7 @@ export default function TicketDetails() {
                   <p className="text-gray-500">No tasks found for this ticket.</p>
                 </div>
               ) : (
-                                 tasks.map((task) => {
+                                 tasks.map((task, index) => {
                    console.log('Rendering task:', task);
                    console.log('Task description:', task.description);
                    return (
