@@ -31,9 +31,18 @@ const AuthService = Api.injectEndpoints({
             }),
             invalidatesTags:["User"]
         }),
+
+        // --------------- user update api ------------------
+        UpdateUser:build.mutation({
+            query:({id,data}) =>( {
+                url:`/user/update-user/${id}`,
+                method:"PUT",
+                body:data
+            })
+        }),
     })
 })
 
 
 // ---------------------- all mutations here --------------------
-export const {useLoginMutation, useRegisterMutation, useLogoutMutation} = AuthService;
+export const {useLoginMutation, useRegisterMutation, useLogoutMutation,useUpdateUserMutation} = AuthService;

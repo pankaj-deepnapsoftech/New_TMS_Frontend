@@ -5,6 +5,7 @@ import { useGetUserQuery } from '../../services/Users.service';
 export default function UsersPage() {
   const [open, setOpen] = useState(false);
   const { data, isLoading } = useGetUserQuery();
+  const [updateId,setUpdateId] = useState("");
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -43,7 +44,7 @@ export default function UsersPage() {
                   <td className="px-4 py-2">{user?.role?.role || '-'}</td>
                   <td className="px-4 py-2">{user?.department?.name || '-'}</td>
                   <td className="px-4 py-2">
-                    <button onClick={() => setOpen(true)} className="text-blue-400 hover:text-blue-600 hover:underline">
+                    <button onClick={() => {setOpen(true);setUpdateId(user._id)}} className="text-blue-400 hover:text-blue-600 hover:underline">
                       Assign
                     </button>
                   </td>
@@ -61,7 +62,7 @@ export default function UsersPage() {
       </div>
 
       {/* Modal */}
-      {open && <UserModal onClose={() => setOpen(false)} />}
+      {open && <UserModal onClose={() => setOpen(false)} id={updateId} />}
     </div>
   );
 }
