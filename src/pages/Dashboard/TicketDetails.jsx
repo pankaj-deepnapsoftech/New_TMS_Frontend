@@ -4,9 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 export default function TicketDetails() {
   const navigate = useNavigate();
-  const { ticketId } = useParams();
+  const { ticketId: _ticketId } = useParams();
   
-  // Mock ticket data - in real app this would come from API
+  // Mock ticket data - in real app this would come from API using _ticketId
   const [ticket] = useState({
     id: 'TKT-0001',
     title: 'Build Company Website',

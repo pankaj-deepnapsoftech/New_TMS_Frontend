@@ -220,7 +220,7 @@ export function RolesModal({ onClose, editData = null }) {
                     {selectedPages.length === 0 ? (
                       <span className="text-gray-500">Choose permissions...</span>
                     ) : (
-                      selectedPages.map((page, index) => (
+                      selectedPages.map((page) => (
                         <span
                           key={page.value}
                           className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
