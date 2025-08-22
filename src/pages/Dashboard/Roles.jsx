@@ -193,7 +193,7 @@ export default function RolesPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
-                          <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-slate-500 flex items-center justify-center text-white font-semibold">{role.role.charAt(0).toUpperCase()}</div>
+                          <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-sky-500 flex items-center justify-center text-white font-semibold">{role.role.charAt(0).toUpperCase()}</div>
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-semibold text-gray-900">{role.role}</div>
