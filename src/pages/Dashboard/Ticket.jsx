@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Search, Plus, Users, Clock, CheckCircle, AlertCircle, ListChecks } from 'lucide-react';
 import TicketModal from '@components/Modals/TicketsModal';
+import { useNavigate } from 'react-router-dom';
 
 export default function TicketsPage() {
+  const navigate = useNavigate();
   const [tickets] = useState([
     {
       id: 'TKT-0001',
@@ -17,6 +19,10 @@ export default function TicketsPage() {
     },
   ]);
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleTicketClick = (ticket) => {
+    navigate(`/tickets/${ticket.id}`);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6">
@@ -115,7 +121,8 @@ export default function TicketsPage() {
         {tickets.map((ticket) => (
           <div
             key={ticket.id}
-            className="bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-xl transform hover:-translate-y-1 transition-all p-6"
+            className="bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-xl transform hover:-translate-y-1 transition-all p-6 cursor-pointer"
+            onClick={() => handleTicketClick(ticket)}
           >
             {/* Ticket Header */}
             <div className="flex flex-wrap gap-2 text-xs mb-4">
@@ -164,8 +171,6 @@ export default function TicketsPage() {
 
       {/* Modal */}
      <TicketModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
-
-
 
     </div>
   );

@@ -112,8 +112,11 @@ export default function RolesPage() {
               <div className="text-2xl font-bold text-blue-600">{roles.length}</div>
               <div className="text-sm text-gray-500">Total Roles</div>
             </div>
-            <button onClick={handleAddRole} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2">
-              <span>➕</span>
+            <button 
+              onClick={handleAddRole} 
+              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2"
+            >
+              {/* <span>➕</span> */}
               <span>Add New Role</span>
             </button>
           </div>
