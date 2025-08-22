@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function TicketModal({ isOpen, onClose }) {
+export default function UpdateTicketModal({ isOpen, onClose, ticket, onUpdate }) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -12,6 +12,19 @@ export default function TicketModal({ isOpen, onClose }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Update form data when ticket prop changes
+  useEffect(() => {
+    if (ticket) {
+      setFormData({
+        title: ticket.title || '',
+        description: ticket.description || '',
+        department: ticket.department || '',
+        priority: ticket.priority || 'Medium',
+        due_date: ticket.due_date ? new Date(ticket.due_date).toISOString().slice(0, 16) : ''
+      });
+    }
+  }, [ticket]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,40 +39,30 @@ export default function TicketModal({ isOpen, onClose }) {
     setLoading(true);
     setError('');
 
-    // Log the request details for debugging
-    const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/create`;
-    console.log('Making API request to:', apiUrl);
-    console.log('Request payload:', formData);
-
     try {
+      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/update/${ticket._id}`;
+      console.log('Making API request to:', apiUrl);
+      console.log('Request payload:', formData);
+
       const response = await fetch(apiUrl, {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          // Add authorization header if needed
           'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
         },
         body: JSON.stringify(formData)
       });
 
       console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
 
       const result = await response.json();
       console.log('Response data:', result);
 
       if (response.ok) {
-        // Success - close modal and reset form
-        setFormData({
-          title: '',
-          description: '',
-          department: '',
-          priority: 'Medium',
-          due_date: ''
-        });
+        // Success - close modal and call onUpdate callback
+        onUpdate(result.data);
         onClose();
-        // You can add a success notification here
-        console.log('Ticket created successfully:', result.data);
+        console.log('Ticket updated successfully:', result.data);
       } else {
         setError(result.message || `Server error: ${response.status}`);
       }
@@ -78,6 +81,8 @@ export default function TicketModal({ isOpen, onClose }) {
     }
   };
 
+  if (!ticket) return null;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -86,7 +91,7 @@ export default function TicketModal({ isOpen, onClose }) {
           <motion.div className="bg-white rounded-xl shadow-lg w-[600px] max-h-[90vh] overflow-y-auto" initial={{ y: '-100px', opacity: 0, scale: 0.9 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: '-100px', opacity: 0, scale: 0.9 }} transition={{ duration: 0.3, ease: 'easeOut' }}>
             {/* Header */}
             <div className="flex justify-between items-center border-b px-6 py-4">
-              <h2 className="text-lg font-semibold flex items-center gap-2"> Create New Ticket</h2>
+              <h2 className="text-lg font-semibold flex items-center gap-2">Update Ticket - {ticket.ticket_id}</h2>
               <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                 ✖
               </button>
@@ -171,12 +176,6 @@ export default function TicketModal({ isOpen, onClose }) {
                   className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" 
                 />
               </div>
-
-              {/* Team Assignment */}
-              <div>
-                <label className="text-sm font-medium">Team Assignment (0)</label>
-                <input type="text" placeholder="Search employees..." className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
             </form>
 
             {/* Footer */}
@@ -193,7 +192,7 @@ export default function TicketModal({ isOpen, onClose }) {
                 disabled={loading}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
               >
-                {loading ? 'Creating...' : 'Create Ticket'}
+                {loading ? 'Updating...' : 'Update Ticket'}
               </button>
             </div>
           </motion.div>
