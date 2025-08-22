@@ -798,7 +798,7 @@ export default function TicketDetails() {
                  onClick={() => setShowStatusModal(true)}
                  className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                >
-                 Update Ticket Status
+                 Change Ticket Status
                </button>
               {/* <button className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
                 Mark Complete
