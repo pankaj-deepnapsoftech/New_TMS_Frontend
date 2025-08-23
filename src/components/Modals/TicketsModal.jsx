@@ -85,7 +85,7 @@ export default function TicketModal({ isOpen, onClose }) {
           {/* Modal Content */}
           <motion.div className="bg-white rounded-xl shadow-lg w-[600px] max-h-[90vh] overflow-y-auto" initial={{ y: '-100px', opacity: 0, scale: 0.9 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: '-100px', opacity: 0, scale: 0.9 }} transition={{ duration: 0.3, ease: 'easeOut' }}>
             {/* Header */}
-            <div className="flex justify-between items-center border-b px-6 py-4">
+            <div className="flex justify-between items-center border-b border-gray-300  px-6 py-4">
               <h2 className="text-lg font-semibold flex items-center gap-2"> Create New Ticket</h2>
               <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
                 ✖
@@ -144,8 +144,8 @@ export default function TicketModal({ isOpen, onClose }) {
             </form>
 
             {/* Footer */}
-            <div className="flex justify-end gap-3 border-t px-6 py-4">
-              <button onClick={onClose} className="px-4 py-2 border rounded-lg hover:bg-gray-100" disabled={loading}>
+            <div className="flex justify-end gap-3 border-t border-gray-300  px-6 py-4">
+              <button onClick={onClose} className="px-4 py-2 border border-gray-400 rounded-lg hover:bg-gray-100" disabled={loading}>
                 Cancel
               </button>
               <button onClick={handleSubmit} disabled={loading} className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">

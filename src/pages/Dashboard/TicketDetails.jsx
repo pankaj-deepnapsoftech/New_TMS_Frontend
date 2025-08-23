@@ -607,7 +607,7 @@ export default function TicketDetails() {
         <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">Ticket Details</h1>
       </div>
 
-      {error && <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">{error}</div>}
+      {error && <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">{error}</div>}       
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Ticket Information */}
@@ -828,15 +828,8 @@ export default function TicketDetails() {
               {/* Assign To */}
               <div>
                 <label className="text-sm font-medium text-gray-600">Assign To</label>
-                <select
-                  value={newTask.assign}
-                  onChange={(e) => setNewTask({...newTask, assign: e.target.value})}
-                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                  disabled={loadingUsers}
-                >
-                  <option value="">
-                    {loadingUsers ? 'Loading users...' : 'Select a user...'}
-                  </option>
+                <select value={newTask.assign} onChange={(e) => setNewTask({ ...newTask, assign: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" disabled={loadingUsers}>
+                  <option value="">{loadingUsers ? 'Loading users...' : 'Select a user...'}</option>
                   {users.map((user) => (
                     <option key={user._id} value={user._id}>
                       {user.full_name} ({user.username})
@@ -897,7 +890,7 @@ export default function TicketDetails() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex justify-between items-center border-b px-6 py-4">
+            <div className="flex justify-between items-center border-b border-gray-300 px-6 py-4">
               <h2 className="text-lg font-semibold flex items-center gap-2">Update Ticket Status</h2>
               <button
                 onClick={() => {
@@ -939,20 +932,20 @@ export default function TicketDetails() {
             </div>
 
             {/* Footer */}
-            <div className="flex justify-end gap-3 border-t px-6 py-4">
+            <div className="flex justify-end gap-3 border-t border-gray-300 px-6 py-4">
               <button
                 onClick={() => {
                   setShowStatusModal(false);
                   setNewStatus('Not Started');
                 }}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                className="px-4 py-2 border border-gray-400 rounded-lg hover:bg-gray-100"
                 disabled={updatingStatus}
               >
                 Cancel
               </button>
-              <button onClick={handleUpdateStatus} disabled={updatingStatus} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
+              <button onClick={handleUpdateStatus} disabled={updatingStatus} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
                 {updatingStatus ? 'Updating...' : 'Update Status'}
-              </button>
+              </button> 
             </div>
           </div>
         </div>
