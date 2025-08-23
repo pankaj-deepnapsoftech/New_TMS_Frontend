@@ -40,6 +40,7 @@ export default function TicketDetails() {
     due_date: '',
     isSchedule: false,
     assign: '',
+    comment: '',
   });
   const [deletingTask, setDeletingTask] = useState(false);
 
@@ -49,6 +50,7 @@ export default function TicketDetails() {
     due_date: '',
     isSchedule: false,
     assign: '',
+    comment: '',
   });
 
   // State for users list
@@ -169,7 +171,6 @@ export default function TicketDetails() {
           description: newTask.description,
         };
         setTasks((prevTasks) => [...prevTasks, newTaskData]);
-
         // Reset form and close modal
         setNewTask({
           title: '',
@@ -177,6 +178,7 @@ export default function TicketDetails() {
           due_date: '',
           isSchedule: false,
           assign: '',
+          comment: '',
         });
         setShowAddTask(false);
 
@@ -384,7 +386,36 @@ export default function TicketDetails() {
       if (response.ok) {
         // Update the task in local state
         setTasks((prevTasks) => prevTasks.map((task) => (typeof task._id === 'string' && typeof selectedTask._id === 'string' && task._id === selectedTask._id ? { ...task, ...editTaskData } : task)));
+        
+        // Create comment if provided
+        if (editTaskData.comment && editTaskData.comment.trim()) {
+          try {
+            const commentApiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/comment/add`;
+            const commentData = {
+              text: editTaskData.comment,
+              task_id: selectedTask._id,
+              ticket_id: ticket._id,
+            };
 
+            const commentResponse = await fetch(commentApiUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              credentials: 'include',
+              body: JSON.stringify(commentData),
+            });
+
+            if (commentResponse.ok) {
+              console.log('Comment created successfully');
+            } else {
+              console.error('Failed to create comment');
+            }
+          } catch (commentErr) {
+            console.error('Error creating comment:', commentErr);
+          }
+        }
+        
         // Close modal and reset form
         setShowEditTaskModal(false);
         setSelectedTask(null);
@@ -394,6 +425,7 @@ export default function TicketDetails() {
           due_date: '',
           isSchedule: false,
           assign: '',
+          comment: '',
         });
 
         console.log('Task updated successfully');
@@ -417,6 +449,7 @@ export default function TicketDetails() {
       due_date: task.due_date ? new Date(task.due_date).toISOString().slice(0, 16) : '',
       isSchedule: task.isSchedule || false,
       assign: task.assign || '',
+      comment: '', // Comments are typically added separately, not edited
     });
     setShowEditTaskModal(true);
   };
@@ -842,6 +875,7 @@ export default function TicketDetails() {
                     due_date: '',
                     isSchedule: false,
                     assign: '',
+                    comment: '',
                   });
                 }}
                 className="text-gray-500 hover:text-gray-700"
@@ -875,6 +909,12 @@ export default function TicketDetails() {
               <div>
                 <label className="text-sm font-medium text-gray-600">Description</label>
                 <textarea value={newTask.description} onChange={(e) => setNewTask({ ...newTask, description: e.target.value })} rows="3" className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter task description..." />
+              </div>
+
+              {/* Comment */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Comment</label>
+                <textarea value={newTask.comment} onChange={(e) => setNewTask({ ...newTask, comment: e.target.value })} rows="3" className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Add a comment to this task..." />
               </div>
 
               {/* Due Date */}
@@ -1065,7 +1105,7 @@ export default function TicketDetails() {
             {/* Header */}
             <div className="flex justify-between items-center border-b px-6 py-4">
               <h2 className="text-lg font-semibold flex items-center gap-2">Edit Task</h2>
-              <button
+              <button 
                 onClick={() => {
                   setShowEditTaskModal(false);
                   setSelectedTask(null);
@@ -1075,8 +1115,9 @@ export default function TicketDetails() {
                     due_date: '',
                     isSchedule: false,
                     assign: '',
+                    comment: '',
                   });
-                }}
+                }} 
                 className="text-gray-500 hover:text-gray-700"
               >
                 ✖
@@ -1129,11 +1170,23 @@ export default function TicketDetails() {
                   ))}
                 </select>
               </div>
+
+              {/* Comment */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Add Comment</label>
+                <textarea 
+                  value={editTaskData.comment} 
+                  onChange={(e) => setEditTaskData({ ...editTaskData, comment: e.target.value })} 
+                  rows="3" 
+                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" 
+                  placeholder="Add a comment to this task..." 
+                />
+              </div>
             </div>
 
             {/* Footer */}
             <div className="flex justify-end gap-3 border-t px-6 py-4">
-              <button
+              <button 
                 onClick={() => {
                   setShowEditTaskModal(false);
                   setSelectedTask(null);
@@ -1143,8 +1196,9 @@ export default function TicketDetails() {
                     due_date: '',
                     isSchedule: false,
                     assign: '',
+                    comment: '',
                   });
-                }}
+                }} 
                 className="px-4 py-2 border rounded-lg hover:bg-gray-100"
                 disabled={editingTask}
               >
