@@ -40,9 +40,18 @@ const AuthService = Api.injectEndpoints({
                 body:data
             })
         }),
+
+        // --------------- get current user api ------------------
+        getCurrentUser:build.query({
+            query:() =>( {
+                url:"/user/loged-in-user",
+                method:"GET"
+            }),
+            providesTags:["User"]
+        }),
     })
 })
 
 
 // ---------------------- all mutations here --------------------
-export const {useLoginMutation, useRegisterMutation, useLogoutMutation,useUpdateUserMutation} = AuthService;
+export const {useLoginMutation, useRegisterMutation, useLogoutMutation,useUpdateUserMutation, useGetCurrentUserQuery} = AuthService;
