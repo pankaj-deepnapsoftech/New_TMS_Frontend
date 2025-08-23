@@ -148,7 +148,7 @@ export default function TicketModal({ isOpen, onClose }) {
               <button onClick={onClose} className="px-4 py-2 border rounded-lg hover:bg-gray-100" disabled={loading}>
                 Cancel
               </button>
-              <button onClick={handleSubmit} disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
+              <button onClick={handleSubmit} disabled={loading} className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
                 {loading ? 'Creating...' : 'Create Ticket'}
               </button>
             </div>
