@@ -527,6 +527,7 @@ export default function TicketDetails() {
   useEffect(() => {
     fetchTicketDetails();
     fetchUsers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [_ticketId]);
 
   const getStatusColor = (status) => {
@@ -568,7 +569,7 @@ export default function TicketDetails() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading ticket details...</p>
-        </div>
+        </div> 
       </div>
     );
   }

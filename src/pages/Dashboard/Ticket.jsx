@@ -302,11 +302,11 @@ export default function TicketsPage() {
       {/* Enhanced Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
         {[
-          { title: isAdmin ? 'Total Tickets' : 'My Tickets', count: stats.total, icon: <ListChecks className="text-yellow-100" size={25} />, color: 'from-yellow-400 to-yellow-600', bgColor: 'bg-gradient-to-br from-yellow-50 to-orange-50' },
-          { title: 'Open', count: stats.open, icon: <AlertCircle className="text-blue-100" size={25} />, color: 'from-blue-400 to-blue-600', bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-50' },
-          { title: 'In Progress', count: stats.inProgress, icon: <Clock className="text-indigo-100" size={25} />, color: 'from-indigo-400 to-indigo-600', bgColor: 'bg-gradient-to-br from-indigo-50 to-purple-50' },
-          { title: 'Resolved', count: stats.resolved, icon: <CheckCircle className="text-green-100" size={25} />, color: 'from-green-400 to-green-600', bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50' },
-          { title: 'Overdue', count: stats.overdue, icon: <Clock className="text-red-100" size={25} />, color: 'from-red-400 to-red-600', bgColor: 'bg-gradient-to-br from-red-50 to-pink-50' },
+          { title: isAdmin ? 'Total Tickets' : 'My Tickets', count: stats.total, icon: <ListChecks className="text-yellow-100" size={18} />, color: 'from-yellow-400 to-yellow-600', bgColor: 'bg-gradient-to-br from-yellow-50 to-orange-50' },
+          { title: 'Open', count: stats.open, icon: <AlertCircle className="text-blue-100" size={18} />, color: 'from-blue-400 to-blue-600', bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-50' },
+          { title: 'In Progress', count: stats.inProgress, icon: <Clock className="text-indigo-100" size={18} />, color: 'from-indigo-400 to-indigo-600', bgColor: 'bg-gradient-to-br from-indigo-50 to-purple-50' },
+          { title: 'Resolved', count: stats.resolved, icon: <CheckCircle className="text-green-100" size={18} />, color: 'from-green-400 to-green-600', bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50' },
+          { title: 'Overdue', count: stats.overdue, icon: <Clock className="text-red-100" size={18} />, color: 'from-red-400 to-red-600', bgColor: 'bg-gradient-to-br from-red-50 to-pink-50' },
         ].map((stat, i) => (
           <div key={i} className={`group ${stat.bgColor} border border-gray-200/50 rounded-3xl shadow-lg p-6 flex items-center justify-between transform hover:scale-105 hover:shadow-2xl transition-all duration-500 hover:rotate-1`}>
             <div>
