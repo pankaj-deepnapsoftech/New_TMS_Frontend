@@ -19,7 +19,7 @@ export default function TicketDetails() {
   const [editingStatus, setEditingStatus] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [editStatusData, setEditStatusData] = useState({
-    status: 'Not Started'
+    status: 'Not Started',
   });
   const [deletingStatus, setDeletingStatus] = useState(false);
   const [showEditTaskModal, setShowEditTaskModal] = useState(false);
@@ -29,7 +29,7 @@ export default function TicketDetails() {
     title: '',
     description: '',
     due_date: '',
-    isSchedule: false
+    isSchedule: false,
   });
   const [deletingTask, setDeletingTask] = useState(false);
 
@@ -59,9 +59,8 @@ export default function TicketDetails() {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          // Remove Authorization header - cookies will be sent automatically
         },
-        credentials: 'include' // This will send cookies automatically
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -112,10 +111,9 @@ export default function TicketDetails() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Remove Authorization header - cookies will be sent automatically
         },
-        credentials: 'include', // This will send cookies automatically
-        body: JSON.stringify(taskData)
+        credentials: 'include',
+        body: JSON.stringify(taskData),
       });
 
       const result = await response.json();
@@ -123,10 +121,9 @@ export default function TicketDetails() {
       console.log('Response data description:', result.data?.description);
 
       if (response.ok) {
-        // Add the new task to the local state
         const newTaskData = {
           ...result.data,
-          description: newTask.description, // Ensure description is included
+          description: newTask.description,
         };
         setTasks((prevTasks) => [...prevTasks, newTaskData]);
 
@@ -159,10 +156,10 @@ export default function TicketDetails() {
       setError('');
 
       const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/add`;
-      
+
       const statusData = {
         status: newStatus,
-        ticket_id: typeof ticket._id === 'string' ? ticket._id : null
+        ticket_id: typeof ticket._id === 'string' ? ticket._id : null,
       };
 
       console.log('Updating status with data:', statusData);
@@ -171,10 +168,9 @@ export default function TicketDetails() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Remove Authorization header - cookies will be sent automatically
         },
-        credentials: 'include', // This will send cookies automatically
-        body: JSON.stringify(statusData)
+        credentials: 'include',
+        body: JSON.stringify(statusData),
       });
 
       const result = await response.json();
@@ -182,15 +178,15 @@ export default function TicketDetails() {
 
       if (response.ok) {
         // Update the ticket's status in local state
-        setTicket(prevTicket => ({
+        setTicket((prevTicket) => ({
           ...prevTicket,
-          status: [...(prevTicket.status || []), result.data]
+          status: [...(prevTicket.status || []), result.data],
         }));
-        
+
         // Close modal and reset form
         setShowStatusModal(false);
         setNewStatus('Not Started');
-        
+
         console.log('Status updated successfully:', result.data);
       } else {
         setError(result.message || 'Failed to update status');
@@ -212,9 +208,9 @@ export default function TicketDetails() {
       setError('');
 
       const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/update/${selectedStatus._id}`;
-      
+
       const statusData = {
-        status: editStatusData.status
+        status: editStatusData.status,
       };
 
       console.log('Updating status with data:', statusData);
@@ -223,10 +219,9 @@ export default function TicketDetails() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          // Remove Authorization header - cookies will be sent automatically
         },
-        credentials: 'include', // This will send cookies automatically
-        body: JSON.stringify(statusData)
+        credentials: 'include',
+        body: JSON.stringify(statusData),
       });
 
       const result = await response.json();
@@ -234,20 +229,16 @@ export default function TicketDetails() {
 
       if (response.ok) {
         // Update the status in local state
-        setTicket(prevTicket => ({
+        setTicket((prevTicket) => ({
           ...prevTicket,
-          status: prevTicket.status.map(status => 
-            status._id === selectedStatus._id 
-              ? { ...status, status: editStatusData.status }
-              : status
-          )
+          status: prevTicket.status.map((status) => (status._id === selectedStatus._id ? { ...status, status: editStatusData.status } : status)),
         }));
-        
+
         // Close modal and reset form
         setShowEditStatusModal(false);
         setSelectedStatus(null);
         setEditStatusData({ status: 'Not Started' });
-        
+
         console.log('Status updated successfully');
       } else {
         setError(result.message || 'Failed to update status');
@@ -288,9 +279,8 @@ export default function TicketDetails() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          // Remove Authorization header - cookies will be sent automatically
         },
-        credentials: 'include' // This will send cookies automatically
+        credentials: 'include',
       });
 
       const result = await response.json();
@@ -298,11 +288,11 @@ export default function TicketDetails() {
 
       if (response.ok) {
         // Remove the status from local state
-        setTicket(prevTicket => ({
+        setTicket((prevTicket) => ({
           ...prevTicket,
-          status: prevTicket.status.filter(status => status._id !== statusId)
+          status: prevTicket.status.filter((status) => status._id !== statusId),
         }));
-        
+
         console.log('Status deleted successfully');
       } else {
         setError(result.message || 'Failed to delete status');
@@ -324,12 +314,12 @@ export default function TicketDetails() {
       setError('');
 
       const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/task/update/${selectedTask._id}`;
-      
+
       const taskData = {
         title: editTaskData.title,
         description: editTaskData.description,
         due_date: new Date(editTaskData.due_date).toISOString(),
-        isSchedule: editTaskData.isSchedule
+        isSchedule: editTaskData.isSchedule,
       };
 
       console.log('Updating task with data:', taskData);
@@ -338,10 +328,9 @@ export default function TicketDetails() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          // Remove Authorization header - cookies will be sent automatically
         },
-        credentials: 'include', // This will send cookies automatically
-        body: JSON.stringify(taskData)
+        credentials: 'include',
+        body: JSON.stringify(taskData),
       });
 
       const result = await response.json();
@@ -349,12 +338,8 @@ export default function TicketDetails() {
 
       if (response.ok) {
         // Update the task in local state
-        setTasks(prevTasks => prevTasks.map(task => 
-          (typeof task._id === 'string' && typeof selectedTask._id === 'string' && task._id === selectedTask._id)
-            ? { ...task, ...editTaskData }
-            : task
-        ));
-        
+        setTasks((prevTasks) => prevTasks.map((task) => (typeof task._id === 'string' && typeof selectedTask._id === 'string' && task._id === selectedTask._id ? { ...task, ...editTaskData } : task)));
+
         // Close modal and reset form
         setShowEditTaskModal(false);
         setSelectedTask(null);
@@ -362,9 +347,9 @@ export default function TicketDetails() {
           title: '',
           description: '',
           due_date: '',
-          isSchedule: false
+          isSchedule: false,
         });
-        
+
         console.log('Task updated successfully');
       } else {
         setError(result.message || 'Failed to update task');
@@ -384,7 +369,7 @@ export default function TicketDetails() {
       title: task.title || '',
       description: task.description || '',
       due_date: task.due_date ? new Date(task.due_date).toISOString().slice(0, 16) : '',
-      isSchedule: task.isSchedule || false
+      isSchedule: task.isSchedule || false,
     });
     setShowEditTaskModal(true);
   };
@@ -410,9 +395,8 @@ export default function TicketDetails() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          // Remove Authorization header - cookies will be sent automatically
         },
-        credentials: 'include' // This will send cookies automatically
+        credentials: 'include',
       });
 
       const result = await response.json();
@@ -420,8 +404,8 @@ export default function TicketDetails() {
 
       if (response.ok) {
         // Remove the task from local state
-        setTasks(prevTasks => prevTasks.filter(task => typeof task._id === 'string' && task._id !== taskId));
-        
+        setTasks((prevTasks) => prevTasks.filter((task) => typeof task._id === 'string' && task._id !== taskId));
+
         console.log('Task deleted successfully');
       } else {
         setError(result.message || 'Failed to delete task');
@@ -443,11 +427,11 @@ export default function TicketDetails() {
       setError('');
 
       const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/add`;
-      
+
       const statusData = {
         status: newTaskStatus,
         task_id: typeof selectedTaskForStatus._id === 'string' ? selectedTaskForStatus._id : null,
-        ticket_id: typeof ticket._id === 'string' ? ticket._id : null
+        ticket_id: typeof ticket._id === 'string' ? ticket._id : null,
       };
 
       console.log('Updating task status with data:', statusData);
@@ -456,10 +440,9 @@ export default function TicketDetails() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Remove Authorization header - cookies will be sent automatically
         },
-        credentials: 'include', // This will send cookies automatically
-        body: JSON.stringify(statusData)
+        credentials: 'include',
+        body: JSON.stringify(statusData),
       });
 
       const result = await response.json();
@@ -467,20 +450,22 @@ export default function TicketDetails() {
 
       if (response.ok) {
         // Update the task's status in local state
-        setTasks(prevTasks => prevTasks.map(task => 
-          (typeof task._id === 'string' && typeof selectedTaskForStatus._id === 'string' && task._id === selectedTaskForStatus._id)
-            ? { 
-                ...task, 
-                status: [...(task.status || []), result.data]
-              }
-            : task
-        ));
-        
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            typeof task._id === 'string' && typeof selectedTaskForStatus._id === 'string' && task._id === selectedTaskForStatus._id
+              ? {
+                  ...task,
+                  status: [...(task.status || []), result.data],
+                }
+              : task,
+          ),
+        );
+
         // Close modal and reset form
         setShowTaskStatusModal(false);
         setSelectedTaskForStatus(null);
         setNewTaskStatus('Not Started');
-        
+
         console.log('Task status updated successfully:', result.data);
       } else {
         setError(result.message || 'Failed to update task status');
@@ -579,9 +564,11 @@ export default function TicketDetails() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6">
       {/* Header */}
       <div className="mb-8">
-        <button onClick={() => navigate('/ticket')} className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4">
-          <X size={20} /> Back to Tickets
-        </button>
+        <div className="flex justify-end">
+          <button onClick={() => navigate('/ticket')} className="flex items-center gap-2 text-gray-600 rounded-lg hover:text-gray-800">
+            <X size={18} /> Back to Tickets
+          </button>
+        </div>
         <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">Ticket Details</h1>
       </div>
 
@@ -611,81 +598,60 @@ export default function TicketDetails() {
                 <p className="mt-1 text-red-500 font-semibold">{formatDate(ticket.due_date)}</p>
               </div>
             </div>
-                     </div>
+          </div>
 
-           {/* Status History Section */}
-           <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
-             <div className="flex justify-between items-center mb-6">
-               <h3 className="text-xl font-bold text-gray-800">Ticket Status</h3>
-             </div>
+          {/* Status History Section */}
+          <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-gray-800">Ticket Status</h3>
+            </div>
 
-             {/* Status List */}
-             <div className="space-y-3">
-               {(!ticket.status || ticket.status.length === 0) ? (
-                 <div className="text-center py-4">
-                   <p className="text-gray-500">No status history found.</p>
-                 </div>
-               ) : (
-                 ticket.status.map((status) => (
-                   <div key={status._id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
-                     <div className="flex justify-between items-start mb-2">
-                       <div className="flex items-center gap-3">
-                         <span className={`bg-gradient-to-r ${getStatusColor(status.status)} px-3 py-1 rounded-lg text-xs font-medium`}>
-                           {status.status}
-                         </span>
-                         <span className="text-xs text-gray-500">
-                           Update #{status.updateCount || 0}
-                         </span>
-                       </div>
-                       <button
-                         onClick={() => openEditStatusModal(status)}
-                         className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
-                         title="Edit status"
-                       >
-                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                         </svg>
-                       </button>
-                       <button
-                         onClick={() => handleDeleteStatus(status._id)}
-                         disabled={deletingStatus}
-                         className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                         title="Delete status"
-                       >
-                         {deletingStatus ? (
-                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                         ) : (
-                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                           </svg>
-                         )}
-                       </button>
-                     </div>
-                     <div className="text-xs text-gray-500">
-                       Status ID: {status._id}
-                     </div>
-                   </div>
-                 ))
-               )}
-             </div>
-           </div>
+            {/* Status List */}
+            <div className="space-y-3">
+              {!ticket.status || ticket.status.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-gray-500">No status history found.</p>
+                </div>
+              ) : (
+                ticket.status.map((status) => (
+                  <div key={status._id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-3">
+                        <span className={`bg-gradient-to-r ${getStatusColor(status.status)} px-3 py-1 rounded-lg text-xs font-medium`}>{status.status}</span>
+                        <span className="text-xs text-gray-500">Update #{status.updateCount || 0}</span>
+                      </div>
+                      <button onClick={() => openEditStatusModal(status)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="Edit status">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button onClick={() => handleDeleteStatus(status._id)} disabled={deletingStatus} className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete status">
+                        {deletingStatus ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                        ) : (
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
+                    <div className="text-xs text-gray-500">Status ID: {status._id}</div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
 
-           {/* Tasks Section */}
+          {/* Tasks Section */}
           <div className="bg-white rounded-2xl shadow-md p-6">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h3 className="text-xl font-bold text-gray-800">Tasks ({tasks.length})</h3>
                 {tasks.length > 0 && (
                   <div className="flex gap-2 mt-2">
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                      Completed: {tasks.filter(t => getCurrentStatus(t) === 'Completed').length}
-                    </span>
-                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
-                      In Progress: {tasks.filter(t => getCurrentStatus(t) === 'In Progress').length}
-                    </span>
-                    <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
-                      Not Started: {tasks.filter(t => getCurrentStatus(t) === 'Not Started').length}
-                    </span>
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Completed: {tasks.filter((t) => getCurrentStatus(t) === 'Completed').length}</span>
+                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">In Progress: {tasks.filter((t) => getCurrentStatus(t) === 'In Progress').length}</span>
+                    <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">Not Started: {tasks.filter((t) => getCurrentStatus(t) === 'Not Started').length}</span>
                   </div>
                 )}
               </div>
@@ -701,89 +667,70 @@ export default function TicketDetails() {
                   <p className="text-gray-500">No tasks found for this ticket.</p>
                 </div>
               ) : (
-                                 tasks.map((task, index) => {
-                   console.log('Rendering task:', task);
-                   console.log('Task description:', task.description);
-                   return (
-                     <div key={typeof task._id === 'string' ? task._id : index} className={`border rounded-xl p-4 hover:shadow-md transition-shadow ${
-                       task.status && task.status.length > 0 
-                         ? 'border-blue-200 bg-blue-50/30' 
-                         : 'border-gray-200'
-                     }`}>
-                       <div className="flex justify-between items-start mb-2">
-                         <h4 className="font-semibold text-gray-800">{typeof task.title === 'string' ? task.title : 'Untitled Task'}</h4>
-                         <div className="flex items-center gap-2">
-                           <button
-                             onClick={() => openTaskStatusModal(task)}
-                             className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(task))} px-3 py-1 rounded-lg text-xs font-medium hover:scale-105 transition-transform cursor-pointer`}
-                             title="Click to update status"
-                           >
-                             {getCurrentStatus(task)}
-                           </button>
+                tasks.map((task, index) => {
+                  console.log('Rendering task:', task);
+                  console.log('Task description:', task.description);
+                  return (
+                    <div key={typeof task._id === 'string' ? task._id : index} className={`border rounded-xl p-4 hover:shadow-md transition-shadow ${task.status && task.status.length > 0 ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200'}`}>
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-semibold text-gray-800">{typeof task.title === 'string' ? task.title : 'Untitled Task'}</h4>
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => openTaskStatusModal(task)} className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(task))} px-3 py-1 rounded-lg text-xs font-medium hover:scale-105 transition-transform cursor-pointer`} title="Click to update status">
+                            {getCurrentStatus(task)}
+                          </button>
 
-                           <button
-                             onClick={() => openEditTaskModal(task)}
-                             className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
-                             title="Edit task"
-                           >
-                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                             </svg>
-                           </button>
-                                                        <button
-                               onClick={() => handleDeleteTask(typeof task._id === 'string' ? task._id : null)}
-                               disabled={deletingTask}
-                               className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                               title="Delete task"
-                             >
-                             {deletingTask ? (
-                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                             ) : (
-                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                               </svg>
-                             )}
-                           </button>
-                         </div>
-                       </div>
-                       {task.description && typeof task.description === 'string' && task.description.trim() !== '' ? (
-                         <p className="text-gray-600 text-sm mb-3 bg-gray-50 p-2 rounded border-l-2 border-blue-500">
-                           <strong>Description:</strong> {task.description}
-                         </p>
-                       ) : (
-                         <p className="text-gray-400 text-sm mb-3 italic">No description provided</p>
-                       )}
-                       <div className="flex justify-between items-center text-sm">
-                         <div className="flex items-center gap-4">
-                           <span className="text-gray-500">Assigned: <span className="font-medium">{typeof task.assign === 'string' ? task.assign : 'Not assigned'}</span></span>
-                           <span className={`${task.due_date && new Date(task.due_date) < new Date() ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
-                             Due: <span className="font-medium">{task.due_date ? formatDate(task.due_date) : 'Not set'}</span>
-                             {task.due_date && new Date(task.due_date) < new Date() && <span className="ml-1 text-red-500">⏳ Overdue</span>}
-                           </span>
-                         </div>
-                       </div>
-                       
-                       {/* Task Status History */}
-                       {task.status && task.status.length > 0 && (
-                         <div className="mt-3 pt-3 border-t border-gray-100">
-                           <h5 className="text-xs font-medium text-gray-600 mb-2">Status History:</h5>
-                           <div className="space-y-1">
-                             {task.status.map((status, index) => (
-                               <div key={typeof status._id === 'string' ? status._id : index} className="flex items-center gap-2 text-xs">
-                                 <span className={`bg-gradient-to-r ${getStatusColor(typeof status.status === 'string' ? status.status : 'Not Started')} px-2 py-1 rounded text-xs font-medium`}>
-                                   {typeof status.status === 'string' ? status.status : 'Not Started'}
-                                 </span>
-                                 <span className="text-gray-500">
-                                   {status.createdAt && typeof status.createdAt === 'string' ? new Date(status.createdAt).toLocaleDateString() : 'Recent'}
-                                 </span>
-                               </div>
-                             ))}
-                           </div>
-                         </div>
-                       )}
-                     </div>
-                   );
-                 })
+                          <button onClick={() => openEditTaskModal(task)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="Edit task">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          <button onClick={() => handleDeleteTask(typeof task._id === 'string' ? task._id : null)} disabled={deletingTask} className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete task">
+                            {deletingTask ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                      {task.description && typeof task.description === 'string' && task.description.trim() !== '' ? (
+                        <p className="text-gray-600 text-sm mb-3 bg-gray-50 p-2 rounded border-l-2 border-blue-500">
+                          <strong>Description:</strong> {task.description}
+                        </p>
+                      ) : (
+                        <p className="text-gray-400 text-sm mb-3 italic">No description provided</p>
+                      )}
+                      <div className="flex justify-between items-center text-sm">
+                        <div className="flex items-center gap-4">
+                          <span className="text-gray-500">
+                            Assigned: <span className="font-medium">{typeof task.assign === 'string' ? task.assign : 'Not assigned'}</span>
+                          </span>
+                          <span className={`${task.due_date && new Date(task.due_date) < new Date() ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
+                            Due: <span className="font-medium">{task.due_date ? formatDate(task.due_date) : 'Not set'}</span>
+                            {task.due_date && new Date(task.due_date) < new Date() && <span className="ml-1 text-red-500">⏳ Overdue</span>}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Task Status History */}
+                      {task.status && task.status.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <h5 className="text-xs font-medium text-gray-600 mb-2">Status History:</h5>
+                          <div className="space-y-1">
+                            {task.status.map((status, index) => (
+                              <div key={typeof status._id === 'string' ? status._id : index} className="flex items-center gap-2 text-xs">
+                                <span className={`bg-gradient-to-r ${getStatusColor(typeof status.status === 'string' ? status.status : 'Not Started')} px-2 py-1 rounded text-xs font-medium`}>{typeof status.status === 'string' ? status.status : 'Not Started'}</span>
+                                <span className="text-gray-500">{status.createdAt && typeof status.createdAt === 'string' ? new Date(status.createdAt).toLocaleDateString() : 'Recent'}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
@@ -793,13 +740,10 @@ export default function TicketDetails() {
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl shadow-md p-6">
             <h3 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
-                         <div className="space-y-3">
-               <button 
-                 onClick={() => setShowStatusModal(true)}
-                 className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-               >
-                 Change Ticket Status
-               </button>
+            <div className="space-y-3">
+              <button onClick={() => setShowStatusModal(true)} className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                Change Ticket Status
+              </button>
               {/* <button className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
                 Mark Complete
               </button>
@@ -808,475 +752,378 @@ export default function TicketDetails() {
               </button> */}
             </div>
           </div>
-                 </div>
-       </div>
-
-       {/* Add Task Modal */}
-       {showAddTask && (
-         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-           <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
-             {/* Header */}
-             <div className="flex justify-between items-center border-b px-6 py-4">
-               <h2 className="text-lg font-semibold flex items-center gap-2">Add New Task</h2>
-                               <button 
-                  onClick={() => {
-                    setShowAddTask(false);
-                    setNewTask({
-                      title: '',
-                      description: '',
-                      due_date: '',
-                      isSchedule: false
-                    });
-                  }} 
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✖
-                </button>
-             </div>
-
-             {/* Body */}
-             <div className="p-6 space-y-4">
-               {/* Task Title */}
-               <div>
-                 <label className="text-sm font-medium text-gray-600">Task Title *</label>
-                 <input
-                   type="text"
-                   value={newTask.title}
-                   onChange={(e) => setNewTask({...newTask, title: e.target.value})}
-                   className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                   placeholder="Enter task title..."
-                   required
-                 />
-               </div>
-
-                               
-
-               {/* Description */}
-               <div>
-                 <label className="text-sm font-medium text-gray-600">Description</label>
-                 <textarea
-                   value={newTask.description}
-                   onChange={(e) => setNewTask({...newTask, description: e.target.value})}
-                   rows="3"
-                   className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                   placeholder="Enter task description..."
-                 />
-               </div>
-
-               {/* Due Date */}
-               <div>
-                 <label className="text-sm font-medium text-gray-600">Due Date *</label>
-                 <input
-                   type="datetime-local"
-                   value={newTask.due_date}
-                   onChange={(e) => setNewTask({...newTask, due_date: e.target.value})}
-                   className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                   required
-                 />
-               </div>
-
-               {/* Is Schedule */}
-               <div>
-                 <label className="flex items-center gap-2">
-                   <input
-                     type="checkbox"
-                     checked={newTask.isSchedule}
-                     onChange={(e) => setNewTask({...newTask, isSchedule: e.target.checked})}
-                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                   />
-                   <span className="text-sm font-medium text-gray-600">Is Scheduled</span>
-                 </label>
-               </div>
-             </div>
-
-             {/* Footer */}
-             <div className="flex justify-end gap-3 border-t px-6 py-4">
-                               <button 
-                  onClick={() => {
-                    setShowAddTask(false);
-                    setNewTask({
-                      title: '',
-                      description: '',
-                      due_date: '',
-                      isSchedule: false
-                    });
-                  }} 
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-100"
-                  disabled={addingTask}
-                >
-                  Cancel
-                </button>
-               <button 
-                 onClick={handleAddTask}
-                 disabled={addingTask}
-                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed"
-               >
-                 {addingTask ? 'Adding...' : 'Add Task'}
-               </button>
-             </div>
-           </div>
-         </div>
-               )}
-
-        {/* Status Update Modal */}
-        {showStatusModal && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
-              {/* Header */}
-              <div className="flex justify-between items-center border-b px-6 py-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2">Update Ticket Status</h2>
-                <button 
-                  onClick={() => {
-                    setShowStatusModal(false);
-                    setNewStatus('Not Started');
-                  }} 
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✖
-                </button>
-              </div>
-
-              {/* Body */}
-              <div className="p-6 space-y-4">
-                {/* Current Status */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Current Status</label>
-                  <p className="mt-1 text-gray-800 font-medium bg-gray-50 p-2 rounded">
-                    {getCurrentStatus(ticket)}
-                  </p>
-                </div>
-
-                {/* New Status */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">New Status *</label>
-                  <select
-                    value={newStatus}
-                    onChange={(e) => setNewStatus(e.target.value)}
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                    required
-                  >
-                    <option value="Not Started">Not Started</option>
-                    <option value="On Hold">On Hold</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Re Open">Re Open</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Closed">Closed</option>
-                  </select>
-                </div>
-
-                {/* Status Description */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Status Description</label>
-                  <textarea
-                    rows="3"
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="Add any notes about this status change..."
-                  />
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="flex justify-end gap-3 border-t px-6 py-4">
-                <button 
-                  onClick={() => {
-                    setShowStatusModal(false);
-                    setNewStatus('Not Started');
-                  }} 
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-100"
-                  disabled={updatingStatus}
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleUpdateStatus}
-                  disabled={updatingStatus}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
-                >
-                  {updatingStatus ? 'Updating...' : 'Update Status'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Edit Status Modal */}
-        {showEditStatusModal && selectedStatus && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
-              {/* Header */}
-              <div className="flex justify-between items-center border-b px-6 py-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2">Edit Status</h2>
-                <button 
-                  onClick={() => {
-                    setShowEditStatusModal(false);
-                    setSelectedStatus(null);
-                    setEditStatusData({ status: 'Not Started' });
-                  }} 
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✖
-                </button>
-              </div>
-
-              {/* Body */}
-              <div className="p-6 space-y-4">
-                {/* Current Status */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Current Status</label>
-                  <p className="mt-1 text-gray-800 font-medium bg-gray-50 p-2 rounded">
-                    {selectedStatus.status}
-                  </p>
-                </div>
-
-                {/* Status ID */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Status ID</label>
-                  <p className="mt-1 text-gray-800 font-mono text-sm bg-gray-50 p-2 rounded">
-                    {selectedStatus._id}
-                  </p>
-                </div>
-
-                {/* New Status */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">New Status *</label>
-                  <select
-                    value={editStatusData.status}
-                    onChange={(e) => setEditStatusData({...editStatusData, status: e.target.value})}
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                    required
-                  >
-                    <option value="Not Started">Not Started</option>
-                    <option value="On Hold">On Hold</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Re Open">Re Open</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Closed">Closed</option>
-                  </select>
-                </div>
-
-                {/* Update Count */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Update Count</label>
-                  <p className="mt-1 text-gray-800 font-medium bg-gray-50 p-2 rounded">
-                    {selectedStatus.updateCount || 0}
-                  </p>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="flex justify-end gap-3 border-t px-6 py-4">
-                <button 
-                  onClick={() => {
-                    setShowEditStatusModal(false);
-                    setSelectedStatus(null);
-                    setEditStatusData({ status: 'Not Started' });
-                  }} 
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-100"
-                  disabled={editingStatus}
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleEditStatus}
-                  disabled={editingStatus}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
-                >
-                  {editingStatus ? 'Updating...' : 'Update Status'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Edit Task Modal */}
-        {showEditTaskModal && selectedTask && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
-              {/* Header */}
-              <div className="flex justify-between items-center border-b px-6 py-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2">Edit Task</h2>
-                <button 
-                  onClick={() => {
-                    setShowEditTaskModal(false);
-                    setSelectedTask(null);
-                    setEditTaskData({
-                      title: '',
-                      description: '',
-                      due_date: '',
-                      isSchedule: false
-                    });
-                  }} 
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✖
-                </button>
-              </div>
-
-              {/* Body */}
-              <div className="p-6 space-y-4">
-                {/* Task Title */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Task Title *</label>
-                  <input
-                    type="text"
-                    value={editTaskData.title}
-                    onChange={(e) => setEditTaskData({...editTaskData, title: e.target.value})}
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="Enter task title..."
-                    required
-                  />
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Description</label>
-                  <textarea
-                    value={editTaskData.description}
-                    onChange={(e) => setEditTaskData({...editTaskData, description: e.target.value})}
-                    rows="3"
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="Enter task description..."
-                  />
-                </div>
-
-                {/* Due Date */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Due Date *</label>
-                  <input
-                    type="datetime-local"
-                    value={editTaskData.due_date}
-                    onChange={(e) => setEditTaskData({...editTaskData, due_date: e.target.value})}
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                    required
-                  />
-                </div>
-
-                {/* Is Schedule */}
-                <div>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={editTaskData.isSchedule}
-                      onChange={(e) => setEditTaskData({...editTaskData, isSchedule: e.target.checked})}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm font-medium text-gray-600">Is Scheduled</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="flex justify-end gap-3 border-t px-6 py-4">
-                <button 
-                  onClick={() => {
-                    setShowEditTaskModal(false);
-                    setSelectedTask(null);
-                    setEditTaskData({
-                      title: '',
-                      description: '',
-                      due_date: '',
-                      isSchedule: false
-                    });
-                  }} 
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-100"
-                  disabled={editingTask}
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleEditTask}
-                  disabled={editingTask}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
-                >
-                  {editingTask ? 'Updating...' : 'Update Task'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Task Status Update Modal */}
-        {showTaskStatusModal && selectedTaskForStatus && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
-              {/* Header */}
-              <div className="flex justify-between items-center border-b px-6 py-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2">Update Task Status</h2>
-                <button 
-                  onClick={() => {
-                    setShowTaskStatusModal(false);
-                    setSelectedTaskForStatus(null);
-                    setNewTaskStatus('Not Started');
-                  }} 
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✖
-                </button>
-              </div>
-
-              {/* Body */}
-              <div className="p-6 space-y-4">
-                {/* Current Status */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Current Status</label>
-                  <p className="mt-1 text-gray-800 font-medium bg-gray-50 p-2 rounded">
-                    {getCurrentStatus(selectedTaskForStatus)}
-                  </p>
-                </div>
-
-                {/* New Status */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">New Status *</label>
-                  <select
-                    value={newTaskStatus}
-                    onChange={(e) => setNewTaskStatus(e.target.value)}
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                    required
-                  >
-                    <option value="Not Started">Not Started</option>
-                    <option value="On Hold">On Hold</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Re Open">Re Open</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Closed">Closed</option>
-                  </select>
-                </div>
-
-                {/* Status Description */}
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Status Description</label>
-                  <textarea
-                    rows="3"
-                    className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="Add any notes about this status change..."
-                  />
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="flex justify-end gap-3 border-t px-6 py-4">
-                <button 
-                  onClick={() => {
-                    setShowTaskStatusModal(false);
-                    setSelectedTaskForStatus(null);
-                    setNewTaskStatus('Not Started');
-                  }} 
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-100"
-                  disabled={updatingTaskStatus}
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleUpdateTaskStatus}
-                  disabled={updatingTaskStatus}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
-                >
-                  {updatingTaskStatus ? 'Updating...' : 'Update Status'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
-    );
-  }
+
+      {/* Add Task Modal */}
+      {showAddTask && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex justify-between items-center border-b px-6 py-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2">Add New Task</h2>
+              <button
+                onClick={() => {
+                  setShowAddTask(false);
+                  setNewTask({
+                    title: '',
+                    description: '',
+                    due_date: '',
+                    isSchedule: false,
+                  });
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✖
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-4">
+              {/* Task Title */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Task Title *</label>
+                <input type="text" value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter task title..." required />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Description</label>
+                <textarea value={newTask.description} onChange={(e) => setNewTask({ ...newTask, description: e.target.value })} rows="3" className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter task description..." />
+              </div>
+
+              {/* Due Date */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Due Date *</label>
+                <input type="datetime-local" value={newTask.due_date} onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required />
+              </div>
+
+              {/* Is Schedule */}
+              <div>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={newTask.isSchedule} onChange={(e) => setNewTask({ ...newTask, isSchedule: e.target.checked })} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  <span className="text-sm font-medium text-gray-600">Is Scheduled</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 border-t px-6 py-4">
+              <button
+                onClick={() => {
+                  setShowAddTask(false);
+                  setNewTask({
+                    title: '',
+                    description: '',
+                    due_date: '',
+                    isSchedule: false,
+                  });
+                }}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                disabled={addingTask}
+              >
+                Cancel
+              </button>
+              <button onClick={handleAddTask} disabled={addingTask} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed">
+                {addingTask ? 'Adding...' : 'Add Task'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Status Update Modal */}
+      {showStatusModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex justify-between items-center border-b px-6 py-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2">Update Ticket Status</h2>
+              <button
+                onClick={() => {
+                  setShowStatusModal(false);
+                  setNewStatus('Not Started');
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✖
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-4">
+              {/* Current Status */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Current Status</label>
+                <p className="mt-1 text-gray-800 font-medium bg-gray-50 p-2 rounded">{getCurrentStatus(ticket)}</p>
+              </div>
+
+              {/* New Status */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">New Status *</label>
+                <select value={newStatus} onChange={(e) => setNewStatus(e.target.value)} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required>
+                  <option value="Not Started">Not Started</option>
+                  <option value="On Hold">On Hold</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Re Open">Re Open</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Closed">Closed</option>
+                </select>
+              </div>
+
+              {/* Status Description */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Status Description</label>
+                <textarea rows="3" className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Add any notes about this status change..." />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 border-t px-6 py-4">
+              <button
+                onClick={() => {
+                  setShowStatusModal(false);
+                  setNewStatus('Not Started');
+                }}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                disabled={updatingStatus}
+              >
+                Cancel
+              </button>
+              <button onClick={handleUpdateStatus} disabled={updatingStatus} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
+                {updatingStatus ? 'Updating...' : 'Update Status'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Status Modal */}
+      {showEditStatusModal && selectedStatus && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex justify-between items-center border-b px-6 py-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2">Edit Status</h2>
+              <button
+                onClick={() => {
+                  setShowEditStatusModal(false);
+                  setSelectedStatus(null);
+                  setEditStatusData({ status: 'Not Started' });
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✖
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-4">
+              {/* Current Status */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Current Status</label>
+                <p className="mt-1 text-gray-800 font-medium bg-gray-50 p-2 rounded">{selectedStatus.status}</p>
+              </div>
+
+              {/* Status ID */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Status ID</label>
+                <p className="mt-1 text-gray-800 font-mono text-sm bg-gray-50 p-2 rounded">{selectedStatus._id}</p>
+              </div>
+
+              {/* New Status */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">New Status *</label>
+                <select value={editStatusData.status} onChange={(e) => setEditStatusData({ ...editStatusData, status: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required>
+                  <option value="Not Started">Not Started</option>
+                  <option value="On Hold">On Hold</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Re Open">Re Open</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Closed">Closed</option>
+                </select>
+              </div>
+
+              {/* Update Count */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Update Count</label>
+                <p className="mt-1 text-gray-800 font-medium bg-gray-50 p-2 rounded">{selectedStatus.updateCount || 0}</p>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 border-t px-6 py-4">
+              <button
+                onClick={() => {
+                  setShowEditStatusModal(false);
+                  setSelectedStatus(null);
+                  setEditStatusData({ status: 'Not Started' });
+                }}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                disabled={editingStatus}
+              >
+                Cancel
+              </button>
+              <button onClick={handleEditStatus} disabled={editingStatus} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
+                {editingStatus ? 'Updating...' : 'Update Status'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Task Modal */}
+      {showEditTaskModal && selectedTask && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex justify-between items-center border-b px-6 py-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2">Edit Task</h2>
+              <button
+                onClick={() => {
+                  setShowEditTaskModal(false);
+                  setSelectedTask(null);
+                  setEditTaskData({
+                    title: '',
+                    description: '',
+                    due_date: '',
+                    isSchedule: false,
+                  });
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✖
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-4">
+              {/* Task Title */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Task Title *</label>
+                <input type="text" value={editTaskData.title} onChange={(e) => setEditTaskData({ ...editTaskData, title: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter task title..." required />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Description</label>
+                <textarea
+                  value={editTaskData.description}
+                  onChange={(e) => setEditTaskData({ ...editTaskData, description: e.target.value })}
+                  rows="3"
+                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="Enter task description..."
+                />
+              </div>
+
+              {/* Due Date */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Due Date *</label>
+                <input type="datetime-local" value={editTaskData.due_date} onChange={(e) => setEditTaskData({ ...editTaskData, due_date: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required />
+              </div>
+
+              {/* Is Schedule */}
+              <div>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={editTaskData.isSchedule} onChange={(e) => setEditTaskData({ ...editTaskData, isSchedule: e.target.checked })} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  <span className="text-sm font-medium text-gray-600">Is Scheduled</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 border-t px-6 py-4">
+              <button
+                onClick={() => {
+                  setShowEditTaskModal(false);
+                  setSelectedTask(null);
+                  setEditTaskData({
+                    title: '',
+                    description: '',
+                    due_date: '',
+                    isSchedule: false,
+                  });
+                }}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                disabled={editingTask}
+              >
+                Cancel
+              </button>
+              <button onClick={handleEditTask} disabled={editingTask} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
+                {editingTask ? 'Updating...' : 'Update Task'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Task Status Update Modal */}
+      {showTaskStatusModal && selectedTaskForStatus && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex justify-between items-center border-b px-6 py-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2">Update Task Status</h2>
+              <button
+                onClick={() => {
+                  setShowTaskStatusModal(false);
+                  setSelectedTaskForStatus(null);
+                  setNewTaskStatus('Not Started');
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✖
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-4">
+              {/* Current Status */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Current Status</label>
+                <p className="mt-1 text-gray-800 font-medium bg-gray-50 p-2 rounded">{getCurrentStatus(selectedTaskForStatus)}</p>
+              </div>
+
+              {/* New Status */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">New Status *</label>
+                <select value={newTaskStatus} onChange={(e) => setNewTaskStatus(e.target.value)} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required>
+                  <option value="Not Started">Not Started</option>
+                  <option value="On Hold">On Hold</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Re Open">Re Open</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Closed">Closed</option>
+                </select>
+              </div>
+
+              {/* Status Description */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Status Description</label>
+                <textarea rows="3" className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Add any notes about this status change..." />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 border-t px-6 py-4">
+              <button
+                onClick={() => {
+                  setShowTaskStatusModal(false);
+                  setSelectedTaskForStatus(null);
+                  setNewTaskStatus('Not Started');
+                }}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                disabled={updatingTaskStatus}
+              >
+                Cancel
+              </button>
+              <button onClick={handleUpdateTaskStatus} disabled={updatingTaskStatus} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
+                {updatingTaskStatus ? 'Updating...' : 'Update Status'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
