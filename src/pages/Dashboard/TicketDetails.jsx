@@ -38,13 +38,45 @@ export default function TicketDetails() {
     description: '',
     due_date: '',
     isSchedule: false,
+    assign: '',
   });
+
+  // State for users list
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   // State for task status management
   const [showTaskStatusModal, setShowTaskStatusModal] = useState(false);
   const [selectedTaskForStatus, setSelectedTaskForStatus] = useState(null);
   const [newTaskStatus, setNewTaskStatus] = useState('Not Started');
   const [updatingTaskStatus, setUpdatingTaskStatus] = useState(false);
+
+  // Fetch users list
+  const fetchUsers = async () => {
+    try {
+      setLoadingUsers(true);
+      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/user/all-users`;
+
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setUsers(result.data || []);
+      } else {
+        console.error('Failed to fetch users');
+      }
+    } catch (err) {
+      console.error('Error fetching users:', err);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
   // Fetch ticket details
   const fetchTicketDetails = async () => {
@@ -136,6 +168,7 @@ export default function TicketDetails() {
           description: '',
           due_date: '',
           isSchedule: false,
+          assign: '',
         });
         setShowAddTask(false);
 
@@ -503,6 +536,7 @@ export default function TicketDetails() {
   // Load ticket details on component mount
   useEffect(() => {
     fetchTicketDetails();
+    fetchUsers();
   }, [_ticketId]);
 
   const getStatusColor = (status) => {
@@ -755,7 +789,16 @@ export default function TicketDetails() {
                        )}
                        <div className="flex justify-between items-center text-sm">
                          <div className="flex items-center gap-4">
-                           <span className="text-gray-500">Assigned: <span className="font-medium">{typeof task.assign === 'string' ? task.assign : 'Not assigned'}</span></span>
+                                                       <span className="text-gray-500">
+                              Assigned: <span className="font-medium">
+                                {task.assign && typeof task.assign === 'object' && task.assign.full_name
+                                  ? `${task.assign.full_name} (${task.assign.username})`
+                                  : typeof task.assign === 'string'
+                                    ? users.find(user => user._id === task.assign)?.full_name || 'Not assigned'
+                                    : 'Not assigned'
+                                }
+                              </span>
+                            </span>
                            <span className={`${task.due_date && new Date(task.due_date) < new Date() ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
                              Due: <span className="font-medium">{task.due_date ? formatDate(task.due_date) : 'Not set'}</span>
                              {task.due_date && new Date(task.due_date) < new Date() && <span className="ml-1 text-red-500">⏳ Overdue</span>}
@@ -825,7 +868,8 @@ export default function TicketDetails() {
                       title: '',
                       description: '',
                       due_date: '',
-                      isSchedule: false
+                      isSchedule: false,
+                      assign: ''
                     });
                   }} 
                   className="text-gray-500 hover:text-gray-700"
@@ -847,6 +891,26 @@ export default function TicketDetails() {
                    placeholder="Enter task title..."
                    required
                  />
+               </div>
+
+               {/* Assign To */}
+               <div>
+                 <label className="text-sm font-medium text-gray-600">Assign To</label>
+                 <select
+                   value={newTask.assign}
+                   onChange={(e) => setNewTask({...newTask, assign: e.target.value})}
+                   className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                   disabled={loadingUsers}
+                 >
+                   <option value="">
+                     {loadingUsers ? 'Loading users...' : 'Select a user...'}
+                   </option>
+                   {users.map((user) => (
+                     <option key={user._id} value={user._id}>
+                       {user.full_name} ({user.username})
+                     </option>
+                   ))}
+                 </select>
                </div>
 
                                
@@ -898,7 +962,8 @@ export default function TicketDetails() {
                       title: '',
                       description: '',
                       due_date: '',
-                      isSchedule: false
+                      isSchedule: false,
+                      assign: ''
                     });
                   }} 
                   className="px-4 py-2 border rounded-lg hover:bg-gray-100"

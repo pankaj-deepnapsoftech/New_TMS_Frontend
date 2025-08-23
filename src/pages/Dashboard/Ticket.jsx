@@ -3,12 +3,22 @@ import { Search, Plus, Users, Clock, CheckCircle, AlertCircle, ListChecks, Trash
 import TicketModal from '@components/Modals/TicketsModal';
 import UpdateTicketModal from '@components/Modals/UpdateTicketModal';
 import { useNavigate } from 'react-router-dom';
+import { useGetCurrentUserQuery } from '@/services/Auth.service';
 
 export default function TicketsPage() {
   const navigate = useNavigate();
+  
+  // Get current user
+  const { data: currentUserData, isLoading: userLoading } = useGetCurrentUserQuery();
+  const currentUser = currentUserData?.user;
+  const isAdmin = currentUser?.admin || false;
+  
   const [tickets, setTickets] = useState([]);
+  const [assignedTickets, setAssignedTickets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [assignedLoading, setAssignedLoading] = useState(true);
   const [error, setError] = useState('');
+  const [assignedError, setAssignedError] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
@@ -58,6 +68,38 @@ export default function TicketsPage() {
     }
   };
 
+  // Fetch assigned tickets from API
+  const fetchAssignedTickets = async () => {
+    try {
+      setAssignedLoading(true);
+      setAssignedError('');
+
+      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/get-assign`;
+
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // Remove Authorization header - cookies will be sent automatically
+        },
+        credentials: 'include' // This will send cookies automatically
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setAssignedTickets(result.data || []);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        setAssignedError(errorData.message || 'Failed to fetch assigned tickets');
+      }
+    } catch (err) {
+      console.error('Error fetching assigned tickets:', err);
+      setAssignedError('Network error. Please try again.');
+    } finally {
+      setAssignedLoading(false);
+    }
+  };
+
   // Delete ticket function
   const handleDeleteTicket = async (ticketId, e) => {
     e.stopPropagation(); // Prevent ticket click event
@@ -80,8 +122,12 @@ export default function TicketsPage() {
       });
 
       if (response.ok) {
-        // Remove the ticket from the local state
-        setTickets((prevTickets) => prevTickets.filter((ticket) => ticket._id !== ticketId));
+        // Remove the ticket from the local state based on user role
+        if (isAdmin) {
+          setTickets((prevTickets) => prevTickets.filter((ticket) => ticket._id !== ticketId));
+        } else {
+          setAssignedTickets((prevTickets) => prevTickets.filter((ticket) => ticket._id !== ticketId));
+        }
         // You can add a success notification here
         console.log('Ticket deleted successfully');
       } else {
@@ -105,15 +151,35 @@ export default function TicketsPage() {
 
   // Handle ticket update
   const handleTicketUpdate = (updatedTicket) => {
-    setTickets((prevTickets) => prevTickets.map((ticket) => (ticket._id === updatedTicket._id ? updatedTicket : ticket)));
+    if (isAdmin) {
+      // Admin updates all tickets list
+      setTickets((prevTickets) => prevTickets.map((ticket) => (ticket._id === updatedTicket._id ? updatedTicket : ticket)));
+    } else {
+      // Non-admin updates assigned tickets list
+      setAssignedTickets((prevTickets) => prevTickets.map((ticket) => (ticket._id === updatedTicket._id ? updatedTicket : ticket)));
+    }
   };
 
   useEffect(() => {
-    fetchTickets();
-  }, []);
+    if (!userLoading && currentUser) {
+      if (isAdmin) {
+        // Admin sees only all tickets
+        fetchTickets();
+      } else {
+        // Non-admin sees only assigned tickets
+        fetchAssignedTickets();
+      }
+    }
+  }, [userLoading, currentUser, isAdmin]);
 
   const handleTicketCreated = () => {
-    fetchTickets();
+    if (isAdmin) {
+      // Admin refreshes all tickets
+      fetchTickets();
+    } else {
+      // Non-admin refreshes assigned tickets
+      fetchAssignedTickets();
+    }
   };
 
   const handleTicketClick = (ticket) => {
@@ -133,12 +199,33 @@ export default function TicketsPage() {
     return matchesSearch && matchesStatus && matchesPriority && matchesDepartment;
   });
 
+  const filteredAssignedTickets = assignedTickets.filter((ticket) => {
+    const idText = (ticket.ticket_id || '').toLowerCase();
+    const titleText = (ticket.title || '').toLowerCase();
+    const matchesSearch = idText.includes(searchTerm.toLowerCase()) || titleText.includes(searchTerm.toLowerCase());
+
+    const statusText = getCurrentStatus(ticket);
+    const matchesStatus = filterStatus === 'All Statuses' || statusText === filterStatus;
+    const matchesPriority = filterPriority === 'All Priorities' || ticket.priority === filterPriority;
+    const matchesDepartment = filterDepartment === 'All Departments' || ticket.department === filterDepartment;
+
+    return matchesSearch && matchesStatus && matchesPriority && matchesDepartment;
+  });
+
   const stats = {
-    total: tickets.length,
-    open: tickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
-    inProgress: tickets.filter((t) => getCurrentStatus(t) === 'In Progress').length,
-    resolved: tickets.filter((t) => getCurrentStatus(t) === 'Resolved').length,
-    overdue: tickets.filter((t) => new Date(t.due_date) < new Date()).length,
+    total: isAdmin ? tickets.length : assignedTickets.length,
+    open: isAdmin 
+      ? tickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length
+      : assignedTickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
+    inProgress: isAdmin 
+      ? tickets.filter((t) => getCurrentStatus(t) === 'In Progress').length
+      : assignedTickets.filter((t) => getCurrentStatus(t) === 'In Progress').length,
+    resolved: isAdmin 
+      ? tickets.filter((t) => getCurrentStatus(t) === 'Resolved').length
+      : assignedTickets.filter((t) => getCurrentStatus(t) === 'Resolved').length,
+    overdue: isAdmin 
+      ? tickets.filter((t) => new Date(t.due_date) < new Date()).length
+      : assignedTickets.filter((t) => new Date(t.due_date) < new Date()).length,
   };
 
   const formatDate = (dateString) => {
@@ -177,12 +264,12 @@ export default function TicketsPage() {
     }
   };
 
-  if (loading) {
+  if (userLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading tickets...</p>
+          <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
     );
@@ -191,15 +278,22 @@ export default function TicketsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6">
       <div className="mb-10 text-center">
-        <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">Ticket Management Dashboard</h1>
-        <p className="text-gray-500 text-sm mt-1">Oversee, track and manage all tickets across the team in real-time.</p>
+        <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">
+          {isAdmin ? 'All Tickets Dashboard' : 'My Assigned Tickets'}
+        </h1>
+        <p className="text-gray-500 text-sm mt-1">
+          {isAdmin 
+            ? 'View and manage all tickets in the system.'
+            : 'View and manage tickets assigned to you.'
+          }
+        </p>
       </div>
 
       {error && <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">{error}</div>}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
         {[
-          { title: 'Total Tickets', count: stats.total, icon: <ListChecks className="text-yellow-100" size={25} />, color: 'from-yellow-400 to-yellow-600' },
+          { title: isAdmin ? 'Total Tickets' : 'My Tickets', count: stats.total, icon: <ListChecks className="text-yellow-100" size={25} />, color: 'from-yellow-400 to-yellow-600' },
           { title: 'Open', count: stats.open, icon: <AlertCircle className="text-blue-100" size={25} />, color: 'from-blue-400 to-blue-600' },
           { title: 'In Progress', count: stats.inProgress, icon: <Clock className="text-indigo-100" size={25} />, color: 'from-indigo-400 to-indigo-600' },
           { title: 'Resolved', count: stats.resolved, icon: <CheckCircle className="text-green-100" size={25} />, color: 'from-green-400 to-green-600' },
@@ -214,6 +308,8 @@ export default function TicketsPage() {
           </div>
         ))}
       </div>
+
+
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
         <div className="relative flex-1 max-w-md">
@@ -250,48 +346,126 @@ export default function TicketsPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
-        {filteredTickets.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">{searchTerm || filterStatus !== 'All Statuses' || filterPriority !== 'All Priorities' || filterDepartment !== 'All Departments' ? 'No tickets match your filters.' : 'No tickets found.'}</p>
-          </div>
-        ) : (
-          filteredTickets.map((ticket) => (
-            <div key={ticket._id} className="bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-xl transform hover:-translate-y-1 transition-all p-6 cursor-pointer relative group" onClick={() => handleTicketClick(ticket)}>
-              {/* Action Buttons */}
-              <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
-                {/* Edit Button */}
-                <button onClick={(e) => handleEditTicket(ticket, e)} className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200" title="Edit ticket">
-                  <Edit size={16} />
-                </button>
-
-                {/* Delete Button */}
-                <button onClick={(e) => handleDeleteTicket(ticket._id, e)} disabled={deletingTicket === ticket._id} className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" title="Delete ticket">
-                  {deletingTicket === ticket._id ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> : <Trash2 size={16} />}
-                </button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {isAdmin ? (
+          // Admin View - Only All Tickets
+          <>
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading all tickets...</p>
               </div>
-
-              <div className="flex flex-wrap gap-2 text-xs mb-4">
-                <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-2 py-1 rounded-lg font-medium shadow-sm">{ticket.ticket_id}</span>
-                <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-2 py-1 rounded-lg font-medium shadow-sm`}>{getCurrentStatus(ticket)}</span>
-                <span className={`bg-gradient-to-r ${getPriorityColor(ticket.priority)} px-2 py-1 rounded-lg font-medium shadow-sm`}>{ticket.priority}</span>
-                <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-2 py-1 rounded-lg font-medium shadow-sm">Development</span>
-                <span className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-2 py-1 rounded-lg font-medium shadow-sm">Created: {formatDate(ticket.createdAt)}</span>
+            ) : error ? (
+              <div className="text-center py-12">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">{error}</div>
               </div>
+            ) : filteredTickets.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">
+                  {searchTerm || filterStatus !== 'All Statuses' || filterPriority !== 'All Priorities' || filterDepartment !== 'All Departments' 
+                    ? 'No tickets match your filters.' 
+                    : 'No tickets found.'
+                  }
+                </p>
+              </div>
+            ) : (
+              filteredTickets.map((ticket) => (
+                <div key={ticket._id} className="bg-white border border-gray-200 rounded-2xl shadow-md hover:shadow-xl transform hover:-translate-y-1 transition-all p-6 cursor-pointer relative group" onClick={() => handleTicketClick(ticket)}>
+                  {/* Action Buttons */}
+                  <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    <button onClick={(e) => handleEditTicket(ticket, e)} className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200" title="Edit ticket">
+                      <Edit size={16} />
+                    </button>
+                    <button onClick={(e) => handleDeleteTicket(ticket._id, e)} disabled={deletingTicket === ticket._id} className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" title="Delete ticket">
+                      {deletingTicket === ticket._id ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> : <Trash2 size={16} />}
+                    </button>
+                  </div>
 
-              <h3 className="text-lg font-bold text-gray-800 mb-1">{ticket.title}</h3>
-              {ticket.description && <p className="text-sm text-gray-600 mb-4">{ticket.description}</p>}
+                  <div className="flex flex-wrap gap-2 text-xs mb-4">
+                    <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-2 py-1 rounded-lg font-medium shadow-sm">{ticket.ticket_id}</span>
+                    <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-2 py-1 rounded-lg font-medium shadow-sm`}>{getCurrentStatus(ticket)}</span>
+                    <span className={`bg-gradient-to-r ${getPriorityColor(ticket.priority)} px-2 py-1 rounded-lg font-medium shadow-sm`}>{ticket.priority}</span>
+                    <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-2 py-1 rounded-lg font-medium shadow-sm">Development</span>
+                    <span className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-2 py-1 rounded-lg font-medium shadow-sm">Created: {formatDate(ticket.createdAt)}</span>
+                  </div>
 
-              <div className="flex justify-between items-center text-sm">
-                <div className="flex items-center gap-2 text-gray-700">
-                  <Users size={16} className="text-gray-500" />
-                  <span className="font-medium">Due:</span>
-                  <span className="bg-gray-100 px-2 py-1 rounded-full text-xs shadow-sm">{formatDate(ticket.due_date)}</span>
+                  <h3 className="text-lg font-bold text-gray-800 mb-1">{ticket.title}</h3>
+                  {ticket.description && <p className="text-sm text-gray-600 mb-4">{ticket.description}</p>}
+
+                  <div className="flex justify-between items-center text-sm">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <Users size={16} className="text-gray-500" />
+                      <span className="font-medium">Due:</span>
+                      <span className="bg-gray-100 px-2 py-1 rounded-full text-xs shadow-sm">{formatDate(ticket.due_date)}</span>
+                    </div>
+                    {new Date(ticket.due_date) < new Date() && <span className="text-red-500 font-semibold animate-pulse">⏳ Overdue</span>}
+                  </div>
                 </div>
-                {new Date(ticket.due_date) < new Date() && <span className="text-red-500 font-semibold animate-pulse">⏳ Overdue</span>}
+              ))
+            )}
+          </>
+        ) : (
+          // Non-Admin View - Only Assigned Tickets
+          <>
+            {assignedLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading your tickets...</p>
               </div>
-            </div>
-          ))
+            ) : assignedError ? (
+              <div className="text-center py-12">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">{assignedError}</div>
+              </div>
+            ) : filteredAssignedTickets.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">
+                  {searchTerm || filterStatus !== 'All Statuses' || filterPriority !== 'All Priorities' || filterDepartment !== 'All Departments' 
+                    ? 'No tickets match your filters.' 
+                    : 'No tickets assigned to you.'
+                  }
+                </p>
+              </div>
+            ) : (
+              filteredAssignedTickets.map((ticket) => (
+                <div key={ticket._id} className="bg-white border border-blue-200 rounded-2xl shadow-md hover:shadow-xl transform hover:-translate-y-1 transition-all p-6 cursor-pointer relative group bg-blue-50/30" onClick={() => handleTicketClick(ticket)}>
+                  {/* Assigned Badge */}
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-blue-500 text-white px-2 py-1 rounded-lg text-xs font-medium shadow-sm">Assigned to You</span>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                    <button onClick={(e) => handleEditTicket(ticket, e)} className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200" title="Edit ticket">
+                      <Edit size={16} />
+                    </button>
+                    <button onClick={(e) => handleDeleteTicket(ticket._id, e)} disabled={deletingTicket === ticket._id} className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" title="Delete ticket">
+                      {deletingTicket === ticket._id ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> : <Trash2 size={16} />}
+                    </button>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 text-xs mb-4 mt-8">
+                    <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-2 py-1 rounded-lg font-medium shadow-sm">{ticket.ticket_id}</span>
+                    <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-2 py-1 rounded-lg font-medium shadow-sm`}>{getCurrentStatus(ticket)}</span>
+                    <span className={`bg-gradient-to-r ${getPriorityColor(ticket.priority)} px-2 py-1 rounded-lg font-medium shadow-sm`}>{ticket.priority}</span>
+                    <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-2 py-1 rounded-lg font-medium shadow-sm">Development</span>
+                    <span className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-2 py-1 rounded-lg font-medium shadow-sm">Created: {formatDate(ticket.createdAt)}</span>
+                  </div>
+
+                  <h3 className="text-lg font-bold text-gray-800 mb-1">{ticket.title}</h3>
+                  {ticket.description && <p className="text-sm text-gray-600 mb-4">{ticket.description}</p>}
+
+                  <div className="flex justify-between items-center text-sm">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <Users size={16} className="text-gray-500" />
+                      <span className="font-medium">Due:</span>
+                      <span className="bg-gray-100 px-2 py-1 rounded-full text-xs shadow-sm">{formatDate(ticket.due_date)}</span>
+                    </div>
+                    {new Date(ticket.due_date) < new Date() && <span className="text-red-500 font-semibold animate-pulse">⏳ Overdue</span>}
+                  </div>
+                </div>
+              ))
+            )}
+          </>
         )}
       </div>
 
