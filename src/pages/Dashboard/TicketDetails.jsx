@@ -825,6 +825,7 @@ export default function TicketDetails() {
                     description: '',
                     due_date: '',
                     isSchedule: false,
+                    assign: '',
                   });
                 }}
                 className="text-gray-500 hover:text-gray-700"
@@ -839,6 +840,26 @@ export default function TicketDetails() {
               <div>
                 <label className="text-sm font-medium text-gray-600">Task Title *</label>
                 <input type="text" value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter task title..." required />
+              </div>
+
+              {/* Assign To */}
+              <div>
+                <label className="text-sm font-medium text-gray-600">Assign To</label>
+                <select
+                  value={newTask.assign}
+                  onChange={(e) => setNewTask({...newTask, assign: e.target.value})}
+                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                  disabled={loadingUsers}
+                >
+                  <option value="">
+                    {loadingUsers ? 'Loading users...' : 'Select a user...'}
+                  </option>
+                  {users.map((user) => (
+                    <option key={user._id} value={user._id}>
+                      {user.full_name} ({user.username})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Description */}
@@ -872,6 +893,7 @@ export default function TicketDetails() {
                     description: '',
                     due_date: '',
                     isSchedule: false,
+                    assign: '',
                   });
                 }}
                 className="px-4 py-2 border rounded-lg hover:bg-gray-100"
