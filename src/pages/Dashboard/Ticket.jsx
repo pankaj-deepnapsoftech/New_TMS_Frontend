@@ -462,10 +462,14 @@ export default function TicketsPage() {
                           <span className="bg-white px-2 py-0.5 rounded-full text-xs shadow-sm font-medium">{formatDate(ticket.due_date)}</span>
                         </div>
                       </div>
-                      {new Date(ticket.due_date) < new Date() && (
-                        <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs">⏳ Overdue</span>
-                      )}
                     </div>
+                    
+                    {/* Overdue Indicator - Bottom Right Corner */}
+                    {new Date(ticket.due_date) < new Date() && (
+                      <div className="absolute bottom-1 right-1 z-20">
+                        <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs shadow-lg border border-red-200">⏳ Overdue</span>
+                      </div>
+                    )}
                     
                     <div className="mt-4 pt-3 border-t border-gray-100/50">
                       <span className="text-xs text-gray-500 font-medium">Created: {formatDate(ticket.createdAt)}</span>
@@ -558,10 +562,14 @@ export default function TicketsPage() {
                           <span className="bg-white px-2 py-0.5 rounded-full text-xs shadow-sm font-medium">{formatDate(ticket.due_date)}</span>
                         </div>
                       </div>
-                      {new Date(ticket.due_date) < new Date() && (
-                        <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs">⏳ Overdue</span>
-                      )}
                     </div>
+                    
+                    {/* Overdue Indicator - Bottom Right Corner */}
+                    {new Date(ticket.due_date) < new Date() && (
+                      <div className="absolute bottom-2 right-4 z-20">
+                        <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs shadow-lg border border-red-200">⏳ Overdue</span>
+                      </div>
+                    )}
                     
                     <div className="mt-4 pt-3 border-t border-blue-100/50">
                       <span className="text-xs text-gray-500 font-medium">Created: {formatDate(ticket.createdAt)}</span>
