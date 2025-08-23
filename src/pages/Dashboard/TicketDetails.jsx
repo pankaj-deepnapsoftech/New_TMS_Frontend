@@ -63,7 +63,7 @@ export default function TicketDetails() {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -690,7 +690,7 @@ export default function TicketDetails() {
                   </div>
                 )}
               </div>
-              <button onClick={() => setShowAddTask(true)} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-4 py-2 flex items-center gap-2 font-medium shadow-lg hover:scale-105 transition-transform">
+              <button onClick={() => setShowAddTask(true)} className="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-xl px-4 py-2 flex items-center gap-2 font-medium shadow-lg hover:scale-105 transition-transform">
                 <Plus size={16} /> Add Task
               </button>
             </div>
@@ -714,78 +714,61 @@ export default function TicketDetails() {
                             {getCurrentStatus(task)}
                           </button>
 
-                           <button
-                             onClick={() => openEditTaskModal(task)}
-                             className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
-                             title="Edit task"
-                           >
-                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                             </svg>
-                           </button>
-                                                        <button
-                               onClick={() => handleDeleteTask(typeof task._id === 'string' ? task._id : null)}
-                               disabled={deletingTask}
-                               className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                               title="Delete task"
-                             >
-                             {deletingTask ? (
-                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                             ) : (
-                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                               </svg>
-                             )}
-                           </button>
-                         </div>
-                       </div>
-                       {task.description && typeof task.description === 'string' && task.description.trim() !== '' ? (
-                         <p className="text-gray-600 text-sm mb-3 bg-gray-50 p-2 rounded border-l-2 border-blue-500">
-                           <strong>Description:</strong> {task.description}
-                         </p>
-                       ) : (
-                         <p className="text-gray-400 text-sm mb-3 italic">No description provided</p>
-                       )}
-                       <div className="flex justify-between items-center text-sm">
-                         <div className="flex items-center gap-4">
-                                                       <span className="text-gray-500">
-                              Assigned: <span className="font-medium">
-                                {task.assign && typeof task.assign === 'object' && task.assign.full_name
-                                  ? `${task.assign.full_name} (${task.assign.username})`
-                                  : typeof task.assign === 'string'
-                                    ? users.find(user => user._id === task.assign)?.full_name || 'Not assigned'
-                                    : 'Not assigned'
-                                }
-                              </span>
+                          <button onClick={() => openEditTaskModal(task)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="Edit task">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          <button onClick={() => handleDeleteTask(typeof task._id === 'string' ? task._id : null)} disabled={deletingTask} className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete task">
+                            {deletingTask ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                      {task.description && typeof task.description === 'string' && task.description.trim() !== '' ? (
+                        <p className="text-gray-600 text-sm mb-3 bg-gray-50 p-2 rounded border-l-2 border-blue-500">
+                          <strong>Description:</strong> {task.description}
+                        </p>
+                      ) : (
+                        <p className="text-gray-400 text-sm mb-3 italic">No description provided</p>
+                      )}
+                      <div className="flex justify-between items-center text-sm">
+                        <div className="flex items-center gap-4">
+                          <span className="text-gray-500">
+                            Assigned:{' '}
+                            <span className="font-medium">
+                              {task.assign && typeof task.assign === 'object' && task.assign.full_name ? `${task.assign.full_name} (${task.assign.username})` : typeof task.assign === 'string' ? users.find((user) => user._id === task.assign)?.full_name || 'Not assigned' : 'Not assigned'}
                             </span>
-                           <span className={`${task.due_date && new Date(task.due_date) < new Date() ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
-                             Due: <span className="font-medium">{task.due_date ? formatDate(task.due_date) : 'Not set'}</span>
-                             {task.due_date && new Date(task.due_date) < new Date() && <span className="ml-1 text-red-500">⏳ Overdue</span>}
-                           </span>
-                         </div>
-                       </div>
-                       
-                       {/* Task Status History */}
-                       {task.status && task.status.length > 0 && (
-                         <div className="mt-3 pt-3 border-t border-gray-100">
-                           <h5 className="text-xs font-medium text-gray-600 mb-2">Status History:</h5>
-                           <div className="space-y-1">
-                             {task.status.map((status, index) => (
-                               <div key={typeof status._id === 'string' ? status._id : index} className="flex items-center gap-2 text-xs">
-                                 <span className={`bg-gradient-to-r ${getStatusColor(typeof status.status === 'string' ? status.status : 'Not Started')} px-2 py-1 rounded text-xs font-medium`}>
-                                   {typeof status.status === 'string' ? status.status : 'Not Started'}
-                                 </span>
-                                 <span className="text-gray-500">
-                                   {status.createdAt && typeof status.createdAt === 'string' ? new Date(status.createdAt).toLocaleDateString() : 'Recent'}
-                                 </span>
-                               </div>
-                             ))}
-                           </div>
-                         </div>
-                       )}
-                     </div>
-                   );
-                 })
+                          </span>
+                          <span className={`${task.due_date && new Date(task.due_date) < new Date() ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
+                            Due: <span className="font-medium">{task.due_date ? formatDate(task.due_date) : 'Not set'}</span>
+                            {task.due_date && new Date(task.due_date) < new Date() && <span className="ml-1 text-red-500">⏳ Overdue</span>}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Task Status History */}
+                      {task.status && task.status.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <h5 className="text-xs font-medium text-gray-600 mb-2">Status History:</h5>
+                          <div className="space-y-1">
+                            {task.status.map((status, index) => (
+                              <div key={typeof status._id === 'string' ? status._id : index} className="flex items-center gap-2 text-xs">
+                                <span className={`bg-gradient-to-r ${getStatusColor(typeof status.status === 'string' ? status.status : 'Not Started')} px-2 py-1 rounded text-xs font-medium`}>{typeof status.status === 'string' ? status.status : 'Not Started'}</span>
+                                <span className="text-gray-500">{status.createdAt && typeof status.createdAt === 'string' ? new Date(status.createdAt).toLocaleDateString() : 'Recent'}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
