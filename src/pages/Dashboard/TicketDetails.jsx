@@ -201,17 +201,32 @@ export default function TicketDetails() {
       setUpdatingStatus(true);
       setError('');
 
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/add`;
+      // Check if there's already a status for this ticket (not for tasks)
+      const existingStatus = ticket.status?.find(status => !status.task_id);
+      
+      let apiUrl, method, statusData;
 
-      const statusData = {
-        status: newStatus,
-        ticket_id: typeof ticket._id === 'string' ? ticket._id : null,
-      };
+      if (existingStatus) {
+        // Update existing status
+        apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/update/${existingStatus._id}`;
+        method = 'PUT';
+        statusData = {
+          status: newStatus,
+        };
+      } else {
+        // Create new status
+        apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/add`;
+        method = 'POST';
+        statusData = {
+          status: newStatus,
+          ticket_id: typeof ticket._id === 'string' ? ticket._id : null,
+        };
+      }
 
       console.log('Updating status with data:', statusData);
 
       const response = await fetch(apiUrl, {
-        method: 'POST',
+        method: method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -224,10 +239,23 @@ export default function TicketDetails() {
 
       if (response.ok) {
         // Update the ticket's status in local state
-        setTicket((prevTicket) => ({
-          ...prevTicket,
-          status: [...(prevTicket.status || []), result.data],
-        }));
+        if (existingStatus) {
+          // Update existing status
+          setTicket((prevTicket) => ({
+            ...prevTicket,
+            status: prevTicket.status.map((status) => 
+              status._id === existingStatus._id 
+                ? { ...status, status: newStatus }
+                : status
+            ),
+          }));
+        } else {
+          // Add new status
+          setTicket((prevTicket) => ({
+            ...prevTicket,
+            status: [...(prevTicket.status || []), result.data],
+          }));
+        }
 
         // Close modal and reset form
         setShowStatusModal(false);
@@ -506,18 +534,33 @@ export default function TicketDetails() {
       setUpdatingTaskStatus(true);
       setError('');
 
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/add`;
+      // Check if there's already a status for this task
+      const existingStatus = selectedTaskForStatus.status?.find(status => status.task_id === selectedTaskForStatus._id);
+      
+      let apiUrl, method, statusData;
 
-      const statusData = {
-        status: newTaskStatus,
-        task_id: typeof selectedTaskForStatus._id === 'string' ? selectedTaskForStatus._id : null,
-        ticket_id: typeof ticket._id === 'string' ? ticket._id : null,
-      };
+      if (existingStatus) {
+        // Update existing status
+        apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/update/${existingStatus._id}`;
+        method = 'PUT';
+        statusData = {
+          status: newTaskStatus,
+        };
+      } else {
+        // Create new status
+        apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/add`;
+        method = 'POST';
+        statusData = {
+          status: newTaskStatus,
+          task_id: typeof selectedTaskForStatus._id === 'string' ? selectedTaskForStatus._id : null,
+          ticket_id: typeof ticket._id === 'string' ? ticket._id : null,
+        };
+      }
 
       console.log('Updating task status with data:', statusData);
 
       const response = await fetch(apiUrl, {
-        method: 'POST',
+        method: method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -535,7 +578,13 @@ export default function TicketDetails() {
             typeof task._id === 'string' && typeof selectedTaskForStatus._id === 'string' && task._id === selectedTaskForStatus._id
               ? {
                   ...task,
-                  status: [...(task.status || []), result.data],
+                  status: existingStatus 
+                    ? task.status.map((status) => 
+                        status._id === existingStatus._id 
+                          ? { ...status, status: newTaskStatus }
+                          : status
+                      )
+                    : [...(task.status || []), result.data],
                 }
               : task,
           ),
