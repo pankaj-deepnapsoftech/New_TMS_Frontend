@@ -30,8 +30,12 @@ export default function TicketsPage() {
 
   const getCurrentStatus = (ticket) => {
     if (Array.isArray(ticket.status) && ticket.status.length > 0) {
-      const latest = ticket.status[ticket.status.length - 1];
-      return latest?.status || 'Not Started';
+      // Filter out task statuses, keep only ticket statuses
+      const ticketStatuses = ticket.status.filter((status) => !status.task_id);
+      if (ticketStatuses.length > 0) {
+        const latest = ticketStatuses[ticketStatuses.length - 1];
+        return latest?.status || 'Not Started';
+      }
     }
     return 'Not Started';
   };
