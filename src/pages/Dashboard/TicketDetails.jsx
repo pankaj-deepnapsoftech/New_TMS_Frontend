@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import { useState, useEffect } from 'react';
 import { X, Plus, Users, Clock, CheckCircle, AlertCircle, ListChecks } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -5,6 +6,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 export default function TicketDetails() {
   const navigate = useNavigate();
   const { ticketId: _ticketId } = useParams();
+  const [comment, setComment] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!comment.trim()) return;
+    onSubmit?.(comment);
+    setComment('');
+  };
 
   const [ticket, setTicket] = useState(null);
   const [tasks, setTasks] = useState([]);
@@ -527,7 +536,7 @@ export default function TicketDetails() {
   useEffect(() => {
     fetchTicketDetails();
     fetchUsers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [_ticketId]);
 
   const getStatusColor = (status) => {
@@ -569,7 +578,7 @@ export default function TicketDetails() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading ticket details...</p>
-        </div> 
+        </div>
       </div>
     );
   }
@@ -794,6 +803,23 @@ export default function TicketDetails() {
                 {addingTask ? 'Adding...' : 'Add Task'}
               </button> */}
             </div>
+          </div>
+          <div className="bg-white rounded-2xl shadow-md p-6 mt-10 w-full max-w-xl">
+            <h1 className="text-lg font-semibold text-gray-800 mb-4">Add Comments</h1>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Textarea */}
+              <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Write your comment..." className="w-full h-28 p-3 border border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-700" />
+
+              {/* Buttons */}
+              <div className="flex justify-end gap-3">
+                <button type="button" onClick={() => setComment('')} className="px-4 py-2 rounded-lg border border-gray-400 text-gray-600 hover:bg-gray-100">
+                  Cancel
+                </button>
+                <button type="submit" className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-700">
+                  Submit
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

@@ -411,7 +411,7 @@ export default function TicketsPage() {
                     : 'No tickets have been created yet. Create your first ticket to get started!'
                   }
             </p>
-          </div>
+          </div> 
         ) : (
           filteredTickets.map((ticket) => (
                 <div key={ticket._id} className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
