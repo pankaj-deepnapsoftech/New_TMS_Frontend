@@ -102,6 +102,7 @@ export default function TicketsPage() {
 
   // Delete ticket function
   const handleDeleteTicket = async (ticketId, e) => {
+    e.preventDefault();
     e.stopPropagation(); // Prevent ticket click event
 
     if (!confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
@@ -144,6 +145,7 @@ export default function TicketsPage() {
 
   // Edit ticket function
   const handleEditTicket = (ticket, e) => {
+    e.preventDefault();
     e.stopPropagation(); // Prevent ticket click event
     setSelectedTicket(ticket);
     setIsUpdateOpen(true);
@@ -417,11 +419,22 @@ export default function TicketsPage() {
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   
                   {/* Action Buttons */}
-                  <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                    <button onClick={(e) => handleEditTicket(ticket, e)} className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl" title="Edit ticket">
+                  <div className="absolute top-4 right-4 flex gap-2 opacity-100 transition-all duration-300 z-20">
+                    <button 
+                      onClick={(e) => handleEditTicket(ticket, e)} 
+                      onMouseDown={(e) => e.stopPropagation()}
+                      className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl" 
+                      title="Edit ticket"
+                    >
                       <Edit size={16} />
                     </button>
-                    <button onClick={(e) => handleDeleteTicket(ticket._id, e)} disabled={deletingTicket === ticket._id} className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl" title="Delete ticket">
+                    <button 
+                      onClick={(e) => handleDeleteTicket(ticket._id, e)} 
+                      onMouseDown={(e) => e.stopPropagation()}
+                      disabled={deletingTicket === ticket._id} 
+                      className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl" 
+                      title="Delete ticket"
+                    >
                       {deletingTicket === ticket._id ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> : <Trash2 size={16} />}
                     </button>
                   </div>
@@ -502,11 +515,22 @@ export default function TicketsPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-20">
-                    <button onClick={(e) => handleEditTicket(ticket, e)} className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl" title="Edit ticket">
+                  <div className="absolute top-4 right-4 flex gap-2 opacity-100 transition-all duration-300 z-20">
+                    <button 
+                      onClick={(e) => handleEditTicket(ticket, e)} 
+                      onMouseDown={(e) => e.stopPropagation()}
+                      className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl" 
+                      title="Edit ticket"
+                    >
                       <Edit size={16} />
                     </button>
-                    <button onClick={(e) => handleDeleteTicket(ticket._id, e)} disabled={deletingTicket === ticket._id} className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl" title="Delete ticket">
+                    <button 
+                      onClick={(e) => handleDeleteTicket(ticket._id, e)} 
+                      onMouseDown={(e) => e.stopPropagation()}
+                      disabled={deletingTicket === ticket._id} 
+                      className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl" 
+                      title="Delete ticket"
+                    >
                       {deletingTicket === ticket._id ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> : <Trash2 size={16} />}
                     </button>
                   </div>
