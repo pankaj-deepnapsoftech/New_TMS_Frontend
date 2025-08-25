@@ -1,0 +1,44 @@
+import { Api } from '../store/api';
+
+const RenualService = Api.injectEndpoints({
+  endpoints: (build) => ({
+    // --------------- Renual service here ------------
+
+    getRenual: build.query({
+      query: () => ({
+        url: '/renuals/get',
+        method: 'GET',
+      }),
+      providesTags: ['Renual'],
+    }),
+    createRenual: build.mutation({
+      query: (body) => ({
+        url: '/renuals/create',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Renual'],
+    }),
+    updateRenual: build.mutation({
+      query: ({ id,values }) => ({
+        url: `/renuals/update/${id}`,
+        method: 'PUT',
+        body: values,
+      }),
+      invalidatesTags: ['Renual'],
+    }),
+  
+    deleteRenual: build.mutation({
+      query: (id) => ({
+        url: `/renuals/delete/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Renual'],
+    }),
+    
+
+  }),
+});
+
+// ---------------------- all queries here --------------------
+export const { useCreateRenualMutation,useGetRenualQuery,useDeleteRenualMutation,useUpdateRenualMutation  } = RenualService;

@@ -58,7 +58,7 @@ export default function ImportantNotesPage() {
           <tbody className="divide-y divide-gray-200">
             {notes.length === 0 ? (
               <tr>
-                <td colSpan={3} className="p-4 text-center text-gray-500">
+                <td colSpan={3} className="text-center py-6 text-gray-500 italic">
                   No notes available
                 </td>
               </tr>
@@ -69,7 +69,7 @@ export default function ImportantNotesPage() {
                   <td className="p-3">{note.deals.join(", ")}</td>
                   <td className="p-3">{note.customer.join(", ")}</td>
                 </tr>
-              ))
+              )) 
             )}
           </tbody>
         </table>
