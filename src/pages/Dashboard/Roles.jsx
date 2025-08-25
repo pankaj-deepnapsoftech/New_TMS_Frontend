@@ -41,7 +41,7 @@ export default function RolesPage() {
     const isConfirmed = window.confirm(`Are you sure you want to delete the role "${roleName}"?\n\nThis action cannot be undone.`);
 
     if (!isConfirmed) {
-      return; // User cancelled the deletion
+      return; 
     }
 
     try {
