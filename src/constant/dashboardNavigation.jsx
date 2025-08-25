@@ -1,4 +1,4 @@
-import { LayoutDashboard, Store, UserCog, BrickWallFire, UserRoundPlus,Aperture,NotebookTabs } from 'lucide-react';
+import { LayoutDashboard, Store, UserCog, BrickWallFire, UserRoundPlus, RefreshCcw, NotebookTabs } from 'lucide-react';
 import TaskDashboard from '@pages/Dashboard/Home';
 import Department from '@pages/Dashboard/Department';
 import Roles from '@pages/Dashboard/Roles';
@@ -32,7 +32,7 @@ export const DashbaordNavLinks = [
     icon: UserCog,
     component: <Roles />,
   },
-    {
+  {
     label: 'Tickets',
     value: '/ticket',
     icon: BrickWallFire,
@@ -41,7 +41,7 @@ export const DashbaordNavLinks = [
   {
     label: 'Renewals',
     value: '/renuals',
-    icon: Aperture,
+    icon: RefreshCcw,
     component: <Renuals />,
   },
   {

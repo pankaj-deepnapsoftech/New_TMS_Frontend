@@ -3,9 +3,19 @@ import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { useCreateRenualMutation } from '@/services/Renuals.service';
+import { toast } from 'react-toastify';
+import { useGetRenualQuery } from '@/services/Renuals.service';
 
 export default function RenualsPage() {
-  const [renuals, setRenuals] = useState([]);
+  // --------------------- rtk queries ----------------------
+  const [createRenual,{isloading:CreateRenualLoading}] = useCreateRenualMutation();
+  const {data:renuals,isLoading:getRenualsLoad,refetch} = useGetRenualQuery()
+
+
+
+
+
   const [showModal, setShowModal] = useState(false);
 
   const validationSchema = Yup.object({
@@ -14,15 +24,26 @@ export default function RenualsPage() {
     product: Yup.string().required('Product is required'),
   });
 
-  const handleAddRenual = (values, { resetForm }) => {
+  const handleAddRenual = async (values, { resetForm }) => {
     const newRenual = {
       id: renuals.length + 1,
       ...values,
     };
-    setRenuals([...renuals, newRenual]);
     resetForm();
     setShowModal(false);
+
+    try {
+      const res = await createRenual(newRenual).unwrap();
+      toast.success(res.message);
+      refetch()
+    } catch (error) {
+      toast.error(error.data.message);
+    }
   };
+
+  if(getRenualsLoad){
+    return <div>loging ........</div>
+  }
 
   return (
     <div className="p-6">
@@ -54,8 +75,8 @@ export default function RenualsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {renuals.length > 0 ? (
-              renuals.map((r) => (
+            {renuals?.data?.length > 0 ? (
+              renuals?.data?.map((r) => (
                 <tr
                   key={r.id}
                   className="hover:bg-blue-50 transition-colors duration-200"
@@ -168,6 +189,7 @@ export default function RenualsPage() {
                     </button>
                     <button
                       type="submit"
+                      disabled={CreateRenualLoading}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
                       Save
