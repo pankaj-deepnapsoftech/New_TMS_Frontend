@@ -111,20 +111,20 @@ console.log(tickets?.data)
   };
 
   const handleTicketClick = (ticket) => {
-    navigate(`/tickets/${ticket.ticket_id || ticket._id}`);
+    navigate(`/tickets/${ticket?.ticket_id || ticket?._id}`);
   };
 
   const filteredAssignedTickets = isAdmin ? tickets?.data : myCreatedTickets;
 
-  const filteredTickets = filteredAssignedTickets.filter((ticket) => {
-    const idText = (ticket.ticket_id || '').toLowerCase();
-    const titleText = (ticket.title || '').toLowerCase();
+  const filteredTickets = filteredAssignedTickets?.filter((ticket) => {
+    const idText = (ticket?.ticket_id || '').toLowerCase();
+    const titleText = (ticket?.title || '').toLowerCase();
     const matchesSearch = idText.includes(searchTerm.toLowerCase()) || titleText.includes(searchTerm.toLowerCase());
 
     const statusText = getCurrentStatus(ticket);
     const matchesStatus = filterStatus === 'All Statuses' || statusText === filterStatus;
-    const matchesPriority = filterPriority === 'All Priorities' || ticket.priority === filterPriority;
-    const matchesDepartment = filterDepartment === 'All Departments' || ticket.department?.name === filterDepartment;
+    const matchesPriority = filterPriority === 'All Priorities' || ticket?.priority === filterPriority;
+    const matchesDepartment = filterDepartment === 'All Departments' || ticket?.department?.name === filterDepartment;
 
     return matchesSearch && matchesStatus && matchesPriority && matchesDepartment;
   });
