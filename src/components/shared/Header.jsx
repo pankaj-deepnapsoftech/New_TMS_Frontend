@@ -6,7 +6,7 @@ const Header = () => {
     <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-gray-200">
       <div className="max-w-full px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button className="inline-flex items-center gap-2 bg-indigo-600 text-white px-3 py-2 rounded-xl text-sm font-medium shadow hover:bg-indigo-500">
+          <button className="inline-flex items-center gap-2 bg-sky-600 text-white px-3 py-2 rounded-xl text-sm font-medium shadow hover:bg-sky-500">
             <Plus className="w-4 h-4" />
             New Task
           </button>

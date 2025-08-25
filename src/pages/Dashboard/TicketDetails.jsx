@@ -678,7 +678,7 @@ export default function TicketDetails() {
                   </div>
                 )}
               </div>
-              <button onClick={() => setShowAddTask(true)} className="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-xl px-4 py-2 flex items-center gap-2 font-medium shadow-lg hover:scale-105 transition-transform">
+              <button onClick={() => setShowAddTask(true)} className="bg-gradient-to-r from-blue-600 via-sky-600 to-sky-800 text-white rounded-xl px-4 py-2 flex items-center gap-2 font-medium shadow-lg hover:scale-105 transition-transform">
                 <Plus size={16} /> Add Task
               </button>
             </div>

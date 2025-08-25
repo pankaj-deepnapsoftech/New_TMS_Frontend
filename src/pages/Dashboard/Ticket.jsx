@@ -170,12 +170,12 @@ export default function TicketsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/50 p-6">
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center justify-center gap-4 mb-6">
           <div className="text-center">
-            <h1 className="text-4xl font-extrabold bg-indigo-800 bg-clip-text text-transparent tracking-tight">{isAdmin ? 'All Tickets Dashboard' : 'My Assigned Tickets'}</h1>
+            <h1 className="text-4xl font-extrabold bg-sky-800 bg-clip-text text-transparent tracking-tight">{isAdmin ? 'All Tickets Dashboard' : 'My Assigned Tickets'}</h1>
             <p className="text-gray-600 mt-2 text-lg font-medium">{isAdmin ? 'Manage and monitor all tickets across the organization' : 'View and manage tickets assigned to you'}</p>
           </div>
         </div>
@@ -188,7 +188,7 @@ export default function TicketsPage() {
         {[
           { title: isAdmin ? 'Total Tickets' : 'My Tickets', count: stats.total, icon: <ListChecks className="text-yellow-100" size={14} />, color: 'from-yellow-300 to-yellow-500', bgColor: 'bg-gradient-to-br from-yellow-50 to-orange-50' },
           { title: 'Open', count: stats.open, icon: <AlertCircle className="text-blue-100" size={14} />, color: 'from-blue-300 to-blue-500', bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-50' },
-          { title: 'In Progress', count: stats.inProgress, icon: <Clock className="text-indigo-100" size={14} />, color: 'from-indigo-300 to-indigo-500', bgColor: 'bg-gradient-to-br from-indigo-50 to-purple-50' },
+          { title: 'In Progress', count: stats.inProgress, icon: <Clock className="text-sky-100" size={14} />, color: 'from-sky-300 to-sky-500', bgColor: 'bg-gradient-to-br from-sky-50 to-purple-50' },
           { title: 'Resolved', count: stats.resolved, icon: <CheckCircle className="text-green-100" size={14} />, color: 'from-green-300 to-green-500', bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50' },
           { title: 'Overdue', count: stats.overdue, icon: <Clock className="text-red-100" size={14} />, color: 'from-red-300 to-red-500', bgColor: 'bg-gradient-to-br from-red-50 to-pink-50' },
         ].map((stat, i) => (
@@ -218,7 +218,7 @@ export default function TicketsPage() {
 
         <button
           onClick={() => { setIsOpen(true); setEditTicket(null) }}
-          className="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-2xl px-6 py-3 flex items-center justify-center gap-3 font-semibold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 w-full md:w-auto"
+          className="bg-gradient-to-r from-blue-600 via-sky-600 to-sky-800 text-white rounded-2xl px-6 py-3 flex items-center justify-center gap-3 font-semibold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 w-full md:w-auto"
         >
           <Plus size={20} /> Create Ticket
         </button>
@@ -232,7 +232,7 @@ export default function TicketsPage() {
           <>
             {getTicketloading ? (
               <div className="text-center py-16">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-sky-600 rounded-full shadow-lg mb-6">
                   <div className="animate-spin rounded-full h-8 w-8 border-4 border-white border-t-transparent"></div>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Loading tickets...</h3>
@@ -263,7 +263,7 @@ export default function TicketsPage() {
               tickets?.data.map((ticket) => (
                 <div key={ticket._id} className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
                   {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-sky-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                   {/* Action Buttons */}
                   <div className="absolute top-4 right-4 flex gap-2 opacity-100 transition-all duration-300 z-20">
@@ -331,7 +331,7 @@ export default function TicketsPage() {
           <>
             {assignedLoading ? (
               <div className="text-center py-16">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-sky-600 rounded-full shadow-lg mb-6">
                   <div className="animate-spin rounded-full h-8 w-8 border-4 border-white border-t-transparent"></div>
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Loading your tickets...</h3>
@@ -360,13 +360,13 @@ export default function TicketsPage() {
               </div>
             ) : (
               filteredTickets.map((ticket) => (
-                <div key={ticket._id} className="bg-gradient-to-br from-blue-50/80 to-indigo-50/60 backdrop-blur-sm border border-blue-200/50 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
+                <div key={ticket._id} className="bg-gradient-to-br from-blue-50/80 to-sky-50/60 backdrop-blur-sm border border-blue-200/50 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
                   {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-transparent to-indigo-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-transparent to-sky-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                   {/* Assigned Badge */}
                   <div className="absolute top-4 left-4 z-20">
-                    <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-blue-400/30">Assigned to You</span>
+                    <span className="bg-gradient-to-r from-blue-500 to-sky-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-blue-400/30">Assigned to You</span>
                   </div>
 
                   {/* Action Buttons */}

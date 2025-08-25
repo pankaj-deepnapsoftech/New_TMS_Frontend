@@ -2,16 +2,15 @@ import { useState } from 'react';
 import { RolesModal } from '@components/Modals/RoleModal';
 import { useGetRoleQuery, useDeleteRoleMutation } from '@/services/Roles.service';
 import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
 
 export default function RolesPage() {
   const [open, setOpen] = useState(false);
   const [editData, setEditData] = useState(null);
-
-  // Get the current user ID (you might need to get this from your auth context)
-  const currentUserId = '68a43eed18ea5481a6c68551'; // This should come from your auth state
+  const user = useSelector((state) => state.Auth.user)
 
   // Fetch roles data
-  const { data: rolesData, isLoading, error, refetch } = useGetRoleQuery(currentUserId);
+  const { data: rolesData, isLoading, error, refetch } = useGetRoleQuery(user?._id);
 
   // Delete role mutation
   const [deleteRole, { isLoading: isDeleting }] = useDeleteRoleMutation();
