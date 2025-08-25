@@ -35,7 +35,7 @@ export default function TicketsPage() {
         const latest = ticketStatuses[ticketStatuses.length - 1];
         return latest?.status || 'Not Started';
       }
-    }
+    }  
     return 'Not Started';
   };
 

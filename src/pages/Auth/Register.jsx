@@ -9,6 +9,9 @@ import { useRegisterMutation } from '../../services/Auth.service';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
+// Toaster
+import toast, { Toaster } from 'react-hot-toast';
+
 function RegisterForm() {
   // RTK Query mutation
   const [register, { isLoading }] = useRegisterMutation();
@@ -29,9 +32,11 @@ function RegisterForm() {
     try {
       const res = await register(values).unwrap();
       console.log('Register success:', res);
+      toast.success('Account created successfully 🎉');
       resetForm();
     } catch (error) {
       console.error('Register failed:', error);
+      toast.error(error?.data?.message || 'Registration failed ❌');
     } finally {
       setSubmitting(false);
     }
@@ -41,14 +46,18 @@ function RegisterForm() {
   const googleRegister = useGoogleLogin({
     onSuccess: (tokenResponse) => {
       console.log('Google token response:', tokenResponse);
+      toast.success('Google sign-up successful 🚀');
     },
     onError: () => {
-      console.error('Google Sign Up Failed');
+      toast.error('Google Sign Up Failed ❌');
     },
   });
 
   return (
     <div className="flex items-center bg-gradient-to-r from-gray-200 to-gray-300 justify-center h-screen bg-cover bg-center overflow-hidden">
+      {/* Toaster here */}
+      <Toaster position="top-right" reverseOrder={false} />
+
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="bg-white/20 backdrop-blur-xl shadow-xl rounded-2xl flex w-[1000px] h-[700px] overflow-hidden border border-white/30">
         {/* Left Section */}
         <div className="w-1/2 p-10 flex flex-col justify-center">
