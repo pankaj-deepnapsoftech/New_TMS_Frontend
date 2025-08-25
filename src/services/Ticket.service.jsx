@@ -3,6 +3,14 @@ import { Api } from '../store/api';
 const TicketService = Api.injectEndpoints({
   endpoints: (build) => ({
     // --------------- Ticket service here ------------
+
+    getTicket: build.query({
+      query: () => ({
+        url: '/ticket/get',
+        method: 'GET',
+      }),
+      providesTags: ['Ticket'],
+    }),
     createTicket: build.mutation({
       query: (body) => ({
         url: '/ticket/create',
@@ -11,17 +19,26 @@ const TicketService = Api.injectEndpoints({
       }),
       invalidatesTags: ['Ticket'],
     }),
-
     updateTicket: build.mutation({
-      query: ({ id, data }) => ({
-        url: `/ticket/update/${id} `,
+      query: ({ id,values }) => ({
+        url: `/ticket/update/${id}`,
         method: 'PUT',
-        body: data,
+        body: values,
       }),
       invalidatesTags: ['Ticket'],
     }),
+  
+    deleteTicket: build.mutation({
+      query: (id) => ({
+        url: `/ticket/delete/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Ticket'],
+    }),
+    
+
   }),
 });
 
 // ---------------------- all queries here --------------------
-export const { useCreateTicketMutation, useUpdateTicketMutation } = TicketService;
+export const { useGetTicketQuery,useCreateTicketMutation, useUpdateTicketMutation,useDeleteTicketMutation } = TicketService;

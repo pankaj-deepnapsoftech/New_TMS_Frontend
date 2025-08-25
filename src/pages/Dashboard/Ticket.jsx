@@ -4,6 +4,9 @@ import TicketModal from '@components/Modals/TicketsModal';
 import UpdateTicketModal from '@components/Modals/UpdateTicketModal';
 import { useNavigate } from 'react-router-dom';
 import { useGetCurrentUserQuery } from '@/services/Auth.service';
+import { useDeleteTicketMutation } from '@/services/Ticket.service';
+// import { useGetTicketQuery } from '@/services/Ticket.service';
+
 
 export default function TicketsPage() {
   const navigate = useNavigate();
@@ -20,13 +23,16 @@ export default function TicketsPage() {
   const [error, setError] = useState('');
   const [assignedError, setAssignedError] = useState('');
   const [isOpen, setIsOpen] = useState(false);
-  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState(null);
+  // const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  // const [selectedTicket, setSelectedTicket] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All Statuses');
   const [filterPriority, setFilterPriority] = useState('All Priorities');
   const [filterDepartment, setFilterDepartment] = useState('All Departments');
-  const [deletingTicket, setDeletingTicket] = useState(null);
+  const [editTicket,setEditTicket] = useState(null)
+  const [DeleteTicket] = useDeleteTicketMutation()
+  // const { data:ticketData } = useGetTicketQuery()
+
 
   const getCurrentStatus = (ticket) => {
     if (Array.isArray(ticket.status) && ticket.status.length > 0) {
@@ -72,6 +78,8 @@ export default function TicketsPage() {
     }
   };
 
+  // console.log(TicketData)
+
   // Fetch assigned tickets from API
   const fetchAssignedTickets = async () => {
     try {
@@ -104,67 +112,18 @@ export default function TicketsPage() {
     }
   };
 
-  // Delete ticket function
   const handleDeleteTicket = async (ticketId, e) => {
     e.preventDefault();
     e.stopPropagation(); // Prevent ticket click event
-    
-    if (!confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      setDeletingTicket(ticketId);
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/delete/${ticketId}`;
-      
-      const response = await fetch(apiUrl, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          // Remove Authorization header - cookies will be sent automatically
-        },
-        credentials: 'include' // This will send cookies automatically
-      });
-
-      if (response.ok) {
-        // Remove the ticket from the local state based on user role
-        if (isAdmin) {
-          setTickets((prevTickets) => prevTickets.filter((ticket) => ticket._id !== ticketId));
-        } else {
-          setAssignedTickets((prevTickets) => prevTickets.filter((ticket) => ticket._id !== ticketId));
-        }
-        // You can add a success notification here
-        console.log('Ticket deleted successfully');
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        setError(errorData.message || 'Failed to delete ticket');
+    if (window.confirm('Are you sure you want to delete this ticket? This action cannot be undone.')){
+      try {
+        DeleteTicket(ticketId)
+      } catch (error) {
+        console.log(error)
       }
-    } catch (err) {
-      console.error('Error deleting ticket:', err);
-      setError('Network error. Please try again.');
-    } finally {
-      setDeletingTicket(null);
     }
   };
 
-  // Edit ticket function
-  const handleEditTicket = (ticket, e) => {
-    e.preventDefault();
-    e.stopPropagation(); // Prevent ticket click event
-    setSelectedTicket(ticket);
-    setIsUpdateOpen(true);
-  };
-
-  // Handle ticket update
-  const handleTicketUpdate = (updatedTicket) => {
-    if (isAdmin) {
-      // Admin updates all tickets list
-      setTickets((prevTickets) => prevTickets.map((ticket) => (ticket._id === updatedTicket._id ? updatedTicket : ticket)));
-    } else {
-      // Non-admin updates assigned tickets list
-      setAssignedTickets((prevTickets) => prevTickets.map((ticket) => (ticket._id === updatedTicket._id ? updatedTicket : ticket)));
-    }
-  };
 
   useEffect(() => {
     if (!userLoading && currentUser) {
@@ -180,10 +139,8 @@ export default function TicketsPage() {
 
   const handleTicketCreated = () => {
     if (isAdmin) {
-      // Admin refreshes all tickets
     fetchTickets();
     } else {
-      // Non-admin refreshes assigned tickets
       fetchAssignedTickets();
     }
   };
@@ -375,7 +332,7 @@ export default function TicketsPage() {
         </div>
 
           <button 
-            onClick={() => setIsOpen(true)} 
+            onClick={() => { setIsOpen(true); setEditTicket(null) }} 
             className="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-2xl px-6 py-3 flex items-center gap-3 font-semibold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
           >
             <Plus size={20} /> Create Ticket
@@ -425,21 +382,26 @@ export default function TicketsPage() {
               {/* Action Buttons */}
                   <div className="absolute top-4 right-4 flex gap-2 opacity-100 transition-all duration-300 z-20">
                 <button
-                  onClick={(e) => handleEditTicket(ticket, e)}
-                      onMouseDown={(e) => e.stopPropagation()}
-                      className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();  
+                    setIsOpen(true);
+                    setEditTicket(ticket);
+                  }}
+                  className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl"
                   title="Edit ticket"
                 >
                   <Edit size={16} />
                 </button>
+
                     <button 
                       onClick={(e) => handleDeleteTicket(ticket._id, e)} 
                       onMouseDown={(e) => e.stopPropagation()}
-                      disabled={deletingTicket === ticket._id} 
+                      
                       className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl" 
                       title="Delete ticket"
                     >
-                      {deletingTicket === ticket._id ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> : <Trash2 size={16} />}
+                       <Trash2 size={16} />
                     </button>
                   </div>
 
@@ -526,7 +488,7 @@ export default function TicketsPage() {
                   <div className="absolute top-4 right-4 flex gap-2 opacity-100 transition-all duration-300 z-20">
                     <button 
                       onClick={(e) => handleEditTicket(ticket, e)} 
-                      onMouseDown={(e) => e.stopPropagation()}
+                      // onMouseDown={(e) => e.stopPropagation()}
                       className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl" 
                       title="Edit ticket"
                     >
@@ -535,11 +497,11 @@ export default function TicketsPage() {
                 <button
                   onClick={(e) => handleDeleteTicket(ticket._id, e)}
                       onMouseDown={(e) => e.stopPropagation()}
-                  disabled={deletingTicket === ticket._id}
+                 
                       className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl" 
                   title="Delete ticket"
                 >
-                      {deletingTicket === ticket._id ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> : <Trash2 size={16} />}
+                       <Trash2 size={16} />
                 </button>
               </div>
 
@@ -589,10 +551,11 @@ export default function TicketsPage() {
           setIsOpen(false);
           handleTicketCreated();
         }}
+        editTicket={editTicket}
       />
 
       {/* Update Ticket Modal */}
-      <UpdateTicketModal
+      {/* <UpdateTicketModal
         isOpen={isUpdateOpen}
         onClose={() => {
           setIsUpdateOpen(false);
@@ -600,7 +563,7 @@ export default function TicketsPage() {
         }}
         ticket={selectedTicket}
         onUpdate={handleTicketUpdate}
-      />
+      /> */}
     </div>
   );
 }

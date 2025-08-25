@@ -6,41 +6,56 @@ import { useCreateTicketMutation, useUpdateTicketMutation } from '../../services
 import { useGetDepartmentQuery } from '../../services/Department.service';
 import { TicketvalidationSchema } from '../../Validation/TicketCreateValidation';
 
+
 const TicketModal = ({ isOpen, onClose, editTicket }) => {
   const [createTicket, { isLoading }] = useCreateTicketMutation();
   const { data } = useGetDepartmentQuery();
   const DepartmentData = data?.data || [];
   const [UpdatedTicket] = useUpdateTicketMutation();
 
-  console.log(editTicket);
+  // console.log(editTicket);
   const formik = useFormik({
-    initialValues: editTicket || {
-      title: '',
-      description: '',
-      department: '',
-      priority: 'Medium',
-      due_date: '',
+    initialValues: {
+      title: editTicket?.title || '',
+      description: editTicket?.description || '',
+      department: editTicket?.department?._id || editTicket?.department || '',
+      priority: editTicket?.priority || 'Medium',
+      due_date: editTicket?.due_date
+        ? new Date(editTicket.due_date).toISOString().slice(0, 16)
+        : '',
     },
     enableReinitialize: true,
     validationSchema: TicketvalidationSchema,
     onSubmit: async (values) => {
       try {
-        const res = await createTicket(values).unwrap();
-        console.log(res);
+        if (editTicket?._id) {
+         
+          const res = await UpdatedTicket({ id: editTicket._id, values }).unwrap();
+         
+        } else {
+          await createTicket(values).unwrap();
+        }
         formik.resetForm();
-        onClose()
+        onClose();
       } catch (err) {
         console.error(err);
       }
     },
-  })
+
+  });
+
 
   return (
     <AnimatePresence>
     { isOpen && (<motion.div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
         <motion.div className="bg-white rounded-xl shadow-lg w-[600px] max-h-[90vh] overflow-y-auto" initial={{ y: '-100px', opacity: 0, scale: 0.9 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: '-100px', opacity: 0, scale: 0.9 }} transition={{ duration: 0.3, ease: 'easeOut' }}>
           <div className="flex justify-between items-center border-b border-gray-300  px-6 py-4">
-            <h2 className="text-lg font-semibold flex items-center gap-2"> Create New Ticket</h2>
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              {editTicket ? 'Edit Ticket' : 'Create New Ticket'}
+            </h2>
+
+           
+
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
               ✖
             </button>
