@@ -16,20 +16,15 @@ export default function TicketsPage() {
   const isAdmin = currentUser?.admin || false;
 
   const [assignedTickets, setAssignedTickets] = useState([]);
-  // eslint-disable-next-line no-unused-vars
   const [assignedLoading, setAssignedLoading] = useState(true);
   const [error, setError] = useState('');
   const [assignedError, setAssignedError] = useState('');
   const [isOpen, setIsOpen] = useState(false);
-  // const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-  // const [selectedTicket, setSelectedTicket] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('All Statuses');
-  const [filterPriority, setFilterPriority] = useState('All Priorities');
-  const [filterDepartment, setFilterDepartment] = useState('All Departments');
-  const [editTicket, setEditTicket] = useState(null);
-  const [DeleteTicket] = useDeleteTicketMutation();
-  const { data: tickets, isLoading: getTicketloading } = useGetTicketQuery();
+  const [editTicket, setEditTicket] = useState(null)
+  const [DeleteTicket] = useDeleteTicketMutation()
+  const { data: tickets, isLoading: getTicketloading } = useGetTicketQuery()
+
 
   console.log(tickets?.data);
 
@@ -77,7 +72,7 @@ export default function TicketsPage() {
 
   const handleDeleteTicket = async (ticketId, e) => {
     e.preventDefault();
-    e.stopPropagation(); // Prevent ticket click event
+    e.stopPropagation();
     if (window.confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
       try {
         DeleteTicket(ticketId);
@@ -105,23 +100,18 @@ export default function TicketsPage() {
     navigate(`/tickets/${ticket?.ticket_id || ticket?._id}`);
   };
 
-  const filteredAssignedTickets = isAdmin ? tickets?.data : myCreatedTickets;
+  const myCreatedTickets = tickets?.data?.filter(ticket => ticket.creator === currentUser?._id) || [];
+
+  
+  const filteredAssignedTickets = isAdmin ? tickets?.data || [] : assignedTickets || [];
+
 
   const filteredTickets = filteredAssignedTickets?.filter((ticket) => {
     const idText = (ticket?.ticket_id || '').toLowerCase();
     const titleText = (ticket?.title || '').toLowerCase();
-    const matchesSearch = idText.includes(searchTerm.toLowerCase()) || titleText.includes(searchTerm.toLowerCase());
-
-    const statusText = getCurrentStatus(ticket);
-    const matchesStatus = filterStatus === 'All Statuses' || statusText === filterStatus;
-    const matchesPriority = filterPriority === 'All Priorities' || ticket?.priority === filterPriority;
-    const matchesDepartment = filterDepartment === 'All Departments' || ticket?.department?.name === filterDepartment;
-
-    return matchesSearch && matchesStatus && matchesPriority && matchesDepartment;
+    return idText.includes(searchTerm.toLowerCase()) || titleText.includes(searchTerm.toLowerCase());
   });
 
-  // Show all tickets created by current user (non-admin)
-  const myCreatedTickets = tickets?.data?.filter((ticket) => ticket.creator === currentUser?._id) || [];
 
   const stats = {
     total: isAdmin ? tickets?.data?.length : myCreatedTickets.length,
@@ -211,67 +201,29 @@ export default function TicketsPage() {
         ))}
       </div>
 
-      {/* Search & Filters */}
-      <div className="bg-white/70 backdrop-blur-sm border border-white/20 rounded-3xl p-6 mb-10 shadow-xl">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search tickets..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full border-0 bg-gray-50/80 rounded-2xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition-all duration-300 shadow-sm"
-            />
-          </div>
 
-          <div className="flex flex-wrap gap-3">
-            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="border-0 bg-gray-50/80 rounded-2xl px-4 py-3 text-sm shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-              <option>All Statuses</option>
-              <option>Not Started</option>
-              <option>Open</option>
-              <option>In Progress</option>
-              <option>Resolved</option>
-            </select>
-            <select value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)} className="border-0 bg-gray-50/80 rounded-2xl px-4 py-3 text-sm shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-              <option>All Priorities</option>
-              <option>High</option>
-              <option>Medium</option>
-              <option>Low</option>
-            </select>
-            <select value={filterDepartment} onChange={(e) => setFilterDepartment(e.target.value)} className="border-0 bg-gray-50/80 rounded-2xl px-4 py-3 text-sm shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-              <option>All Departments</option>
-              <option>Development</option>
-              <option>Design</option>
-              <option>Support</option>
-            </select>
-          </div>
+      <div className="bg-white/70 backdrop-blur-sm flex flex-col md:flex-row gap-4 md:items-center border border-white/20 rounded-3xl p-6 mb-10 shadow-xl">
 
-          <select value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)} className="border-0 bg-gray-50/80 rounded-2xl px-4 py-3 text-sm shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            <option>All Priorities</option>
-            <option>High</option>
-            <option>Medium</option>
-            <option>Low</option>
-          </select>
-
-          <select value={filterDepartment} onChange={(e) => setFilterDepartment(e.target.value)} className="border-0 bg-gray-50/80 rounded-2xl px-4 py-3 text-sm shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            <option>All Departments</option>
-            <option>Development</option>
-            <option>Design</option>
-            <option>Support</option>
-          </select>
+        <div className="relative flex-1 max-w-full md:max-w-md w-full">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="Search tickets..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full border-0 bg-gray-50/80 rounded-2xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition-all duration-300 shadow-sm"
+          />
         </div>
 
         <button
-          onClick={() => {
-            setIsOpen(true);
-            setEditTicket(null);
-          }}
-          className="bg-gradient-to-r from-blue-600 via-sky-600 to-sky-800 text-white rounded-2xl px-6 py-3 flex items-center gap-3 font-semibold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 mt-10 transform hover:-translate-y-1"
+          onClick={() => { setIsOpen(true); setEditTicket(null) }}
+          className="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-2xl px-6 py-3 flex items-center justify-center gap-3 font-semibold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 w-full md:w-auto"
         >
           <Plus size={20} /> Create Ticket
         </button>
       </div>
+
+
 
       {/* Tickets Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -300,18 +252,15 @@ export default function TicketsPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">No Assigned Tickets</h3>
                 <p className="text-gray-600 max-w-md mx-auto">
-                  {searchTerm || filterStatus !== 'All Statuses' || filterPriority !== 'All Priorities' || filterDepartment !== 'All Departments'
+                  {searchTerm
                     ? 'No tickets match your current filters. Try adjusting your search criteria.'
-                    : 'No tickets have been created yet. Create your first ticket to get started!'}
+                    : 'No tickets have been created yet. Create your first ticket to get started!'
+                  }
                 </p>
               </div>
             ) : (
               tickets?.data.map((ticket) => (
-                <div
-                  key={ticket._id}
-                  className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden"
-                  onClick={() => handleTicketClick(ticket)}
-                >
+                <div key={ticket._id} className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
@@ -402,18 +351,15 @@ export default function TicketsPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">No Assigned Tickets</h3>
                 <p className="text-gray-600 max-w-md mx-auto">
-                  {searchTerm || filterStatus !== 'All Statuses' || filterPriority !== 'All Priorities' || filterDepartment !== 'All Departments'
+                  {searchTerm 
                     ? 'No assigned tickets match your current filters. Try adjusting your search criteria.'
-                    : "You don't have any tickets assigned to you yet. Check back later or contact your administrator."}
+                    : 'You don\'t have any tickets assigned to you yet. Check back later or contact your administrator.'
+                  }
                 </p>
               </div>
             ) : (
               filteredTickets.map((ticket) => (
-                <div
-                  key={ticket._id}
-                  className="bg-gradient-to-br from-blue-50/80 to-indigo-50/60 backdrop-blur-sm border border-blue-200/50 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden"
-                  onClick={() => handleTicketClick(ticket)}
-                >
+                <div key={ticket._id} className="bg-gradient-to-br from-blue-50/80 to-indigo-50/60 backdrop-blur-sm border border-blue-200/50 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-transparent to-indigo-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
@@ -425,7 +371,7 @@ export default function TicketsPage() {
                   {/* Action Buttons */}
                   <div className="absolute top-4 right-4 flex gap-2 opacity-100 transition-all duration-300 z-20">
                     <button
-                      // onClick={(e) => handleEditTicket(ticket, e)}
+                      // onClick={(e) => handleEditTicket(ticket, e)} 
                       // onMouseDown={(e) => e.stopPropagation()}
                       className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                       title="Edit ticket"

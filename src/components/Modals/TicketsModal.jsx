@@ -109,15 +109,28 @@ const TicketModal = ({ isOpen, onClose, editTicket }) => {
               <input type="text" placeholder="Search employees..." className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
 
-            {/* Buttons */}
+           
             <div className="flex justify-end gap-3 border-t border-gray-300 pt-4">
-              <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-400 rounded-lg hover:bg-gray-100" disabled={isLoading}>
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-400 rounded-lg hover:bg-gray-100"
+                disabled={isLoading}
+              >
                 Cancel
               </button>
-              <button type="submit" disabled={isLoading} className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
-                {isLoading ? 'Creating...' : 'Create Ticket'}
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+              >
+                {isLoading
+                  ? (editTicket ? 'Updating...' : 'Creating...')
+                  : (editTicket ? 'Update Ticket' : 'Create Ticket')}
               </button>
             </div>
+
           </form>
         </motion.div>
       </motion.div>)}
