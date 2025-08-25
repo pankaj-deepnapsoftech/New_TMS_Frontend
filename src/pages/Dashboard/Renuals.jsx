@@ -98,7 +98,7 @@ export default function RenualsPage() {
                     </button>
 
                     {/* Delete Button */}
-                    <button onClick={() => handleDelete(row.id)} className="text-red-600 hover:text-red-800">
+                    <button onClick={() => handleDelete(row.id)} className="text-red-600 hover:text-red-800">     
                       <Trash2 size={18} />
                     </button>
                   </td>
