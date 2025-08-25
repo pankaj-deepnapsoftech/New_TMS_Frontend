@@ -7,15 +7,15 @@ import { useGetCurrentUserQuery } from '@/services/Auth.service';
 
 export default function TicketsPage() {
   const navigate = useNavigate();
-  
+
   // Get current user
   const { data: currentUserData, isLoading: userLoading } = useGetCurrentUserQuery();
   const currentUser = currentUserData?.user;
   const isAdmin = currentUser?.admin || false;
-  
+
   const [tickets, setTickets] = useState([]);
   const [assignedTickets, setAssignedTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); 
   const [assignedLoading, setAssignedLoading] = useState(true);
   const [error, setError] = useState('');
   const [assignedError, setAssignedError] = useState('');
@@ -45,12 +45,12 @@ export default function TicketsPage() {
       setLoading(true);
       setError('');
 
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/get`;
+      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/get`;                             
 
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -79,7 +79,7 @@ export default function TicketsPage() {
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -101,7 +101,7 @@ export default function TicketsPage() {
   const handleDeleteTicket = async (ticketId, e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (!confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
       return;
     }
@@ -109,11 +109,11 @@ export default function TicketsPage() {
     try {
       setDeletingTicket(ticketId);
       const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/delete/${ticketId}`;
-      
+
       const response = await fetch(apiUrl, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -174,19 +174,6 @@ export default function TicketsPage() {
     navigate(`/tickets/${ticket.ticket_id || ticket._id}`);
   };
 
-  const filteredTickets = tickets.filter((ticket) => {
-    const idText = (ticket.ticket_id || '').toLowerCase();
-    const titleText = (ticket.title || '').toLowerCase();
-    const matchesSearch = idText.includes(searchTerm.toLowerCase()) || titleText.includes(searchTerm.toLowerCase());
-
-    const statusText = getCurrentStatus(ticket);
-    const matchesStatus = filterStatus === 'All Statuses' || statusText === filterStatus;
-    const matchesPriority = filterPriority === 'All Priorities' || ticket.priority === filterPriority;
-    const matchesDepartment = filterDepartment === 'All Departments' || ticket.department === filterDepartment;
-
-    return matchesSearch && matchesStatus && matchesPriority && matchesDepartment;
-  });
-
   const filteredAssignedTickets = assignedTickets.filter((ticket) => {
     const idText = (ticket.ticket_id || '').toLowerCase();
     const titleText = (ticket.title || '').toLowerCase();
@@ -202,18 +189,10 @@ export default function TicketsPage() {
 
   const stats = {
     total: isAdmin ? tickets.length : assignedTickets.length,
-    open: isAdmin 
-      ? tickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length
-      : assignedTickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
-    inProgress: isAdmin 
-      ? tickets.filter((t) => getCurrentStatus(t) === 'In Progress').length
-      : assignedTickets.filter((t) => getCurrentStatus(t) === 'In Progress').length,
-    resolved: isAdmin 
-      ? tickets.filter((t) => getCurrentStatus(t) === 'Resolved').length
-      : assignedTickets.filter((t) => getCurrentStatus(t) === 'Resolved').length,
-    overdue: isAdmin 
-      ? tickets.filter((t) => new Date(t.due_date) < new Date()).length
-      : assignedTickets.filter((t) => new Date(t.due_date) < new Date()).length,
+    open: isAdmin ? tickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
+    inProgress: isAdmin ? tickets.filter((t) => getCurrentStatus(t) === 'In Progress').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'In Progress').length,
+    resolved: isAdmin ? tickets.filter((t) => getCurrentStatus(t) === 'Resolved').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'Resolved').length,
+    overdue: isAdmin ? tickets.filter((t) => new Date(t.due_date) < new Date()).length : assignedTickets.filter((t) => new Date(t.due_date) < new Date()).length,
   };
 
   const formatDate = (dateString) => {
@@ -269,14 +248,8 @@ export default function TicketsPage() {
       <div className="mb-10">
         <div className="flex items-center justify-center gap-4 mb-6">
           <div className="text-center">
-            <h1 className="text-4xl font-extrabold bg-indigo-800 bg-clip-text text-transparent tracking-tight">
-              {isAdmin ? 'All Tickets Dashboard' : 'My Assigned Tickets'}
-            </h1>
-            <p className="text-gray-600 mt-2 text-lg font-medium">
-              {isAdmin 
-                ? 'Manage and monitor all tickets across the organization' 
-                : 'View and manage tickets assigned to you'}
-            </p>
+            <h1 className="text-4xl font-extrabold bg-indigo-800 bg-clip-text text-transparent tracking-tight">{isAdmin ? 'All Tickets Dashboard' : 'My Assigned Tickets'}</h1>
+            <p className="text-gray-600 mt-2 text-lg font-medium">{isAdmin ? 'Manage and monitor all tickets across the organization' : 'View and manage tickets assigned to you'}</p>
           </div>
         </div>
       </div>
@@ -346,7 +319,7 @@ export default function TicketsPage() {
 
       {/* Tickets Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {isAdmin ? (
+        {isAdmin && (
           <>
             {loading ? (
               <div className="text-center py-16">
@@ -371,18 +344,21 @@ export default function TicketsPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">No Assigned Tickets</h3>
                 <p className="text-gray-600 max-w-md mx-auto">
-                  {searchTerm || filterStatus !== 'All Statuses' || filterPriority !== 'All Priorities' || filterDepartment !== 'All Departments' 
-                    ? 'No assigned tickets match your current filters. Try adjusting your search criteria.' 
-                    : 'You don\'t have any tickets assigned to you yet. Check back later or contact your administrator.'
-                  }
+                  {searchTerm || filterStatus !== 'All Statuses' || filterPriority !== 'All Priorities' || filterDepartment !== 'All Departments'
+                    ? 'No assigned tickets match your current filters. Try adjusting your search criteria.'
+                    : "You don't have any tickets assigned to you yet. Check back later or contact your administrator."}
                 </p>
               </div>
             ) : (
               filteredAssignedTickets.map((ticket) => (
-                <div key={ticket._id} className="bg-gradient-to-br from-blue-50/80 to-indigo-50/60 backdrop-blur-sm border border-blue-200/50 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
+                <div
+                  key={ticket._id}
+                  className="bg-gradient-to-br from-blue-50/80 to-indigo-50/60 backdrop-blur-sm border border-blue-200/50 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden"
+                  onClick={() => handleTicketClick(ticket)}
+                >
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-transparent to-indigo-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  
+
                   {/* Assigned Badge */}
                   <div className="absolute top-4 left-4 z-20">
                     <span className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-blue-400/30">Assigned to You</span>
@@ -390,37 +366,37 @@ export default function TicketsPage() {
 
                   {/* Action Buttons */}
                   <div className="absolute top-4 right-4 flex gap-2 opacity-100 transition-all duration-300 z-20">
-                    <button 
-                      onClick={(e) => handleEditTicket(ticket, e)} 
+                    <button
+                      onClick={(e) => handleEditTicket(ticket, e)}
                       onMouseDown={(e) => e.stopPropagation()}
-                      className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl" 
+                      className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                       title="Edit ticket"
                     >
                       <Edit size={16} />
                     </button>
-                <button
-                  onClick={(e) => handleDeleteTicket(ticket._id, e)}
+                    <button
+                      onClick={(e) => handleDeleteTicket(ticket._id, e)}
                       onMouseDown={(e) => e.stopPropagation()}
-                  disabled={deletingTicket === ticket._id}
-                      className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl" 
-                  title="Delete ticket"
-                >
+                      disabled={deletingTicket === ticket._id}
+                      className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                      title="Delete ticket"
+                    >
                       {deletingTicket === ticket._id ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> : <Trash2 size={16} />}
-                </button>
-              </div>
+                    </button>
+                  </div>
 
                   <div className="relative z-10 mt-8">
-              <div className="flex flex-wrap gap-2 text-xs mb-4">
+                    <div className="flex flex-wrap gap-2 text-xs mb-4">
                       <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-red-200/50">{ticket.ticket_id}</span>
                       <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{getCurrentStatus(ticket)}</span>
                       <span className={`bg-gradient-to-r ${getPriorityColor(ticket.priority)} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{ticket.priority}</span>
                       <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">Development</span>
-              </div>
+                    </div>
 
                     <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-800 transition-colors duration-300">{ticket.title}</h3>
                     {ticket.description && <p className="text-sm text-gray-600 mb-4 line-clamp-2">{ticket.description}</p>}
 
-              <div className="flex justify-between items-center text-sm">
+                    <div className="flex justify-between items-center text-sm">
                       <div className="flex items-center gap-3 text-gray-700">
                         <div className="flex items-center gap-2 bg-blue-100/80 px-3 py-1.5 rounded-full">
                           <Users size={16} className="text-blue-500" />
@@ -429,30 +405,27 @@ export default function TicketsPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Overdue Indicator - Bottom Right Corner */}
                     {new Date(ticket.due_date) < new Date() && (
                       <div className="absolute bottom-2 right-4 z-20">
                         <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs shadow-lg border border-red-200">⏳ Overdue</span>
                       </div>
                     )}
-                    
+
                     <div className="mt-4 pt-3 border-t border-blue-100/50">
                       <span className="text-xs text-gray-500 font-medium">Created: {formatDate(ticket.createdAt)}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))
+              ))
             )}
-          
           </>
-          
         )}
-        
-    
+      </div>
 
       {/* Create Ticket Modal */}
-      <TicketModal 
+      <TicketModal
         isOpen={isOpen}
         onClose={() => {
           setIsOpen(false);
@@ -470,6 +443,6 @@ export default function TicketsPage() {
         ticket={selectedTicket}
         onUpdate={handleTicketUpdate}
       />
-    
+    </div>
   );
 }
