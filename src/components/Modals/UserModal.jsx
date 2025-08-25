@@ -8,33 +8,31 @@ export function UserModal({ onClose, id }) {
   // eslint-disable-next-line no-unused-vars
   const [roleName, setRoleName] = useState('');
 
-  console.log(id)
+  console.log(id);
 
   const { data: role, isLoading: roleLoad } = useAllRolesQuery();
-  const {data:department,isLoading:departmentLoading} = useAllDepartmentsQuery();
-  const [UpdateUser,{isLoading:userUpdateLoading}] = useUpdateUserMutation();
+  const { data: department, isLoading: departmentLoading } = useAllDepartmentsQuery();
+  const [UpdateUser, { isLoading: userUpdateLoading }] = useUpdateUserMutation();
   const [tag, setTag] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = {
-      role:tag,
-      department:roleName
-    }
+      role: tag,
+      department: roleName,
+    };
     try {
-      const res = await UpdateUser({id,data}).unwrap();
+      const res = await UpdateUser({ id, data }).unwrap();
       toast.success(res.message);
-      onClose()
+      onClose();
     } catch (error) {
       console.log(error);
     }
-   console.log(data)
+    console.log(data);
   };
 
   if (roleLoad || departmentLoading) {
-    return <div>
-      loging....
-    </div>
+    return <div>loging....</div>;
   }
 
   return (
@@ -55,7 +53,11 @@ export function UserModal({ onClose, id }) {
             <label className="block text-sm text-gray-600 mb-1">Department</label>
             <select value={roleName} onChange={(e) => setRoleName(e.target.value)} className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
               <option value="">-- Select a department --</option>
-              {department?.data?.map((item)=><option key={item?._id} value={item?._id} >{item?.name}</option>)}
+              {department?.data?.map((item) => (
+                <option key={item?._id} value={item?._id}>
+                  {item?.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -64,7 +66,11 @@ export function UserModal({ onClose, id }) {
             <label className="block text-sm text-gray-600 mb-1">Role</label>
             <select value={tag} onChange={(e) => setTag(e.target.value)} className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
               <option value="">-- Select a role --</option>
-            { role?.data?.map((item)=> <option key={item?._id} value={item?._id}>{item?.role}</option>)}
+              {role?.data?.map((item) => (
+                <option key={item?._id} value={item?._id}>
+                  {item?.role}
+                </option>
+              ))}
             </select>
           </div>
 

@@ -14,16 +14,16 @@ const DepartmentService = Api.injectEndpoints({
 
     // --------------- get department here --------------
     getDepartment: build.query({
-     query:()=>"/department/get",
-     providesTags:["Departments"]
+      query: () => '/department/get',
+      providesTags: ['Departments'],
     }),
 
     // --------------- update department ----------------
     updateDapartment: build.mutation({
-      query: ({id,data}) => ({
+      query: ({ id, data }) => ({
         url: `/department/update/${id} `,
         method: 'PUT',
-        body:data,
+        body: data,
       }),
       invalidatesTags: ['Departments'],
     }),
@@ -38,17 +38,15 @@ const DepartmentService = Api.injectEndpoints({
     }),
 
     // ------------------ all Departments -----------------
-    AllDepartments:build.query({
-      query:()=>"/department/all-department",
-      providesTags:["Departments"]
-    })
-
+    AllDepartments: build.query({
+      query: () => '/department/all-department',
+      providesTags: ['Departments'],
+    }),
   }),
 });
 
 // ---------------------- all mutations here --------------------
-export const { useCreateMutation,  useUpdateDapartmentMutation, useDeleteDepartmentMutation } = DepartmentService;
-
+export const { useCreateMutation, useUpdateDapartmentMutation, useDeleteDepartmentMutation } = DepartmentService;
 
 // ---------------- all query here ----------------------
-export const {useGetDepartmentQuery,useAllDepartmentsQuery} = DepartmentService;
+export const { useGetDepartmentQuery, useAllDepartmentsQuery } = DepartmentService;
