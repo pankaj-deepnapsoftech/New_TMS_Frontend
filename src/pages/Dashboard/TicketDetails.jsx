@@ -199,8 +199,8 @@ export default function TicketDetails() {
       setError('');
 
       // Check if there's already a status for this ticket (not for tasks)
-      const existingStatus = ticket.status?.find(status => !status.task_id);
-      
+      const existingStatus = ticket.status?.find((status) => !status.task_id);
+
       let apiUrl, method, statusData;
 
       if (existingStatus) {
@@ -240,11 +240,7 @@ export default function TicketDetails() {
           // Update existing status
           setTicket((prevTicket) => ({
             ...prevTicket,
-            status: prevTicket.status.map((status) => 
-              status._id === existingStatus._id 
-                ? { ...status, status: newStatus }
-                : status
-            ),
+            status: prevTicket.status.map((status) => (status._id === existingStatus._id ? { ...status, status: newStatus } : status)),
           }));
         } else {
           // Add new status
@@ -411,7 +407,7 @@ export default function TicketDetails() {
       if (response.ok) {
         // Update the task in local state
         setTasks((prevTasks) => prevTasks.map((task) => (typeof task._id === 'string' && typeof selectedTask._id === 'string' && task._id === selectedTask._id ? { ...task, ...editTaskData } : task)));
-        
+
         // Close modal and reset form
         setShowEditTaskModal(false);
         setSelectedTask(null);
@@ -501,8 +497,8 @@ export default function TicketDetails() {
       setError('');
 
       // Check if there's already a status for this task
-      const existingStatus = selectedTaskForStatus.status?.find(status => status.task_id === selectedTaskForStatus._id);
-      
+      const existingStatus = selectedTaskForStatus.status?.find((status) => status.task_id === selectedTaskForStatus._id);
+
       let apiUrl, method, statusData;
 
       if (existingStatus) {
@@ -544,13 +540,7 @@ export default function TicketDetails() {
             typeof task._id === 'string' && typeof selectedTaskForStatus._id === 'string' && task._id === selectedTaskForStatus._id
               ? {
                   ...task,
-                  status: existingStatus 
-                    ? task.status.map((status) => 
-                        status._id === existingStatus._id 
-                          ? { ...status, status: newTaskStatus }
-                          : status
-                      )
-                    : [...(task.status || []), result.data],
+                  status: existingStatus ? task.status.map((status) => (status._id === existingStatus._id ? { ...status, status: newTaskStatus } : status)) : [...(task.status || []), result.data],
                 }
               : task,
           ),
@@ -1111,7 +1101,7 @@ export default function TicketDetails() {
             {/* Header */}
             <div className="flex justify-between items-center border-b px-6 py-4">
               <h2 className="text-lg font-semibold flex items-center gap-2">Edit Task</h2>
-              <button 
+              <button
                 onClick={() => {
                   setShowEditTaskModal(false);
                   setSelectedTask(null);
@@ -1122,7 +1112,7 @@ export default function TicketDetails() {
                     isSchedule: false,
                     assign: '',
                   });
-                }} 
+                }}
                 className="text-gray-500 hover:text-gray-700"
               >
                 ✖
@@ -1179,7 +1169,7 @@ export default function TicketDetails() {
 
             {/* Footer */}
             <div className="flex justify-end gap-3 border-t px-6 py-4">
-              <button 
+              <button
                 onClick={() => {
                   setShowEditTaskModal(false);
                   setSelectedTask(null);
@@ -1190,7 +1180,7 @@ export default function TicketDetails() {
                     isSchedule: false,
                     assign: '',
                   });
-                }} 
+                }}
                 className="px-4 py-2 border rounded-lg hover:bg-gray-100"
                 disabled={editingTask}
               >

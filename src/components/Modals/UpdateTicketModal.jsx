@@ -51,7 +51,7 @@ export default function UpdateTicketModal({ isOpen, onClose, ticket, onUpdate })
           // Remove Authorization header - cookies will be sent automatically
         },
         credentials: 'include', // This will send cookies automatically
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       console.log('Response status:', response.status);

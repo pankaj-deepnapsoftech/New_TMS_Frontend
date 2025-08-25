@@ -38,9 +38,9 @@ const RolesService = Api.injectEndpoints({
     }),
 
     // --------------- all roles ---------------------
-    allRoles:build.query({
-      query:()=>"/role/all-role",
-      providesTags:["Role"]
+    allRoles: build.query({
+      query: () => '/role/all-role',
+      providesTags: ['Role'],
     }),
   }),
 });
@@ -49,4 +49,4 @@ const RolesService = Api.injectEndpoints({
 export const { useCreateRoleMutation, useDeleteRoleMutation, useUpdateRoleMutation } = RolesService;
 
 // ---------------- all query here ----------------------
-export const { useGetRoleQuery,useAllRolesQuery } = RolesService;
+export const { useGetRoleQuery, useAllRolesQuery } = RolesService;

@@ -1,16 +1,12 @@
-import React, {useState } from 'react';
+import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend, PieChart, Pie, Cell } from 'recharts';
-import {   Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { Card } from '@components/ui/DashboardCards';
 import { Donut } from '@components/charts/DonutChart';
 
-
 // --- Main Dashboard ---
 export default function TaskDashboard() {
-
   const [selectedProject, setSelectedProject] = useState('Project Alpha');
-  
-  
 
   const progressLine = [
     { m: 'jan', v: 46 },
@@ -81,222 +77,222 @@ export default function TaskDashboard() {
 
   return (
     <main className="flex-1  px-6 py-6 space-y-6">
-          {/* Row 1 */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Overall Progress */}
-            <Card title="Overall Progress" subtitle="vs last month">
-              <div className="flex items-center gap-6">
-                <div className="flex-1 h-28">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={progressLine} margin={{ top: 6, right: 6, bottom: 0, left: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-                      <XAxis dataKey="m" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <YAxis hide />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="v" stroke="#6A5AE0" strokeWidth={2} dot={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="text-center pr-2">
-                  <div className="text-3xl font-bold">3.6</div>
-                  <div className="flex items-center justify-center gap-1 text-yellow-500">
-                    {[...Array(4)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-current" />
-                    ))}
-                    <Star className="w-4 h-4" />
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">team rating</div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Workstream Activity */}
-            <Card title="Workstream Activity" subtitle="Created vs Completed">
-              <div className="h-36">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={workstream}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="created" fill="#e5e7eb" radius={[6, 6, 0, 0]} />
-                    <Bar dataKey="completed" fill="#27AE60" radius={[6, 6, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-
-            {/* Team Sentiment / Sprint Health gauge */}
-            <Card title="Team Sentiment" subtitle="survey this month">
-              <div className="flex items-center gap-6">
-                <div className="flex-1">
-                  <Donut percent={91} value={'91%'} label="positive" color="#22c55e" />
-                </div>
-                <div className="text-sm text-gray-600 space-y-1">
-                  <div className="font-semibold text-green-600">Superb!</div>
-                  <div>Most team members satisfied with current sprint.</div>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Row 2 */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            {/* Latest Updates */}
-            <Card title="Latest Updates" className="xl:col-span-2">
-              <div className="space-y-5">
-                {updates.map((u, idx) => (
-                  <div key={idx} className="flex gap-3">
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <div className="font-semibold">{u.name}</div>
-                        <div className="text-xs text-gray-500">{u.time}</div>
-                        <span className="text-xs text-indigo-600">{u.source}</span>
-                      </div>
-                      <p className="text-sm text-gray-700 mt-1">{u.text}</p>
-                      {u.chips?.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {u.chips.map((c) => (
-                            <span key={c} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
-                              {c}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      {u.attachments?.length > 0 && (
-                        <div className="mt-3 flex gap-2">
-                          {u.attachments.map((src, i) => (
-                            <img key={i} src={src} className="w-20 h-12 object-cover rounded-lg border" />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
+      {/* Row 1 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Overall Progress */}
+        <Card title="Overall Progress" subtitle="vs last month">
+          <div className="flex items-center gap-6">
+            <div className="flex-1 h-28">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={progressLine} margin={{ top: 6, right: 6, bottom: 0, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                  <XAxis dataKey="m" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis hide />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="v" stroke="#6A5AE0" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="text-center pr-2">
+              <div className="text-3xl font-bold">3.6</div>
+              <div className="flex items-center justify-center gap-1 text-yellow-500">
+                {[...Array(4)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
                 ))}
+                <Star className="w-4 h-4" />
               </div>
-            </Card>
-
-            {/* Right column donuts like screenshot */}
-            <div className="space-y-6">
-              <Card title="Open Tasks" right={<span className="text-xs text-gray-500">New: 5.9k · Returning: 3.1k</span>}>
-                <div className="flex items-center justify-between">
-                  <Donut percent={72} value={'9,245'} label="open" color="#2563eb" />
-                  <div className="text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span> New: 5,900
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span> Returning: 3,145
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              <Card title="Completed Tasks" right={<span className="text-xs text-gray-500">New: 2.6k · Returning: 671</span>}>
-                <div className="flex items-center justify-between">
-                  <Donut percent={58} value={'3,271'} label="completed" color="#16a34a" />
-                  <div className="text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <span className="inline-block w-2 h-2 rounded-full bg-green-600"></span> On time: 2,600
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span> Late: 671
-                    </div>
-                  </div>
-                </div>
-              </Card>
+              <div className="text-xs text-gray-500 mt-1">team rating</div>
             </div>
           </div>
+        </Card>
 
-          {/* Row 3 */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <Card title="Website Traffic" subtitle="(Demo) Velocity & Focus" className="xl:col-span-2">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 h-40">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={progressLine}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                      <XAxis dataKey="m" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="v" stroke="#2D9CDB" strokeWidth={2} dot={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="space-y-3">
-                  <div className="text-3xl font-bold">26,751</div>
-                  <div className="text-xs text-gray-500">Unique sessions (demo)</div>
-                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-600" style={{ width: '55%' }} />
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>Direct</span>
-                    <span>55%</span>
-                  </div>
-                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-600" style={{ width: '30%' }} />
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>Referrals</span>
-                    <span>30%</span>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <Card title="Top Labels" right={<span className="text-xs text-gray-500">this month</span>}>
-              <div className="space-y-3">
-                {['frontend', 'bug', 'ux', 'documentation', 'infra'].map((tag, i) => (
-                  <div key={tag} className="flex items-center justify-between">
-                    <a className="text-indigo-600 hover:underline" href="#">
-                      {tag}
-                    </a>
-                    <span className="text-gray-700">{(i + 1) * 1320}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
+        {/* Workstream Activity */}
+        <Card title="Workstream Activity" subtitle="Created vs Completed">
+          <div className="h-36">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={workstream}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="created" fill="#e5e7eb" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="completed" fill="#27AE60" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
+        </Card>
 
-          {/* Status distribution like screenshot (donut list) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            <Card title="Task Status Distribution">
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={statusPie} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
-                      {statusPie.map((e, idx) => (
-                        <Cell key={idx} fill={STATUS_COLORS[idx % STATUS_COLORS.length]} />
+        {/* Team Sentiment / Sprint Health gauge */}
+        <Card title="Team Sentiment" subtitle="survey this month">
+          <div className="flex items-center gap-6">
+            <div className="flex-1">
+              <Donut percent={91} value={'91%'} label="positive" color="#22c55e" />
+            </div>
+            <div className="text-sm text-gray-600 space-y-1">
+              <div className="font-semibold text-green-600">Superb!</div>
+              <div>Most team members satisfied with current sprint.</div>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Row 2 */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Latest Updates */}
+        <Card title="Latest Updates" className="xl:col-span-2">
+          <div className="space-y-5">
+            {updates.map((u, idx) => (
+              <div key={idx} className="flex gap-3">
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="font-semibold">{u.name}</div>
+                    <div className="text-xs text-gray-500">{u.time}</div>
+                    <span className="text-xs text-indigo-600">{u.source}</span>
+                  </div>
+                  <p className="text-sm text-gray-700 mt-1">{u.text}</p>
+                  {u.chips?.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {u.chips.map((c) => (
+                        <span key={c} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
+                          {c}
+                        </span>
                       ))}
-                    </Pie>
-                    <Legend />
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                    </div>
+                  )}
+                  {u.attachments?.length > 0 && (
+                    <div className="mt-3 flex gap-2">
+                      {u.attachments.map((src, i) => (
+                        <img key={i} src={src} className="w-20 h-12 object-cover rounded-lg border" />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </Card>
-
-            <Card title="Project Selector" subtitle="Quick filters">
-              <div className="flex items-center gap-3">
-                <select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option>Project Alpha</option>
-                  <option>Project Beta</option>
-                  <option>Project Gamma</option>
-                </select>
-                <button className="px-3 py-2 rounded-xl text-sm bg-gray-100 hover:bg-gray-200">Export</button>
-              </div>
-            </Card>
-
-            <Card title="Notes">
-              <ul className="list-disc pl-5 text-sm text-gray-700 space-y-1">
-                <li>Standup moved to 10:00 AM this week.</li>
-                <li>Design review on Thursday — bring prototypes.</li>
-                <li>API rate limit fix deployed to production.</li>
-              </ul>
-            </Card>
+            ))}
           </div>
-        </main>
+        </Card>
+
+        {/* Right column donuts like screenshot */}
+        <div className="space-y-6">
+          <Card title="Open Tasks" right={<span className="text-xs text-gray-500">New: 5.9k · Returning: 3.1k</span>}>
+            <div className="flex items-center justify-between">
+              <Donut percent={72} value={'9,245'} label="open" color="#2563eb" />
+              <div className="text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span> New: 5,900
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span> Returning: 3,145
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card title="Completed Tasks" right={<span className="text-xs text-gray-500">New: 2.6k · Returning: 671</span>}>
+            <div className="flex items-center justify-between">
+              <Donut percent={58} value={'3,271'} label="completed" color="#16a34a" />
+              <div className="text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 rounded-full bg-green-600"></span> On time: 2,600
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span> Late: 671
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Row 3 */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <Card title="Website Traffic" subtitle="(Demo) Velocity & Focus" className="xl:col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 h-40">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={progressLine}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis dataKey="m" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="v" stroke="#2D9CDB" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-3">
+              <div className="text-3xl font-bold">26,751</div>
+              <div className="text-xs text-gray-500">Unique sessions (demo)</div>
+              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-blue-600" style={{ width: '55%' }} />
+              </div>
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Direct</span>
+                <span>55%</span>
+              </div>
+              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-indigo-600" style={{ width: '30%' }} />
+              </div>
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Referrals</span>
+                <span>30%</span>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Top Labels" right={<span className="text-xs text-gray-500">this month</span>}>
+          <div className="space-y-3">
+            {['frontend', 'bug', 'ux', 'documentation', 'infra'].map((tag, i) => (
+              <div key={tag} className="flex items-center justify-between">
+                <a className="text-indigo-600 hover:underline" href="#">
+                  {tag}
+                </a>
+                <span className="text-gray-700">{(i + 1) * 1320}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      {/* Status distribution like screenshot (donut list) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <Card title="Task Status Distribution">
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={statusPie} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
+                  {statusPie.map((e, idx) => (
+                    <Cell key={idx} fill={STATUS_COLORS[idx % STATUS_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Legend />
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <Card title="Project Selector" subtitle="Quick filters">
+          <div className="flex items-center gap-3">
+            <select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option>Project Alpha</option>
+              <option>Project Beta</option>
+              <option>Project Gamma</option>
+            </select>
+            <button className="px-3 py-2 rounded-xl text-sm bg-gray-100 hover:bg-gray-200">Export</button>
+          </div>
+        </Card>
+
+        <Card title="Notes">
+          <ul className="list-disc pl-5 text-sm text-gray-700 space-y-1">
+            <li>Standup moved to 10:00 AM this week.</li>
+            <li>Design review on Thursday — bring prototypes.</li>
+            <li>API rate limit fix deployed to production.</li>
+          </ul>
+        </Card>
+      </div>
+    </main>
   );
 }

@@ -1,160 +1,112 @@
 /* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useFormik } from 'formik';
+import { useCreateTicketMutation, useUpdateTicketMutation } from '../../services/Ticket.service';
+import { useGetDepartmentQuery } from '../../services/Department.service';
+import { TicketvalidationSchema } from '../../Validation/TicketCreateValidation';
 
-export default function TicketModal({ isOpen, onClose }) {
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    department: '',
-    priority: 'Medium',
-    due_date: '',
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+const TicketModal = ({ isOpen, onClose, editTicket }) => {
+  const [createTicket, { isLoading }] = useCreateTicketMutation();
+  const { data } = useGetDepartmentQuery();
+  const DepartmentData = data?.data || [];
+  const [UpdatedTicket] = useUpdateTicketMutation();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    // Log the request details for debugging
-    const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/create`;
-    console.log('Making API request to:', apiUrl);
-    console.log('Request payload:', formData);
-
-    try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Remove Authorization header - cookies will be sent automatically
-        },
-        credentials: 'include', // This will send cookies automatically
-        body: JSON.stringify(formData)
-      });
-
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-
-      const result = await response.json();
-      console.log('Response data:', result);
-
-      if (response.ok) {
-        // Success - close modal and reset form
-        setFormData({
-          title: '',
-          description: '',
-          department: '',
-          priority: 'Medium',
-          due_date: '',
-        });
-        onClose();
-        // You can add a success notification here
-        console.log('Ticket created successfully:', result.data);
-      } else {
-        setError(result.message || `Server error: ${response.status}`);
+  console.log(editTicket);
+  const formik = useFormik({
+    initialValues: editTicket || {
+      title: '',
+      description: '',
+      department: '',
+      priority: 'Medium',
+      due_date: '',
+    },
+    enableReinitialize: true,
+    validationSchema: TicketvalidationSchema,
+    onSubmit: async (values) => {
+      try {
+        const res = await createTicket(values).unwrap();
+        console.log(res);
+        formik.resetForm();
+        onClose()
+      } catch (err) {
+        console.error(err);
       }
-    } catch (err) {
-      console.error('Network error details:', err);
-
-      if (err.name === 'TypeError' && err.message.includes('fetch')) {
-        setError('Cannot connect to server. Please check if the backend is running.');
-      } else if (err.name === 'SyntaxError') {
-        setError('Invalid response from server. Please try again.');
-      } else {
-        setError(`Network error: ${err.message}`);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  })
 
   return (
     <AnimatePresence>
-      {isOpen && (
-        <motion.div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          {/* Modal Content */}
-          <motion.div className="bg-white rounded-xl shadow-lg w-[600px] max-h-[90vh] overflow-y-auto" initial={{ y: '-100px', opacity: 0, scale: 0.9 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: '-100px', opacity: 0, scale: 0.9 }} transition={{ duration: 0.3, ease: 'easeOut' }}>
-            {/* Header */}
-            <div className="flex justify-between items-center border-b border-gray-300  px-6 py-4">
-              <h2 className="text-lg font-semibold flex items-center gap-2"> Create New Ticket</h2>
-              <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-                ✖
-              </button>
+    { isOpen && (<motion.div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <motion.div className="bg-white rounded-xl shadow-lg w-[600px] max-h-[90vh] overflow-y-auto" initial={{ y: '-100px', opacity: 0, scale: 0.9 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: '-100px', opacity: 0, scale: 0.9 }} transition={{ duration: 0.3, ease: 'easeOut' }}>
+          <div className="flex justify-between items-center border-b border-gray-300  px-6 py-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2"> Create New Ticket</h2>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              ✖
+            </button>
+          </div>
+
+          <form onSubmit={formik.handleSubmit} className="p-6 space-y-4">
+            <div>
+              <label className="text-sm font-medium">Ticket Title *</label>
+              <input type="text" name="title" value={formik.values.title} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder="Enter ticket title..." className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+              {formik.errors.title && formik.touched.title && <p className="text-sm text-red-600 mt-1">{formik.errors.title}</p>}
             </div>
 
-            {/* Body */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{error}</div>}
+            <div>
+              <label className="text-sm font-medium">Description</label>
+              <textarea name="description" value={formik.values.description} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder="Describe the ticket..." rows="3" className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+              {formik.errors.description && formik.touched.description && <p className="text-sm text-red-600 mt-1">{formik.errors.description}</p>}
+            </div>
 
-              {/* Ticket Title */}
-              <div>
-                <label className="text-sm font-medium">Ticket Title *</label>
-                <input type="text" name="title" value={formData.title} onChange={handleInputChange} placeholder="Enter ticket title..." className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required />
-              </div>
+            <div>
+              <label className="text-sm font-medium">Department *</label>
+              <select name="department" value={formik.values.department} onChange={formik.handleChange} onBlur={formik.handleBlur} className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="">Select Department</option>
+                {DepartmentData?.map((dept) => (
+                  <option key={dept._id} value={dept._id}>
+                    {dept.name}
+                  </option>
+                ))}
+              </select>
+              {formik.errors.department && formik.touched.department && <p className="text-sm text-red-600 mt-1">{formik.errors.department}</p>}
+            </div>
 
-              {/* Description */}
-              <div>
-                <label className="text-sm font-medium">Description</label>
-                <textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="Describe the ticket..." rows="3" className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
+            <div>
+              <label className="text-sm font-medium">Priority</label>
+              <select name="priority" value={formik.values.priority} onChange={formik.handleChange} onBlur={formik.handleBlur} className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Critical">Critical</option>
+              </select>
+              {formik.errors.priority && formik.touched.priority && <p className="text-sm text-red-600 mt-1">{formik.errors.priority}</p>}
+            </div>
 
-              {/* Department */}
-              <div>
-                <label className="text-sm font-medium">Department *</label>
-                <select name="department" value={formData.department} onChange={handleInputChange} className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required>
-                  <option value="">Select Department</option>
-                  <option value="68a5c292e7b0c7fd04d669f1">Development</option>
-                  <option value="68a5c292e7b0c7fd04d669f2">Design</option>
-                  <option value="68a5c292e7b0c7fd04d669f3">Support</option>
-                </select>
-              </div>
+            <div>
+              <label className="text-sm font-medium">Due Date</label>
+              <input type="datetime-local" name="due_date" value={formik.values.due_date} onChange={formik.handleChange} onBlur={formik.handleBlur} className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+              {formik.errors.due_date && formik.touched.due_date && <p className="text-sm text-red-600 mt-1">{formik.errors.due_date}</p>}
+            </div>
 
-              {/* Priority */}
-              <div>
-                <label className="text-sm font-medium">Priority</label>
-                <select name="priority" value={formData.priority} onChange={handleInputChange} className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
-                  <option value="Low">Low</option>
-                  <option value="Medium">Medium</option>
-                  <option value="High">High</option>
-                  <option value="Critical">Critical</option>
-                </select>
-              </div>
+            <div>
+              <label className="text-sm font-medium">Team Assignment (0)</label>
+              <input type="text" placeholder="Search employees..." className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
 
-              {/* Due Date */}
-              <div>
-                <label className="text-sm font-medium">Due Date</label>
-                <input type="datetime-local" name="due_date" value={formData.due_date} onChange={handleInputChange} className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
-
-              {/* Team Assignment */}
-              <div>
-                <label className="text-sm font-medium">Team Assignment (0)</label>
-                <input type="text" placeholder="Search employees..." className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
-            </form>
-
-            {/* Footer */}
-            <div className="flex justify-end gap-3 border-t border-gray-300  px-6 py-4">
-              <button onClick={onClose} className="px-4 py-2 border border-gray-400 rounded-lg hover:bg-gray-100" disabled={loading}>
+            {/* Buttons */}
+            <div className="flex justify-end gap-3 border-t border-gray-300 pt-4">
+              <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-400 rounded-lg hover:bg-gray-100" disabled={isLoading}>
                 Cancel
               </button>
-              <button onClick={handleSubmit} disabled={loading} className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
-                {loading ? 'Creating...' : 'Create Ticket'}
+              <button type="submit" disabled={isLoading} className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
+                {isLoading ? 'Creating...' : 'Create Ticket'}
               </button>
             </div>
-          </motion.div>
+          </form>
         </motion.div>
-      )}
+      </motion.div>)}
     </AnimatePresence>
   );
-}
+};
+export default TicketModal;
