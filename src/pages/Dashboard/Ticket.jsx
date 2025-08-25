@@ -10,15 +10,15 @@ import { useDeleteTicketMutation } from '@/services/Ticket.service';
 
 export default function TicketsPage() {
   const navigate = useNavigate();
-  
+
   // Get current user
   const { data: currentUserData, isLoading: userLoading } = useGetCurrentUserQuery();
   const currentUser = currentUserData?.user;
   const isAdmin = currentUser?.admin || false;
-  
+
   const [tickets, setTickets] = useState([]);
   const [assignedTickets, setAssignedTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); 
   const [assignedLoading, setAssignedLoading] = useState(true);
   const [error, setError] = useState('');
   const [assignedError, setAssignedError] = useState('');
@@ -36,7 +36,6 @@ export default function TicketsPage() {
 
   const getCurrentStatus = (ticket) => {
     if (Array.isArray(ticket.status) && ticket.status.length > 0) {
-      // Filter out task statuses, keep only ticket statuses
       const ticketStatuses = ticket.status.filter((status) => !status.task_id);
       if (ticketStatuses.length > 0) {
         const latest = ticketStatuses[ticketStatuses.length - 1];
@@ -46,21 +45,18 @@ export default function TicketsPage() {
     return 'Not Started';
   };
 
-  // Fetch tickets from API (no userId param)
+  // Fetch tickets from API
   const fetchTickets = async () => {
     try {
       setLoading(true);
       setError('');
 
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/get`;
+      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/get`;                             
 
       const response = await fetch(apiUrl, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          // Remove Authorization header - cookies will be sent automatically
-        },
-        credentials: 'include' // This will send cookies automatically
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -90,11 +86,8 @@ export default function TicketsPage() {
 
       const response = await fetch(apiUrl, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          // Remove Authorization header - cookies will be sent automatically
-        },
-        credentials: 'include' // This will send cookies automatically
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -128,10 +121,8 @@ export default function TicketsPage() {
   useEffect(() => {
     if (!userLoading && currentUser) {
       if (isAdmin) {
-        // Admin sees only all tickets
-    fetchTickets();
+        fetchTickets();
       } else {
-        // Non-admin sees only assigned tickets
         fetchAssignedTickets();
       }
     }
@@ -149,19 +140,6 @@ export default function TicketsPage() {
     navigate(`/tickets/${ticket.ticket_id || ticket._id}`);
   };
 
-  const filteredTickets = tickets.filter((ticket) => {
-    const idText = (ticket.ticket_id || '').toLowerCase();
-    const titleText = (ticket.title || '').toLowerCase();
-    const matchesSearch = idText.includes(searchTerm.toLowerCase()) || titleText.includes(searchTerm.toLowerCase());
-
-    const statusText = getCurrentStatus(ticket);
-    const matchesStatus = filterStatus === 'All Statuses' || statusText === filterStatus;
-    const matchesPriority = filterPriority === 'All Priorities' || ticket.priority === filterPriority;
-    const matchesDepartment = filterDepartment === 'All Departments' || ticket.department === filterDepartment;
-
-    return matchesSearch && matchesStatus && matchesPriority && matchesDepartment;
-  });
-
   const filteredAssignedTickets = assignedTickets.filter((ticket) => {
     const idText = (ticket.ticket_id || '').toLowerCase();
     const titleText = (ticket.title || '').toLowerCase();
@@ -177,18 +155,10 @@ export default function TicketsPage() {
 
   const stats = {
     total: isAdmin ? tickets.length : assignedTickets.length,
-    open: isAdmin 
-      ? tickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length
-      : assignedTickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
-    inProgress: isAdmin 
-      ? tickets.filter((t) => getCurrentStatus(t) === 'In Progress').length
-      : assignedTickets.filter((t) => getCurrentStatus(t) === 'In Progress').length,
-    resolved: isAdmin 
-      ? tickets.filter((t) => getCurrentStatus(t) === 'Resolved').length
-      : assignedTickets.filter((t) => getCurrentStatus(t) === 'Resolved').length,
-    overdue: isAdmin 
-      ? tickets.filter((t) => new Date(t.due_date) < new Date()).length
-      : assignedTickets.filter((t) => new Date(t.due_date) < new Date()).length,
+    open: isAdmin ? tickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
+    inProgress: isAdmin ? tickets.filter((t) => getCurrentStatus(t) === 'In Progress').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'In Progress').length,
+    resolved: isAdmin ? tickets.filter((t) => getCurrentStatus(t) === 'Resolved').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'Resolved').length,
+    overdue: isAdmin ? tickets.filter((t) => new Date(t.due_date) < new Date()).length : assignedTickets.filter((t) => new Date(t.due_date) < new Date()).length,
   };
 
   const formatDate = (dateString) => {
@@ -240,27 +210,19 @@ export default function TicketsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 p-6">
-      {/* Enhanced Header */}
+      {/* Header */}
       <div className="mb-10">
         <div className="flex items-center justify-center gap-4 mb-6">
-          
           <div className="text-center">
-            <h1 className="text-4xl font-extrabold bg-indigo-800 bg-clip-text text-transparent tracking-tight">
-              {isAdmin ? 'All Tickets Dashboard' : 'My Assigned Tickets'}
-            </h1>
-            <p className="text-gray-600 mt-2 text-lg font-medium">
-              {isAdmin 
-                ? 'Manage and monitor all tickets across the organization' 
-                : 'View and manage tickets assigned to you'
-              }
-            </p>
+            <h1 className="text-4xl font-extrabold bg-indigo-800 bg-clip-text text-transparent tracking-tight">{isAdmin ? 'All Tickets Dashboard' : 'My Assigned Tickets'}</h1>
+            <p className="text-gray-600 mt-2 text-lg font-medium">{isAdmin ? 'Manage and monitor all tickets across the organization' : 'View and manage tickets assigned to you'}</p>
           </div>
         </div>
       </div>
 
       {error && <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">{error}</div>}
 
-      {/* Enhanced Stats Cards */}
+      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
         {[
           { title: isAdmin ? 'Total Tickets' : 'My Tickets', count: stats.total, icon: <ListChecks className="text-yellow-100" size={18} />, color: 'from-yellow-400 to-yellow-600', bgColor: 'bg-gradient-to-br from-yellow-50 to-orange-50' },
@@ -279,34 +241,41 @@ export default function TicketsPage() {
         ))}
       </div>
 
-
-
-      {/* Enhanced Search and Filters */}
+      {/* Search & Filters */}
       <div className="bg-white/70 backdrop-blur-sm border border-white/20 rounded-3xl p-6 mb-10 shadow-xl">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <div className="relative flex-1 max-w-md">
+          <div className="relative flex-1 max-w-md">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-          <input
-            type="text"
-            placeholder="Search tickets..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full border-0 bg-gray-50/80 rounded-2xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition-all duration-300 shadow-sm" 
-          />
-        </div>
+            <input
+              type="text"
+              placeholder="Search tickets..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full border-0 bg-gray-50/80 rounded-2xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition-all duration-300 shadow-sm"
+            />
+          </div>
 
-        <div className="flex flex-wrap gap-3">
-            <select 
-              value={filterStatus} 
-              onChange={(e) => setFilterStatus(e.target.value)} 
-              className="border-0 bg-gray-50/80 rounded-2xl px-4 py-3 text-sm shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            >
-            <option>All Statuses</option>
-            <option>Not Started</option>
-            <option>Open</option>
-            <option>In Progress</option>
-            <option>Resolved</option>
-          </select>
+          <div className="flex flex-wrap gap-3">
+            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="border-0 bg-gray-50/80 rounded-2xl px-4 py-3 text-sm shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+              <option>All Statuses</option>
+              <option>Not Started</option>
+              <option>Open</option>
+              <option>In Progress</option>
+              <option>Resolved</option>
+            </select>
+            <select value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)} className="border-0 bg-gray-50/80 rounded-2xl px-4 py-3 text-sm shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+              <option>All Priorities</option>
+              <option>High</option>
+              <option>Medium</option>
+              <option>Low</option>
+            </select>
+            <select value={filterDepartment} onChange={(e) => setFilterDepartment(e.target.value)} className="border-0 bg-gray-50/80 rounded-2xl px-4 py-3 text-sm shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+              <option>All Departments</option>
+              <option>Development</option>
+              <option>Design</option>
+              <option>Support</option>
+            </select>
+          </div>
 
             <select 
               value={filterPriority} 
@@ -336,13 +305,13 @@ export default function TicketsPage() {
             className="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-2xl px-6 py-3 flex items-center gap-3 font-semibold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
           >
             <Plus size={20} /> Create Ticket
-        </button>
+          </button>
         </div>
-      </div>
+     
 
+      {/* Tickets Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {isAdmin ? (
-          // Admin View - Only All Tickets
           <>
             {loading ? (
               <div className="text-center py-16">
@@ -358,14 +327,14 @@ export default function TicketsPage() {
                   <AlertCircle className="text-white" size={32} />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Error Loading Tickets</h3>
-                <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl max-w-md mx-auto">{error}</div>
+                <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl max-w-md mx-auto">{assignedError}</div>
               </div>
-            ) : filteredTickets.length === 0 ? (
+            ) : filteredAssignedTickets.length === 0 ? (
               <div className="text-center py-16">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full shadow-lg mb-6">
-                  <ListChecks className="text-white" size={32} />
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full shadow-lg mb-6">
+                  <Users className="text-white" size={32} />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">No Tickets Found</h3>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">No Assigned Tickets</h3>
                 <p className="text-gray-600 max-w-md mx-auto">
                   {searchTerm || filterStatus !== 'All Statuses' || filterPriority !== 'All Priorities' || filterDepartment !== 'All Departments' 
                     ? 'No tickets match your current filters. Try adjusting your search criteria.' 
@@ -405,7 +374,7 @@ export default function TicketsPage() {
                     </button>
                   </div>
 
-                  <div className="relative z-10">
+                  <div className="relative z-10 mt-8">
                     <div className="flex flex-wrap gap-2 text-xs mb-4">
                       <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-red-200/50">{ticket.ticket_id}</span>
                       <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{getCurrentStatus(ticket)}</span>
@@ -487,7 +456,7 @@ export default function TicketsPage() {
                   {/* Action Buttons */}
                   <div className="absolute top-4 right-4 flex gap-2 opacity-100 transition-all duration-300 z-20">
                     <button 
-                      onClick={(e) => handleEditTicket(ticket, e)} 
+                      // onClick={(e) => handleEditTicket(ticket, e)} 
                       // onMouseDown={(e) => e.stopPropagation()}
                       className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl" 
                       title="Edit ticket"
@@ -525,27 +494,27 @@ export default function TicketsPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Overdue Indicator - Bottom Right Corner */}
                     {new Date(ticket.due_date) < new Date() && (
                       <div className="absolute bottom-2 right-4 z-20">
                         <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs shadow-lg border border-red-200">⏳ Overdue</span>
                       </div>
                     )}
-                    
+
                     <div className="mt-4 pt-3 border-t border-blue-100/50">
                       <span className="text-xs text-gray-500 font-medium">Created: {formatDate(ticket.createdAt)}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))
+              ))
             )}
           </>
         )}
       </div>
 
       {/* Create Ticket Modal */}
-      <TicketModal 
+      <TicketModal
         isOpen={isOpen}
         onClose={() => {
           setIsOpen(false);
