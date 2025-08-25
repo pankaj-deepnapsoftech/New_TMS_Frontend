@@ -5,10 +5,7 @@ const RenualService = Api.injectEndpoints({
     // --------------- Renual service here ------------
 
     getRenual: build.query({
-      query: () => ({
-        url: '/renuals/get',
-        method: 'GET',
-      }),
+      query: () => '/renuals/get',
       providesTags: ['Renual'],
     }),
     createRenual: build.mutation({
@@ -41,4 +38,8 @@ const RenualService = Api.injectEndpoints({
 });
 
 // ---------------------- all queries here --------------------
-export const { useCreateRenualMutation,useGetRenualQuery,useDeleteRenualMutation,useUpdateRenualMutation  } = RenualService;
+export const { useGetRenualQuery  } = RenualService;
+
+// -------------------- all mutations here ------------------
+
+export const {useDeleteRenualMutation,useUpdateRenualMutation,useCreateRenualMutation,} = RenualService;

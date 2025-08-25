@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { useCreateRenualMutation } from '@/services/Renuals.service';
 
 export default function RenualsPage() {
   const [renuals, setRenuals] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [createRenual,{isloading:CreateRenualLoading}] = useCreateRenualMutation();
 
   const validationSchema = Yup.object({
     customer: Yup.string().required('Customer is required'),
@@ -14,7 +16,7 @@ export default function RenualsPage() {
     product: Yup.string().required('Product is required'),
   });
 
-  const handleAddRenual = (values, { resetForm }) => {
+  const handleAddRenual = async (values, { resetForm }) => {
     const newRenual = {
       id: renuals.length + 1,
       ...values,
@@ -22,6 +24,13 @@ export default function RenualsPage() {
     setRenuals([...renuals, newRenual]);
     resetForm();
     setShowModal(false);
+
+    try {
+      const res = await createRenual(newRenual).unwrap();
+      console.log(res)
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   return (
@@ -168,6 +177,7 @@ export default function RenualsPage() {
                     </button>
                     <button
                       type="submit"
+                      disabled={CreateRenualLoading}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
                       Save
