@@ -43,9 +43,20 @@ const TicketService = Api.injectEndpoints({
       invalidatesTags: ['Ticket'],
     }),
     
+    GetAdminTicketcardData:build.query({
+      query:()=> "/ticket/ticket-card-admin",
+      providesTags:["Ticket"]
+    })
 
   }),
 });
 
 // ---------------------- all queries here --------------------
-export const { useGetTicketQuery,useGetTicketByIdQuery,useCreateTicketMutation, useUpdateTicketMutation,useDeleteTicketMutation } = TicketService;
+export const { 
+  useGetTicketQuery,
+  useGetTicketByIdQuery,
+  useCreateTicketMutation, 
+  useUpdateTicketMutation,
+  useDeleteTicketMutation,
+  useGetAdminTicketcardDataQuery 
+} = TicketService;

@@ -3,8 +3,7 @@ import { Search, Plus, Users, Clock, CheckCircle, AlertCircle, ListChecks, Trash
 import TicketModal from '@components/Modals/TicketsModal';
 import { useNavigate } from 'react-router-dom';
 import { useGetCurrentUserQuery } from '@/services/Auth.service';
-import { useDeleteTicketMutation } from '@/services/Ticket.service';
-import { useGetTicketQuery } from '@/services/Ticket.service';
+import { useDeleteTicketMutation,useGetAdminTicketcardDataQuery,useGetTicketQuery } from '@/services/Ticket.service';
 
 
 export default function TicketsPage() {
@@ -25,6 +24,7 @@ export default function TicketsPage() {
   const [editTicket, setEditTicket] = useState(null)
   const [DeleteTicket] = useDeleteTicketMutation()
   const { data: tickets, isLoading: getTicketloading } = useGetTicketQuery()
+  const {data:AdminCarddata,isLoading:adminCardDataload} = useGetAdminTicketcardDataQuery();
 
   
 
@@ -158,7 +158,7 @@ export default function TicketsPage() {
     }
   };
 
-  if (userLoading || getTicketloading) {
+  if (userLoading || getTicketloading || adminCardDataload) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6 flex items-center justify-center">
         <div className="text-center">
@@ -186,11 +186,11 @@ export default function TicketsPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
         {[
-          { title: isAdmin ? 'Total Tickets' : 'My Tickets', count: stats.total, icon: <ListChecks className="text-yellow-100" size={14} />, color: 'from-yellow-300 to-yellow-500', bgColor: 'bg-gradient-to-br from-yellow-50 to-orange-50' },
-          { title: 'Open', count: stats.open, icon: <AlertCircle className="text-blue-100" size={14} />, color: 'from-blue-300 to-blue-500', bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-50' },
-          { title: 'In Progress', count: stats.inProgress, icon: <Clock className="text-sky-100" size={14} />, color: 'from-sky-300 to-sky-500', bgColor: 'bg-gradient-to-br from-sky-50 to-purple-50' },
-          { title: 'Resolved', count: stats.resolved, icon: <CheckCircle className="text-green-100" size={14} />, color: 'from-green-300 to-green-500', bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50' },
-          { title: 'Overdue', count: stats.overdue, icon: <Clock className="text-red-100" size={14} />, color: 'from-red-300 to-red-500', bgColor: 'bg-gradient-to-br from-red-50 to-pink-50' },
+          { title: 'Total Tickets', count: AdminCarddata?.data?.total || 0, icon: <ListChecks className="text-yellow-100" size={14} />, color: 'from-yellow-300 to-yellow-500', bgColor: 'bg-gradient-to-br from-yellow-50 to-orange-50' },
+          { title: 'Not Started', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === "Not Started")?.count || 0, icon: <AlertCircle className="text-blue-100" size={14} />, color: 'from-blue-300 to-blue-500', bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-50' },
+          { title: 'On Hold', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === "On Hold")?.count || 0, icon: <Clock className="text-indigo-100" size={14} />, color: 'from-indigo-300 to-indigo-500', bgColor: 'bg-gradient-to-br from-indigo-50 to-purple-50' },
+          { title: 'Re Open', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === "Re Open")?.count || 0, icon: <CheckCircle className="text-green-100" size={14} />, color: 'from-green-300 to-green-500', bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50' },
+          { title: 'Overdue', count: AdminCarddata?.data?.overdue, icon: <Clock className="text-red-100" size={14} />, color: 'from-red-300 to-red-500', bgColor: 'bg-gradient-to-br from-red-50 to-pink-50' },
         ].map((stat, i) => (
           <div key={i} className={`group ${stat.bgColor} border border-gray-200/50 rounded-3xl shadow-lg p-6 flex items-center justify-between transform hover:scale-105 hover:shadow-2xl transition-all duration-500 hover:rotate-1`}>
             <div>
