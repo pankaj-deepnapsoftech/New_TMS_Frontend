@@ -16,6 +16,7 @@ export default function TicketsPage() {
   const [tickets, setTickets] = useState([]);
   const [assignedTickets, setAssignedTickets] = useState([]);
   const [loading, setLoading] = useState(true); 
+  // eslint-disable-next-line no-unused-vars
   const [assignedLoading, setAssignedLoading] = useState(true);
   const [error, setError] = useState('');
   const [assignedError, setAssignedError] = useState('');
