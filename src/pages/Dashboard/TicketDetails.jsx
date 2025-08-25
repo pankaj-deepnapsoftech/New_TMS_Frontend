@@ -1,12 +1,22 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X, Plus, Users, Clock, CheckCircle, AlertCircle, ListChecks } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useGetUserQuery } from '@/services/Users.service';
+import { useGetTicketByIdQuery } from '@/services/Ticket.service';
+import { useCreateTaskMutation } from '@/services/Task.service';
 
 export default function TicketDetails() {
-  const navigate = useNavigate();
   const { ticketId: _ticketId } = useParams();
+  const navigate = useNavigate();
+  const { data, error, isLoading, refetch } = useGetTicketByIdQuery(_ticketId);
+  const ticket = data?.data || null;
+  const tasks = ticket?.task || [];
   const [comment, setComment] = useState('');
+  const { data: User } = useGetUserQuery()
+  const [createTask] = useCreateTaskMutation()
+  const UserData = User?.data;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -15,10 +25,10 @@ export default function TicketDetails() {
     setComment('');
   };
 
-  const [ticket, setTicket] = useState(null);
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  // const [ticket, setTicket] = useState(null);
+  // const [tasks, setTasks] = useState([]);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState('');
   const [showAddTask, setShowAddTask] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -50,143 +60,91 @@ export default function TicketDetails() {
     isSchedule: false,
     assign: '',
   });
-
-  // State for users list
-  const [users, setUsers] = useState([]);
   // eslint-disable-next-line no-unused-vars
   const [loadingUsers, setLoadingUsers] = useState(false);
-
   // State for task status management
   const [showTaskStatusModal, setShowTaskStatusModal] = useState(false);
   const [selectedTaskForStatus, setSelectedTaskForStatus] = useState(null);
   const [newTaskStatus, setNewTaskStatus] = useState('Not Started');
   const [updatingTaskStatus, setUpdatingTaskStatus] = useState(false);
 
-  // Fetch users list
-  const fetchUsers = async () => {
-    try {
-      setLoadingUsers(true);
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/user/all-users`;
 
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
 
-      if (response.ok) {
-        const result = await response.json();
-        setUsers(result.data || []);
-      } else {
-        console.error('Failed to fetch users');
-      }
-    } catch (err) {
-      console.error('Error fetching users:', err);
-    } finally {
-      setLoadingUsers(false);
-    }
-  };
+  // // Fetch ticket details
+  // const fetchTicketDetails = async () => {
+  //   try {
+  //     setLoading(true);
+  //    ;
 
-  // Fetch ticket details
-  const fetchTicketDetails = async () => {
-    try {
-      setLoading(true);
-      setError('');
+  //     // First, get all tickets to find the specific one
+  //     const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/ticket/get`;
 
-      // First, get all tickets to find the specific one
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/ticket/get`;
+  //     const response = await fetch(apiUrl, {
+  //       method: 'GET',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       credentials: 'include',
+  //     });
 
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
+  //     if (response.ok) {
+  //       const result = await response.json();
+  //       const foundTicket = result.data.find((t) => t.ticket_id === _ticketId || t._id === _ticketId);
 
-      if (response.ok) {
-        const result = await response.json();
-        const foundTicket = result.data.find((t) => t.ticket_id === _ticketId || t._id === _ticketId);
-
-        if (foundTicket) {
-          setTicket(foundTicket);
-          setTasks(foundTicket.task || []);
-        } else {
-          setError('Ticket not found');
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        setError(errorData.message || 'Failed to fetch ticket details');
-      }
-    } catch (err) {
-      console.error('Error fetching ticket details:', err);
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  //       if (foundTicket) {
+  //         setTicket(foundTicket);
+  //         setTasks(foundTicket.task || []);
+  //       } else {
+  //         setError('Ticket not found');
+  //       }
+  //     } else {
+  //       const errorData = await response.json().catch(() => ({}));
+  //       setError(errorData.message || 'Failed to fetch ticket details');
+  //     }
+  //   } catch (err) {
+  //     console.error('Error fetching ticket details:', err);
+  //     setError('Network error. Please try again.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Create new task
   const handleAddTask = async () => {
     if (!newTask.title || !newTask.due_date) {
-      setError('Please fill in all required fields');
+      setError("Please fill in all required fields");
       return;
     }
 
     try {
       setAddingTask(true);
-      setError('');
 
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/task/create`;
 
       const taskData = {
         ...newTask,
-        ticket_id: ticket._id,
+        ticket_id: ticket?._id,
         due_date: new Date(newTask.due_date).toISOString(),
       };
 
-      console.log('Creating task with data:', taskData);
-      console.log('Description being sent:', newTask.description);
+      console.log("Creating task with data:", taskData);
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(taskData),
+
+      await createTask(taskData).unwrap();
+      refetch()
+      // Reset form & close modal
+      setNewTask({
+        title: "",
+        description: "",
+        due_date: "",
+        isSchedule: false,
+        assign: "",
       });
+      setShowAddTask(false);
 
-      const result = await response.json();
-      console.log('Task creation response:', result);
-      console.log('Response data description:', result.data?.description);
-
-      if (response.ok) {
-        const newTaskData = {
-          ...result.data,
-          description: newTask.description,
-        };
-        setTasks((prevTasks) => [...prevTasks, newTaskData]);
-        // Reset form and close modal
-        setNewTask({
-          title: '',
-          description: '',
-          due_date: '',
-          isSchedule: false,
-          assign: '',
-        });
-        setShowAddTask(false);
-
-        console.log('Task created successfully:', result.data);
-        console.log('New task data being added to state:', newTaskData);
-      } else {
-        setError(result.message || 'Failed to create task');
-      }
+      console.log("Task created successfully");
     } catch (err) {
-      console.error('Error creating task:', err);
-      setError('Network error. Please try again.');
+      console.error("Error creating task:", err);
+      setError(err?.data?.message || "Failed to create task");
     } finally {
       setAddingTask(false);
     }
@@ -196,10 +154,10 @@ export default function TicketDetails() {
   const handleUpdateStatus = async () => {
     try {
       setUpdatingStatus(true);
-      setError('');
+      ;
 
       // Check if there's already a status for this ticket (not for tasks)
-      const existingStatus = ticket.status?.find((status) => !status.task_id);
+      const existingStatus = ticket?.status?.find((status) => !status.task_id);
 
       let apiUrl, method, statusData;
 
@@ -242,22 +200,15 @@ export default function TicketDetails() {
             ...prevTicket,
             status: prevTicket.status.map((status) => (status._id === existingStatus._id ? { ...status, status: newStatus } : status)),
           }));
-        } else {
-          // Add new status
-          setTicket((prevTicket) => ({
-            ...prevTicket,
-            status: [...(prevTicket.status || []), result.data],
-          }));
-        }
+        } 
 
         // Close modal and reset form
+        refetch()
         setShowStatusModal(false);
         setNewStatus('Not Started');
 
         console.log('Status updated successfully:', result.data);
-      } else {
-        setError(result.message || 'Failed to update status');
-      }
+      } 
     } catch (err) {
       console.error('Error updating status:', err);
       setError('Network error. Please try again.');
@@ -272,7 +223,7 @@ export default function TicketDetails() {
 
     try {
       setEditingStatus(true);
-      setError('');
+      ;
 
       const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/update/${selectedStatus._id}`;
 
@@ -336,7 +287,7 @@ export default function TicketDetails() {
 
     try {
       setDeletingStatus(true);
-      setError('');
+      ;
 
       const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/delete/${statusId}`;
 
@@ -353,20 +304,10 @@ export default function TicketDetails() {
       const result = await response.json();
       console.log('Status delete response:', result);
 
-      if (response.ok) {
-        // Remove the status from local state
-        setTicket((prevTicket) => ({
-          ...prevTicket,
-          status: prevTicket.status.filter((status) => status._id !== statusId),
-        }));
-
-        console.log('Status deleted successfully');
-      } else {
-        setError(result.message || 'Failed to delete status');
-      }
+        refetch()
     } catch (err) {
       console.error('Error deleting status:', err);
-      setError('Network error. Please try again.');
+      
     } finally {
       setDeletingStatus(false);
     }
@@ -378,7 +319,7 @@ export default function TicketDetails() {
 
     try {
       setEditingTask(true);
-      setError('');
+      ;
 
       const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/task/update/${selectedTask._id}`;
 
@@ -406,9 +347,11 @@ export default function TicketDetails() {
 
       if (response.ok) {
         // Update the task in local state
-        setTasks((prevTasks) => prevTasks.map((task) => (typeof task._id === 'string' && typeof selectedTask._id === 'string' && task._id === selectedTask._id ? { ...task, ...editTaskData } : task)));
+        // setTasks((prevTasks) => prevTasks?.map((task) => (typeof task._id === 'string' && typeof selectedTask._id === 'string' && task._id === selectedTask._id ? { ...task, ...editTaskData } : task)));
 
         // Close modal and reset form
+
+        refetch()
         setShowEditTaskModal(false);
         setSelectedTask(null);
         setEditTaskData({
@@ -420,12 +363,10 @@ export default function TicketDetails() {
         });
 
         console.log('Task updated successfully');
-      } else {
-        setError(result.message || 'Failed to update task');
       }
     } catch (err) {
       console.error('Error updating task:', err);
-      setError('Network error. Please try again.');
+
     } finally {
       setEditingTask(false);
     }
@@ -455,7 +396,7 @@ export default function TicketDetails() {
 
     try {
       setDeletingTask(true);
-      setError('');
+      ;
 
       const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/task/delete/${taskId}`;
 
@@ -471,18 +412,11 @@ export default function TicketDetails() {
 
       const result = await response.json();
       console.log('Task delete response:', result);
+      refetch()
 
-      if (response.ok) {
-        // Remove the task from local state
-        setTasks((prevTasks) => prevTasks.filter((task) => typeof task._id === 'string' && task._id !== taskId));
-
-        console.log('Task deleted successfully');
-      } else {
-        setError(result.message || 'Failed to delete task');
-      }
     } catch (err) {
       console.error('Error deleting task:', err);
-      setError('Network error. Please try again.');
+
     } finally {
       setDeletingTask(false);
     }
@@ -494,7 +428,7 @@ export default function TicketDetails() {
 
     try {
       setUpdatingTaskStatus(true);
-      setError('');
+      ;
 
       // Check if there's already a status for this task
       const existingStatus = selectedTaskForStatus.status?.find((status) => status.task_id === selectedTaskForStatus._id);
@@ -533,28 +467,26 @@ export default function TicketDetails() {
       const result = await response.json();
       console.log('Task status update response:', result);
 
-      if (response.ok) {
-        // Update the task's status in local state
-        setTasks((prevTasks) =>
-          prevTasks.map((task) =>
-            typeof task._id === 'string' && typeof selectedTaskForStatus._id === 'string' && task._id === selectedTaskForStatus._id
-              ? {
-                ...task,
-                status: existingStatus ? task.status.map((status) => (status._id === existingStatus._id ? { ...status, status: newTaskStatus } : status)) : [...(task.status || []), result.data],
-              }
-              : task,
-          ),
-        );
+      // if (response.ok) {
+      //   // Update the task's status in local state
+      //   setTasks((prevTasks) =>
+      //     prevTasks.map((task) =>
+      //       typeof task._id === 'string' && typeof selectedTaskForStatus._id === 'string' && task._id === selectedTaskForStatus._id
+      //         ? {
+      //           ...task,
+      //           status: existingStatus ? task.status.map((status) => (status._id === existingStatus._id ? { ...status, status: newTaskStatus } : status)) : [...(task.status || []), result.data],
+      //         }
+      //         : task,
+      //     ),
+      //   );
 
-        // Close modal and reset form
-        setShowTaskStatusModal(false);
-        setSelectedTaskForStatus(null);
-        setNewTaskStatus('Not Started');
+      // Close modal and reset form
+      refetch()
+      setShowTaskStatusModal(false);
+      setSelectedTaskForStatus(null);
+      setNewTaskStatus('Not Started');
 
-        console.log('Task status updated successfully:', result.data);
-      } else {
-        setError(result.message || 'Failed to update task status');
-      }
+      console.log('Task status updated successfully:', result.data);
     } catch (err) {
       console.error('Error updating task status:', err);
       setError('Network error. Please try again.');
@@ -570,12 +502,12 @@ export default function TicketDetails() {
     setShowTaskStatusModal(true);
   };
 
-  // Load ticket details on component mount
-  useEffect(() => {
-    fetchTicketDetails();
-    fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_ticketId]);
+  // // Load ticket details on component mount
+  // useEffect(() => {
+  //   fetchTicketDetails();
+  //   // fetchUsers();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [_ticketId]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -610,7 +542,7 @@ export default function TicketDetails() {
     return 'Not Started';
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6 flex items-center justify-center">
         <div className="text-center">
@@ -669,7 +601,7 @@ export default function TicketDetails() {
               <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1 rounded-lg font-medium">{ticket.ticket_id}</span>
               <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1 rounded-lg font-medium`}>{getCurrentStatus(ticket)}</span>
               <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1 rounded-lg font-medium">{ticket.priority}</span>
-              <span className="bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 px-3 py-1 rounded-lg font-medium">Development</span>
+              <span className="bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 px-3 py-1 rounded-lg font-medium">{ticket?.department?.name}</span>
             </div>
 
             <h2 className="text-2xl font-bold text-gray-800 mb-3">{ticket.title}</h2>
@@ -678,11 +610,13 @@ export default function TicketDetails() {
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="text-sm font-medium text-gray-600">Creator</label>
-                <p className="mt-1 text-gray-800 font-medium">{ticket.creator}</p>
+                <p className="mt-1 text-gray-800 font-medium">{ticket?.creator?.full_name}</p>
+                <p className="mt-1 text-gray-800 font-medium">{ticket?.creator?.email}</p>
+
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-600">Due Date</label>
-                <p className="mt-1 text-red-500 font-semibold">{formatDate(ticket.due_date)}</p>
+                <p className="mt-1 text-red-500 font-semibold">{formatDate(ticket?.due_date)}</p>
               </div>
             </div>
           </div>
@@ -695,13 +629,13 @@ export default function TicketDetails() {
 
             {/* Status List */}
             <div className="space-y-3">
-              {!ticket.status || ticket.status.length === 0 ? (
+              {!ticket.status || ticket?.status?.length === 0 ? (
                 <div className="text-center py-4">
                   <p className="text-gray-500">No status history found.</p>
                 </div>
               ) : (
-                ticket.status
-                  .filter((status) => !status.task_id) // Filter out task statuses, keep only ticket statuses
+                ticket?.status
+                  .filter((status) => !status?.task_id) // Filter out task statuses, keep only ticket statuses
                   .map((status) => (
                     <div key={status._id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start mb-2">
@@ -796,7 +730,7 @@ export default function TicketDetails() {
                           <span className="text-gray-500">
                             Assigned:{' '}
                             <span className="font-medium">
-                              {task.assign && typeof task.assign === 'object' && task.assign.full_name ? `${task.assign.full_name} (${task.assign.username})` : typeof task.assign === 'string' ? users.find((user) => user._id === task.assign)?.full_name || 'Not assigned' : 'Not assigned'}
+                              {task.assign && typeof task.assign === 'object' && task.assign.full_name ? `${task.assign.full_name} (${task.assign.username})` : typeof task.assign === 'string' ? UserData?.find((user) => user._id === task.assign)?.full_name || 'Not assigned' : 'Not assigned'}
                             </span>
                           </span>
                           <span className={`${task.due_date && new Date(task.due_date) < new Date() ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
@@ -899,11 +833,13 @@ export default function TicketDetails() {
                 <label className="text-sm font-medium text-gray-600">Assign To</label>
                 <select value={newTask.assign} onChange={(e) => setNewTask({ ...newTask, assign: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" disabled={loadingUsers}>
                   <option value="">{loadingUsers ? 'Loading users...' : 'Select a user...'}</option>
-                  {users.map((user) => (
-                    <option key={user._id} value={user._id}>
-                      {user.full_name} ({user.username})
-                    </option>
-                  ))}
+                  {UserData?.filter(user => user.department?.name === ticket?.department?.name)
+                    .map(user => (
+                      <option key={user._id} value={user._id}>
+                        {user.full_name} ({user.username})
+                      </option>
+                    ))}
+
                 </select>
               </div>
 
@@ -1158,11 +1094,12 @@ export default function TicketDetails() {
                 <label className="text-sm font-medium text-gray-600">Assign To</label>
                 <select value={editTaskData.assign} onChange={(e) => setEditTaskData({ ...editTaskData, assign: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" disabled={loadingUsers}>
                   <option value="">{loadingUsers ? 'Loading users...' : 'Select a user...'}</option>
-                  {users.map((user) => (
-                    <option key={user._id} value={user._id}>
-                      {user.full_name} ({user.username})
-                    </option>
-                  ))}
+                  {UserData?.filter(user => user.department?.name === ticket?.department?.name)
+                    .map(user => (
+                      <option key={user._id} value={user._id}>
+                        {user.full_name} ({user.username})
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>

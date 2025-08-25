@@ -26,7 +26,7 @@ export default function TicketsPage() {
   const [DeleteTicket] = useDeleteTicketMutation()
   const { data: tickets, isLoading: getTicketloading } = useGetTicketQuery()
 
-
+  console.log(tickets)
 
   const getCurrentStatus = (ticket) => {
     if (Array.isArray(ticket.status) && ticket.status.length > 0) {
@@ -203,7 +203,7 @@ export default function TicketsPage() {
       </div>
 
 
-      <div className="bg-white/70 backdrop-blur-sm flex flex-col md:flex-row gap-4 md:items-center border border-white/20 rounded-3xl p-6 mb-10 shadow-xl">
+      <div className="bg-white/70 backdrop-blur-sm flex flex-col md:flex-row gap-4 md:items-center justify-between border border-white/20 rounded-3xl p-6 mb-10 shadow-xl">
 
         <div className="relative flex-1 max-w-full md:max-w-md w-full">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -213,7 +213,7 @@ export default function TicketsPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full border-0 bg-gray-50/80 rounded-2xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition-all duration-300 shadow-sm"
-          />
+          /> 
         </div>
 
         <button
@@ -295,7 +295,7 @@ export default function TicketsPage() {
                       <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-red-200/50">{ticket.ticket_id}</span>
                       <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{getCurrentStatus(ticket)}</span>
                       <span className={`bg-gradient-to-r ${getPriorityColor(ticket.priority)} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{ticket.priority}</span>
-                      <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">Development</span>
+                      <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">{ticket?.department?.name}</span>
                     </div>
 
                     <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-800 transition-colors duration-300">{ticket.title}</h3>
