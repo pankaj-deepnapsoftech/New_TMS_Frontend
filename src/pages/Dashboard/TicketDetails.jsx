@@ -191,24 +191,10 @@ export default function TicketDetails() {
 
       const result = await response.json();
       console.log('Status update response:', result);
-
-      if (response.ok) {
-        // Update the ticket's status in local state
-        if (existingStatus) {
-          // Update existing status
-          setTicket((prevTicket) => ({
-            ...prevTicket,
-            status: prevTicket.status.map((status) => (status._id === existingStatus._id ? { ...status, status: newStatus } : status)),
-          }));
-        } 
-
-        // Close modal and reset form
-        refetch()
-        setShowStatusModal(false);
-        setNewStatus('Not Started');
-
-        console.log('Status updated successfully:', result.data);
-      } 
+      refetch()
+      setShowStatusModal(false);
+      setNewStatus('Not Started');
+    
     } catch (err) {
       console.error('Error updating status:', err);
       setError('Network error. Please try again.');
@@ -245,25 +231,18 @@ export default function TicketDetails() {
       const result = await response.json();
       console.log('Status edit response:', result);
 
-      if (response.ok) {
-        // Update the status in local state
-        setTicket((prevTicket) => ({
-          ...prevTicket,
-          status: prevTicket.status.map((status) => (status._id === selectedStatus._id ? { ...status, status: editStatusData.status } : status)),
-        }));
 
         // Close modal and reset form
+        refetch()
         setShowEditStatusModal(false);
         setSelectedStatus(null);
         setEditStatusData({ status: 'Not Started' });
 
         console.log('Status updated successfully');
-      } else {
-        setError(result.message || 'Failed to update status');
-      }
+      
     } catch (err) {
       console.error('Error updating status:', err);
-      setError('Network error. Please try again.');
+      
     } finally {
       setEditingStatus(false);
     }

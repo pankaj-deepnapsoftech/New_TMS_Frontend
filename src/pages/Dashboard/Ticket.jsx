@@ -26,7 +26,7 @@ export default function TicketsPage() {
   const { data: tickets, isLoading: getTicketloading } = useGetTicketQuery()
   const {data:AdminCarddata,isLoading:adminCardDataload} = useGetAdminTicketcardDataQuery();
 
-  console.log(tickets)
+  
 
   const getCurrentStatus = (ticket) => {
     if (Array.isArray(ticket.status) && ticket.status.length > 0) {
