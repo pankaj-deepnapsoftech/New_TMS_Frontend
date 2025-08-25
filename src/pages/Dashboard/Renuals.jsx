@@ -4,11 +4,19 @@ import { Plus, X } from 'lucide-react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useCreateRenualMutation } from '@/services/Renuals.service';
+import { toast } from 'react-toastify';
+import { useGetRenualQuery } from '@/services/Renuals.service';
 
 export default function RenualsPage() {
-  const [renuals, setRenuals] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+  // --------------------- rtk queries ----------------------
   const [createRenual,{isloading:CreateRenualLoading}] = useCreateRenualMutation();
+  const {data:renuals,isLoading:getRenualsLoad,refetch} = useGetRenualQuery()
+
+
+
+
+
+  const [showModal, setShowModal] = useState(false);
 
   const validationSchema = Yup.object({
     customer: Yup.string().required('Customer is required'),
@@ -21,17 +29,21 @@ export default function RenualsPage() {
       id: renuals.length + 1,
       ...values,
     };
-    setRenuals([...renuals, newRenual]);
     resetForm();
     setShowModal(false);
 
     try {
       const res = await createRenual(newRenual).unwrap();
-      console.log(res)
+      toast.success(res.message);
+      refetch()
     } catch (error) {
-      console.log(error)
+      toast.error(error.data.message);
     }
   };
+
+  if(getRenualsLoad){
+    return <div>loging ........</div>
+  }
 
   return (
     <div className="p-6">
@@ -63,8 +75,8 @@ export default function RenualsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {renuals.length > 0 ? (
-              renuals.map((r) => (
+            {renuals?.data?.length > 0 ? (
+              renuals?.data?.map((r) => (
                 <tr
                   key={r.id}
                   className="hover:bg-blue-50 transition-colors duration-200"
