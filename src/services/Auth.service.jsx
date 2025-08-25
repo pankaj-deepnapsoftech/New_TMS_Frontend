@@ -41,10 +41,7 @@ const AuthService = Api.injectEndpoints({
 
     // --------------- get current user api ------------------
     getCurrentUser: build.query({
-      query: () => ({
-        url: '/user/loged-in-user',
-        method: 'GET',
-      }),
+      query: () =>  '/user/loged-in-user',
       providesTags: ['User'],
     }),
   }),
