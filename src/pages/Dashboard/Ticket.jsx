@@ -32,7 +32,7 @@ export default function TicketsPage() {
   const [DeleteTicket] = useDeleteTicketMutation()
   const { data:tickets,isLoading:getTicketloading } = useGetTicketQuery()
 
-  console.log(tickets.data)
+  console.log(tickets?.data)
 
 
 

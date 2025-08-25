@@ -80,7 +80,7 @@ export default function TaskDashboard() {
       {/* Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Overall Progress */}
-        <Card title="Overall Progress" subtitle="vs last month">
+        <Card title="Ticket Overview" subtitle="vs last month">
           <div className="flex items-center gap-6">
             <div className="flex-1 h-28">
               <ResponsiveContainer width="100%" height="100%">
