@@ -123,7 +123,7 @@ const TicketModal = ({ isOpen, onClose, editTicket }) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="px-4 py-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 via-sky-600 to-sky-800 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
               >
                 {isLoading
                   ? (editTicket ? 'Updating...' : 'Creating...')

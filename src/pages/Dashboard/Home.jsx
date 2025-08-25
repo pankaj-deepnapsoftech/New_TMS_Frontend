@@ -148,7 +148,7 @@ export default function TaskDashboard() {
                   <div className="flex flex-wrap items-center gap-2">
                     <div className="font-semibold">{u.name}</div>
                     <div className="text-xs text-gray-500">{u.time}</div>
-                    <span className="text-xs text-indigo-600">{u.source}</span>
+                    <span className="text-xs text-sky-600">{u.source}</span>
                   </div>
                   <p className="text-sm text-gray-700 mt-1">{u.text}</p>
                   {u.chips?.length > 0 && (
@@ -232,7 +232,7 @@ export default function TaskDashboard() {
                 <span>55%</span>
               </div>
               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div className="h-full bg-indigo-600" style={{ width: '30%' }} />
+                <div className="h-full bg-sky-600" style={{ width: '30%' }} />
               </div>
               <div className="flex justify-between text-xs text-gray-500">
                 <span>Referrals</span>
@@ -246,7 +246,7 @@ export default function TaskDashboard() {
           <div className="space-y-3">
             {['frontend', 'bug', 'ux', 'documentation', 'infra'].map((tag, i) => (
               <div key={tag} className="flex items-center justify-between">
-                <a className="text-indigo-600 hover:underline" href="#">
+                <a className="text-sky-600 hover:underline" href="#">
                   {tag}
                 </a>
                 <span className="text-gray-700">{(i + 1) * 1320}</span>
@@ -276,7 +276,7 @@ export default function TaskDashboard() {
 
         <Card title="Project Selector" subtitle="Quick filters">
           <div className="flex items-center gap-3">
-            <select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
               <option>Project Alpha</option>
               <option>Project Beta</option>
               <option>Project Gamma</option>
