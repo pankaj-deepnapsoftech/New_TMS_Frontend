@@ -31,8 +31,10 @@ export default function TicketsPage() {
   const [editTicket,setEditTicket] = useState(null)
   const [DeleteTicket] = useDeleteTicketMutation()
   const { data:tickets,isLoading:getTicketloading } = useGetTicketQuery()
+ 
 
-  console.log(tickets?.data)
+console.log(tickets?.data)
+  
 
 
 
@@ -109,25 +111,34 @@ export default function TicketsPage() {
   };
 
   const handleTicketClick = (ticket) => {
-    navigate(`/tickets/${ticket.ticket_id || ticket._id}`);
+    navigate(`/tickets/${ticket?.ticket_id || ticket?._id}`);
   };
 
-  const filteredAssignedTickets = assignedTickets.filter((ticket) => {
-    const idText = (ticket.ticket_id || '').toLowerCase();
-    const titleText = (ticket.title || '').toLowerCase();
+  const filteredAssignedTickets = isAdmin ? tickets?.data : myCreatedTickets;
+
+  const filteredTickets = filteredAssignedTickets?.filter((ticket) => {
+    const idText = (ticket?.ticket_id || '').toLowerCase();
+    const titleText = (ticket?.title || '').toLowerCase();
     const matchesSearch = idText.includes(searchTerm.toLowerCase()) || titleText.includes(searchTerm.toLowerCase());
 
     const statusText = getCurrentStatus(ticket);
     const matchesStatus = filterStatus === 'All Statuses' || statusText === filterStatus;
-    const matchesPriority = filterPriority === 'All Priorities' || ticket.priority === filterPriority;
-    const matchesDepartment = filterDepartment === 'All Departments' || ticket.department === filterDepartment;
+    const matchesPriority = filterPriority === 'All Priorities' || ticket?.priority === filterPriority;
+    const matchesDepartment = filterDepartment === 'All Departments' || ticket?.department?.name === filterDepartment;
 
     return matchesSearch && matchesStatus && matchesPriority && matchesDepartment;
   });
 
+  // Show all tickets created by current user (non-admin)
+  const myCreatedTickets = tickets?.data?.filter(ticket => ticket.creator === currentUser?._id) || [];
+
+
+
   const stats = {
-    total: isAdmin ? tickets?.data?.length : assignedTickets.length,
-    open: isAdmin ? tickets?.data?.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
+    total: isAdmin ? tickets?.data?.length : myCreatedTickets.length,
+    open: isAdmin
+      ? tickets?.data?.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length
+      : myCreatedTickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
     inProgress: isAdmin ? tickets?.data?.filter((t) => getCurrentStatus(t) === 'In Progress').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'In Progress').length,
     resolved: isAdmin ? tickets?.data?.filter((t) => getCurrentStatus(t) === 'Resolved').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'Resolved').length,
     overdue: isAdmin ? tickets?.data?.filter((t) => new Date(t.due_date) < new Date()).length : assignedTickets.filter((t) => new Date(t.due_date) < new Date()).length,
@@ -315,7 +326,7 @@ export default function TicketsPage() {
             </p>
           </div> 
         ) : (
-          filteredTickets.map((ticket) => (
+          tickets?.data.map((ticket) => (
                 <div key={ticket._id} className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -415,7 +426,7 @@ export default function TicketsPage() {
                 </p>
               </div>
             ) : (
-              filteredAssignedTickets.map((ticket) => (
+                      filteredTickets.map((ticket) => (
                 <div key={ticket._id} className="bg-gradient-to-br from-blue-50/80 to-indigo-50/60 backdrop-blur-sm border border-blue-200/50 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-transparent to-indigo-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
