@@ -66,7 +66,7 @@ export default function TicketDetails() {
   const fetchUsers = async () => {
     try {
       setLoadingUsers(true);
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/user/all-users`;
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/user/all-users`;
 
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -96,7 +96,7 @@ export default function TicketDetails() {
       setError('');
 
       // First, get all tickets to find the specific one
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/get`;
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/ticket/get`;
 
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -139,7 +139,7 @@ export default function TicketDetails() {
       setAddingTask(true);
       setError('');
 
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/task/create`;
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/task/create`;
 
       const taskData = {
         ...newTask,
@@ -205,14 +205,14 @@ export default function TicketDetails() {
 
       if (existingStatus) {
         // Update existing status
-        apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/update/${existingStatus._id}`;
+        apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/update/${existingStatus._id}`;
         method = 'PUT';
         statusData = {
           status: newStatus,
         };
       } else {
         // Create new status
-        apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/add`;
+        apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/add`;
         method = 'POST';
         statusData = {
           status: newStatus,
@@ -274,7 +274,7 @@ export default function TicketDetails() {
       setEditingStatus(true);
       setError('');
 
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/update/${selectedStatus._id}`;
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/update/${selectedStatus._id}`;
 
       const statusData = {
         status: editStatusData.status,
@@ -338,7 +338,7 @@ export default function TicketDetails() {
       setDeletingStatus(true);
       setError('');
 
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/delete/${statusId}`;
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/delete/${statusId}`;
 
       console.log('Deleting status with ID:', statusId);
 
@@ -380,7 +380,7 @@ export default function TicketDetails() {
       setEditingTask(true);
       setError('');
 
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/task/update/${selectedTask._id}`;
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/task/update/${selectedTask._id}`;
 
       const taskData = {
         title: editTaskData.title,
@@ -457,7 +457,7 @@ export default function TicketDetails() {
       setDeletingTask(true);
       setError('');
 
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/task/delete/${taskId}`;
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/task/delete/${taskId}`;
 
       console.log('Deleting task with ID:', taskId);
 
@@ -503,14 +503,14 @@ export default function TicketDetails() {
 
       if (existingStatus) {
         // Update existing status
-        apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/update/${existingStatus._id}`;
+        apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/update/${existingStatus._id}`;
         method = 'PUT';
         statusData = {
           status: newTaskStatus,
         };
       } else {
         // Create new status
-        apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/status/add`;
+        apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/add`;
         method = 'POST';
         statusData = {
           status: newTaskStatus,
@@ -539,9 +539,9 @@ export default function TicketDetails() {
           prevTasks.map((task) =>
             typeof task._id === 'string' && typeof selectedTaskForStatus._id === 'string' && task._id === selectedTaskForStatus._id
               ? {
-                  ...task,
-                  status: existingStatus ? task.status.map((status) => (status._id === existingStatus._id ? { ...status, status: newTaskStatus } : status)) : [...(task.status || []), result.data],
-                }
+                ...task,
+                status: existingStatus ? task.status.map((status) => (status._id === existingStatus._id ? { ...status, status: newTaskStatus } : status)) : [...(task.status || []), result.data],
+              }
               : task,
           ),
         );
@@ -852,7 +852,7 @@ export default function TicketDetails() {
 
               {/* Buttons */}
               <div className="flex justify-end gap-3">
-                
+
                 <button type="submit" className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-700">
                   Submit
                 </button>

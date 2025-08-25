@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Search, Plus, Users, Clock, CheckCircle, AlertCircle, ListChecks, Trash2, Edit } from 'lucide-react';
 import TicketModal from '@components/Modals/TicketsModal';
-import UpdateTicketModal from '@components/Modals/UpdateTicketModal';
 import { useNavigate } from 'react-router-dom';
 import { useGetCurrentUserQuery } from '@/services/Auth.service';
 import { useDeleteTicketMutation } from '@/services/Ticket.service';
 import { useGetTicketQuery } from '@/services/Ticket.service';
+
 
 export default function TicketsPage() {
   const navigate = useNavigate();
@@ -17,6 +17,7 @@ export default function TicketsPage() {
 
   const [assignedTickets, setAssignedTickets] = useState([]);
   const [assignedLoading, setAssignedLoading] = useState(true);
+  // eslint-disable-next-line no-unused-vars
   const [error, setError] = useState('');
   const [assignedError, setAssignedError] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +27,6 @@ export default function TicketsPage() {
   const { data: tickets, isLoading: getTicketloading } = useGetTicketQuery()
 
 
-  console.log(tickets?.data);
 
   const getCurrentStatus = (ticket) => {
     if (Array.isArray(ticket.status) && ticket.status.length > 0) {
@@ -47,7 +47,7 @@ export default function TicketsPage() {
       setAssignedLoading(true);
       setAssignedError('');
 
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/get-assign`;
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/ticket/get-assign`;
 
       const response = await fetch(apiUrl, {
         method: 'GET',
@@ -98,11 +98,12 @@ export default function TicketsPage() {
 
   const handleTicketClick = (ticket) => {
     navigate(`/tickets/${ticket?.ticket_id || ticket?._id}`);
+
   };
 
   const myCreatedTickets = tickets?.data?.filter(ticket => ticket.creator === currentUser?._id) || [];
 
-  
+
   const filteredAssignedTickets = isAdmin ? tickets?.data || [] : assignedTickets || [];
 
 
@@ -351,7 +352,7 @@ export default function TicketsPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">No Assigned Tickets</h3>
                 <p className="text-gray-600 max-w-md mx-auto">
-                  {searchTerm 
+                  {searchTerm
                     ? 'No assigned tickets match your current filters. Try adjusting your search criteria.'
                     : 'You don\'t have any tickets assigned to you yet. Check back later or contact your administrator.'
                   }

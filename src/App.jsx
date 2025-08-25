@@ -15,7 +15,7 @@ const App = () => {
 
   useEffect(() => {
     if (data) {
-      dispatch(addUser(data.user))
+      dispatch(addUser(data?.user))
     } else if (!data) {
       refetch()
     }

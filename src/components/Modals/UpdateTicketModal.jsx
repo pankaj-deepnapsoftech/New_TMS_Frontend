@@ -40,7 +40,7 @@ export default function UpdateTicketModal({ isOpen, onClose, ticket, onUpdate })
     setError('');
 
     try {
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/update/${ticket._id}`;
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/ticket/update/${ticket._id}`;
       console.log('Making API request to:', apiUrl);
       console.log('Request payload:', formData);
 

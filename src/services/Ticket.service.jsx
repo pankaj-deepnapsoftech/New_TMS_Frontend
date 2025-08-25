@@ -11,6 +11,13 @@ const TicketService = Api.injectEndpoints({
       }),
       providesTags: ['Ticket'],
     }),
+    getTicketById:build.query({
+      query: (id) => ({
+        url: `/get-ticket/${id}`,
+        method: 'GET',
+      }),
+      providesTags: ['Ticket'],
+    }), 
     createTicket: build.mutation({
       query: (body) => ({
         url: '/ticket/create',
@@ -41,4 +48,4 @@ const TicketService = Api.injectEndpoints({
 });
 
 // ---------------------- all queries here --------------------
-export const { useGetTicketQuery,useCreateTicketMutation, useUpdateTicketMutation,useDeleteTicketMutation } = TicketService;
+export const { useGetTicketQuery,useGetTicketByIdQuery,useCreateTicketMutation, useUpdateTicketMutation,useDeleteTicketMutation } = TicketService;
