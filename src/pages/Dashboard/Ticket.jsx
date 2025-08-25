@@ -5,7 +5,7 @@ import UpdateTicketModal from '@components/Modals/UpdateTicketModal';
 import { useNavigate } from 'react-router-dom';
 import { useGetCurrentUserQuery } from '@/services/Auth.service';
 import { useDeleteTicketMutation } from '@/services/Ticket.service';
-// import { useGetTicketQuery } from '@/services/Ticket.service';
+import { useGetTicketQuery } from '@/services/Ticket.service';
 
 
 export default function TicketsPage() {
@@ -16,9 +16,7 @@ export default function TicketsPage() {
   const currentUser = currentUserData?.user;
   const isAdmin = currentUser?.admin || false;
 
-  const [tickets, setTickets] = useState([]);
-  const [assignedTickets, setAssignedTickets] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [assignedTickets, setAssignedTickets] = useState([]); 
   // eslint-disable-next-line no-unused-vars
   const [assignedLoading, setAssignedLoading] = useState(true);
   const [error, setError] = useState('');
@@ -32,7 +30,11 @@ export default function TicketsPage() {
   const [filterDepartment, setFilterDepartment] = useState('All Departments');
   const [editTicket,setEditTicket] = useState(null)
   const [DeleteTicket] = useDeleteTicketMutation()
-  // const { data:ticketData } = useGetTicketQuery()
+  const { data:tickets,isLoading:getTicketloading } = useGetTicketQuery()
+
+  console.log(tickets.data)
+
+
 
 
   const getCurrentStatus = (ticket) => {
@@ -46,34 +48,7 @@ export default function TicketsPage() {
     return 'Not Started';
   };
 
-  // Fetch tickets from API
-  const fetchTickets = async () => {
-    try {
-      setLoading(true);
-      setError('');
 
-      const apiUrl = `${import.meta.env.VITE_BASE_URL || 'http://localhost:5001'}/api/v1/ticket/get`;                             
-
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setTickets(result.data || []);
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        setError(errorData.message || 'Failed to fetch tickets');
-      }
-    } catch (err) {
-      console.error('Error fetching tickets:', err);
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // console.log(TicketData)
 
@@ -121,18 +96,14 @@ export default function TicketsPage() {
 
   useEffect(() => {
     if (!userLoading && currentUser) {
-      if (isAdmin) {
-        fetchTickets();
-      } else {
+      if (!isAdmin) {
         fetchAssignedTickets();
-      }
+      } 
     }
   }, [userLoading, currentUser, isAdmin]);
 
   const handleTicketCreated = () => {
-    if (isAdmin) {
-    fetchTickets();
-    } else {
+    if (!isAdmin) {
       fetchAssignedTickets();
     }
   };
@@ -155,11 +126,11 @@ export default function TicketsPage() {
   });
 
   const stats = {
-    total: isAdmin ? tickets.length : assignedTickets.length,
-    open: isAdmin ? tickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
-    inProgress: isAdmin ? tickets.filter((t) => getCurrentStatus(t) === 'In Progress').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'In Progress').length,
-    resolved: isAdmin ? tickets.filter((t) => getCurrentStatus(t) === 'Resolved').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'Resolved').length,
-    overdue: isAdmin ? tickets.filter((t) => new Date(t.due_date) < new Date()).length : assignedTickets.filter((t) => new Date(t.due_date) < new Date()).length,
+    total: isAdmin ? tickets?.data?.length : assignedTickets.length,
+    open: isAdmin ? tickets?.data?.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
+    inProgress: isAdmin ? tickets?.data?.filter((t) => getCurrentStatus(t) === 'In Progress').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'In Progress').length,
+    resolved: isAdmin ? tickets?.data?.filter((t) => getCurrentStatus(t) === 'Resolved').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'Resolved').length,
+    overdue: isAdmin ? tickets?.data?.filter((t) => new Date(t.due_date) < new Date()).length : assignedTickets.filter((t) => new Date(t.due_date) < new Date()).length,
   };
 
   const formatDate = (dateString) => {
@@ -198,7 +169,7 @@ export default function TicketsPage() {
     }
   };
 
-  if (userLoading || loading) {
+  if (userLoading  || getTicketloading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6 flex items-center justify-center">
         <div className="text-center">
@@ -314,7 +285,7 @@ export default function TicketsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {isAdmin ? (
           <>
-            {loading ? (
+            {getTicketloading ? (
               <div className="text-center py-16">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-lg mb-6">
                   <div className="animate-spin rounded-full h-8 w-8 border-4 border-white border-t-transparent"></div>
