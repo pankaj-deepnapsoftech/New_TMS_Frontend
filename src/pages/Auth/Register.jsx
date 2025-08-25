@@ -111,7 +111,7 @@ function RegisterForm() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-md font-semibold shadow-md hover:shadow-lg transition disabled:opacity-50"
+                  className="w-full bg-gradient-to-r from-purple-600 to-sky-600 text-white py-3 rounded-md font-semibold shadow-md hover:shadow-lg transition disabled:opacity-50"
                 >
                   {isLoading || isSubmitting ? 'Registering...' : 'Register'}
                 </motion.button>

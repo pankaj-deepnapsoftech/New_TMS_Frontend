@@ -13,7 +13,7 @@ const TicketService = Api.injectEndpoints({
     }),
     getTicketById:build.query({
       query: (id) => ({
-        url: `/get-ticket/${id}`,
+        url: `/ticket/get-ticket/${id}`,
         method: 'GET',
       }),
       providesTags: ['Ticket'],

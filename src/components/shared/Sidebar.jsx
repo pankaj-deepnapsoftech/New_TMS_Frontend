@@ -37,7 +37,7 @@ const Sidebar = () => {
     <aside onMouseEnter={() => setSidebarOpen(true)} onMouseLeave={() => setSidebarOpen(false)} className={`group relative z-20 h-full bg-white border-r border-gray-200 shadow-sm transition-[width] duration-300 ease-in-out ${sidebarOpen ? 'w-64' : 'w-16'}`}>
       {/* Brand */}
       <div className="flex items-center gap-3 px-3 py-4 border-b border-gray-100">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 grid place-items-center text-white font-bold">T</div>
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-sky-600 grid place-items-center text-white font-bold">T</div>
         {sidebarOpen && <span className="font-semibold">TaskFlow</span>}
       </div>
 
