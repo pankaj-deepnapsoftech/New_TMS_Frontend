@@ -33,7 +33,7 @@ export const DashbaordNavLinks = [
     component: <Roles />,
   },
     {
-    label: 'Ticket',
+    label: 'Tickets',
     value: '/ticket',
     icon: BrickWallFire,
     component: <TicketsPage />,
