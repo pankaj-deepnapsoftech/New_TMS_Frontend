@@ -4,11 +4,15 @@ import { SidebarItem } from '@components/ui/SideItems';
 import { useLogoutMutation } from '@/services/Auth.service';
 import { useNavigate } from 'react-router-dom';
 import { DashbaordNavLinks } from '@/constant/dashboardNavigation';
+import { useDispatch } from 'react-redux';
+import { removeUser } from '@store/slice/AuthSlice';
+import { toast } from 'react-toastify';
 
 const Sidebar = () => {
   const [logout, { isLoading }] = useLogoutMutation();
 
   const navigate = useNavigate();
+  const dispatch = useDispatch()
 
   const [sidebarOpen, setSidebarOpen] = useState(false); // hover to expand
 
@@ -18,6 +22,8 @@ const Sidebar = () => {
       console.log(res);
       localStorage.clear();
       navigate('/login');
+      dispatch(removeUser());
+      toast.success(res.message)
     } catch (error) {
       console.log(error);
     }

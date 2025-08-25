@@ -112,7 +112,15 @@ export default function DepartmentTable() {
                   </span>
                 )}
               </div>
-              <button disabled={DepDeleteLoad} onClick={() => deleteHandle(dept._id)} className="text-red-500 hover:text-red-700">
+              <button
+                disabled={DepDeleteLoad}
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this department?')) {
+                    deleteHandle(dept._id);
+                  }
+                }}
+                className="text-red-500 hover:text-red-700"
+              >
                 <Trash2 size={18} />
               </button>
             </div>

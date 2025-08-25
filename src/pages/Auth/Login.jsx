@@ -6,6 +6,8 @@ import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import { useLoginMutation } from '../../services/Auth.service';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 function LoginForm() {
   const [login, { isLoading }] = useLoginMutation();
@@ -21,15 +23,19 @@ function LoginForm() {
   const googleLogin = useGoogleLogin({
     onSuccess: (tokenResponse) => {
       console.log('Google token response:', tokenResponse);
+      toast.success('Google login successful 🎉');
       // send tokenResponse.access_token to your backend
     },
     onError: () => {
       console.error('Google Sign In Failed');
+      toast.error('Google login failed ❌');
     },
   });
 
   return (
     <div className="flex items-center bg-gradient-to-r from-gray-200 to-gray-300 justify-center h-screen bg-cover bg-center overflow-hidden">
+      {/* Toast Container */}
+
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: 'easeOut' }} className="bg-white/20 backdrop-blur-xl shadow-xl rounded-2xl flex w-[1000px] h-[700px] overflow-hidden border border-white/30">
         {/* Left Section */}
         <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="w-1/2 p-10 flex flex-col justify-center">
@@ -47,11 +53,15 @@ function LoginForm() {
 
                 console.log('Login success:', res);
 
+                // ✅ Show success toast
+                toast.success(res.message +' 🎉');
+
                 // Redirect after login
                 navigate('/');
-                // window.location.reload(); // if you want a full page reload
               } catch (error) {
                 console.error('Login failed:', error);
+                // ❌ Show error toast
+                toast.error('Login failed. Please try again.');
               } finally {
                 setSubmitting(false);
               }
