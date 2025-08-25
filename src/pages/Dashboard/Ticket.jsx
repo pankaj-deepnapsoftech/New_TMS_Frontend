@@ -3,8 +3,7 @@ import { Search, Plus, Users, Clock, CheckCircle, AlertCircle, ListChecks, Trash
 import TicketModal from '@components/Modals/TicketsModal';
 import { useNavigate } from 'react-router-dom';
 import { useGetCurrentUserQuery } from '@/services/Auth.service';
-import { useDeleteTicketMutation } from '@/services/Ticket.service';
-import { useGetTicketQuery } from '@/services/Ticket.service';
+import { useDeleteTicketMutation,useGetAdminTicketcardDataQuery,useGetTicketQuery } from '@/services/Ticket.service';
 
 
 export default function TicketsPage() {
@@ -25,8 +24,9 @@ export default function TicketsPage() {
   const [editTicket, setEditTicket] = useState(null)
   const [DeleteTicket] = useDeleteTicketMutation()
   const { data: tickets, isLoading: getTicketloading } = useGetTicketQuery()
+  const {data:AdminCarddata,isLoading:adminCardDataload} = useGetAdminTicketcardDataQuery();
 
-
+  console.log(tickets)
 
   const getCurrentStatus = (ticket) => {
     if (Array.isArray(ticket.status) && ticket.status.length > 0) {
@@ -158,7 +158,7 @@ export default function TicketsPage() {
     }
   };
 
-  if (userLoading || getTicketloading) {
+  if (userLoading || getTicketloading || adminCardDataload) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6 flex items-center justify-center">
         <div className="text-center">
@@ -186,11 +186,11 @@ export default function TicketsPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
         {[
-          { title: isAdmin ? 'Total Tickets' : 'My Tickets', count: stats.total, icon: <ListChecks className="text-yellow-100" size={14} />, color: 'from-yellow-300 to-yellow-500', bgColor: 'bg-gradient-to-br from-yellow-50 to-orange-50' },
-          { title: 'Open', count: stats.open, icon: <AlertCircle className="text-blue-100" size={14} />, color: 'from-blue-300 to-blue-500', bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-50' },
-          { title: 'In Progress', count: stats.inProgress, icon: <Clock className="text-sky-100" size={14} />, color: 'from-sky-300 to-sky-500', bgColor: 'bg-gradient-to-br from-sky-50 to-purple-50' },
-          { title: 'Resolved', count: stats.resolved, icon: <CheckCircle className="text-green-100" size={14} />, color: 'from-green-300 to-green-500', bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50' },
-          { title: 'Overdue', count: stats.overdue, icon: <Clock className="text-red-100" size={14} />, color: 'from-red-300 to-red-500', bgColor: 'bg-gradient-to-br from-red-50 to-pink-50' },
+          { title: 'Total Tickets', count: AdminCarddata?.data?.total || 0, icon: <ListChecks className="text-yellow-100" size={14} />, color: 'from-yellow-300 to-yellow-500', bgColor: 'bg-gradient-to-br from-yellow-50 to-orange-50' },
+          { title: 'Not Started', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === "Not Started")?.count || 0, icon: <AlertCircle className="text-blue-100" size={14} />, color: 'from-blue-300 to-blue-500', bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-50' },
+          { title: 'On Hold', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === "On Hold")?.count || 0, icon: <Clock className="text-indigo-100" size={14} />, color: 'from-indigo-300 to-indigo-500', bgColor: 'bg-gradient-to-br from-indigo-50 to-purple-50' },
+          { title: 'Re Open', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === "Re Open")?.count || 0, icon: <CheckCircle className="text-green-100" size={14} />, color: 'from-green-300 to-green-500', bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50' },
+          { title: 'Overdue', count: AdminCarddata?.data?.overdue, icon: <Clock className="text-red-100" size={14} />, color: 'from-red-300 to-red-500', bgColor: 'bg-gradient-to-br from-red-50 to-pink-50' },
         ].map((stat, i) => (
           <div key={i} className={`group ${stat.bgColor} border border-gray-200/50 rounded-3xl shadow-lg p-6 flex items-center justify-between transform hover:scale-105 hover:shadow-2xl transition-all duration-500 hover:rotate-1`}>
             <div>
@@ -203,7 +203,7 @@ export default function TicketsPage() {
       </div>
 
 
-      <div className="bg-white/70 backdrop-blur-sm flex flex-col md:flex-row gap-4 md:items-center border border-white/20 rounded-3xl p-6 mb-10 shadow-xl">
+      <div className="bg-white/70 backdrop-blur-sm flex flex-col md:flex-row gap-4 md:items-center justify-between border border-white/20 rounded-3xl p-6 mb-10 shadow-xl">
 
         <div className="relative flex-1 max-w-full md:max-w-md w-full">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -213,7 +213,7 @@ export default function TicketsPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full border-0 bg-gray-50/80 rounded-2xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition-all duration-300 shadow-sm"
-          />
+          /> 
         </div>
 
         <button
@@ -295,7 +295,7 @@ export default function TicketsPage() {
                       <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-red-200/50">{ticket.ticket_id}</span>
                       <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{getCurrentStatus(ticket)}</span>
                       <span className={`bg-gradient-to-r ${getPriorityColor(ticket.priority)} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{ticket.priority}</span>
-                      <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">Development</span>
+                      <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">{ticket?.department?.name}</span>
                     </div>
 
                     <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-800 transition-colors duration-300">{ticket.title}</h3>
