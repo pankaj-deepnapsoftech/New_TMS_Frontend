@@ -56,7 +56,7 @@ function RegisterForm() {
             Create Account
           </motion.h2>
 
-          {/* ✅ Formik Form */}
+          {/* Formik Form */}
           <Formik
             initialValues={{
               full_name: '',
@@ -118,7 +118,7 @@ function RegisterForm() {
 
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-6 text-sm text-gray-600">
             Already have an account?{' '}
-            <Link to="/" className="text-purple-600 font-semibold">
+            <Link to="/login" className="text-purple-600 font-semibold">
               Log in
             </Link>
           </motion.p>

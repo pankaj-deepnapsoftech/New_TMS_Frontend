@@ -862,9 +862,7 @@ export default function TicketDetails() {
 
               {/* Buttons */}
               <div className="flex justify-end gap-3">
-                <button type="button" onClick={() => setComment('')} className="px-4 py-2 rounded-lg border border-gray-400 text-gray-600 hover:bg-gray-100">
-                  Cancel
-                </button>
+                
                 <button type="submit" className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-700">
                   Submit
                 </button>
