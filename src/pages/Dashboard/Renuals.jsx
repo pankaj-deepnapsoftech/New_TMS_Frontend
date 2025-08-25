@@ -4,20 +4,21 @@ import { Plus, X } from 'lucide-react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Edit, Trash2 } from 'lucide-react';
-import { useCreateRenualMutation } from '@/services/Renuals.service';
 import { toast } from 'react-toastify';
-import { useGetRenualQuery } from '@/services/Renuals.service';
+import { useGetRenualQuery,useUpdateRenualMutation,useDeleteRenualMutation,useCreateRenualMutation } from '@/services/Renuals.service';
+
 
 export default function RenualsPage() {
   // --------------------- rtk queries ----------------------
   const [createRenual, { isloading: CreateRenualLoading }] = useCreateRenualMutation();
   const { data: renuals, isLoading: getRenualsLoad, refetch } = useGetRenualQuery();
+  const [deleteRenual,{isLoading:deleteRenualLoad}] = useDeleteRenualMutation();
+  const [updateRenual,{isLoading:updateRenualLoad}] = useUpdateRenualMutation();
 
-  const handleEdit = (renual) => {
-    setShowModal(true);
-    // prefill Formik fields with data (for editing later you can use setValues from Formik)
-    console.log('Editing:', renual);
-  };
+
+  const [editable,setEditable] = useState(null);
+
+
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this renewal?')) return;
@@ -49,7 +50,12 @@ export default function RenualsPage() {
     setShowModal(false);
 
     try {
-      const res = await createRenual(newRenual).unwrap();
+      let res ;
+      if(editable){
+        res = await updateRenual({id:values._id,values}).unwrap();
+      }else {
+        res = await createRenual(newRenual).unwrap();
+      }
       toast.success(res.message);
       refetch();
     } catch (error) {
@@ -66,7 +72,7 @@ export default function RenualsPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Renewals</h1>
-        <button onClick={() => setShowModal(true)} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+        <button onClick={() => {setShowModal(true),setEditable(null)}} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
           <Plus size={18} /> Add Renewal
         </button>
       </div>
@@ -93,12 +99,12 @@ export default function RenualsPage() {
                   <td className="px-6 py-4 text-gray-700">{r.product}</td>
                   <td className="px-6 py-4 flex items-center gap-3">
                     {/* Edit Button */}
-                    <button onClick={() => handleEdit(row)} className="text-blue-600 hover:text-blue-800">
+                    <button onClick={() => {setEditable(r);setShowModal(true)}} className="text-blue-600 hover:text-blue-800">
                       <Edit size={18} />
                     </button>
 
                     {/* Delete Button */}
-                    <button onClick={() => handleDelete(row.id)} className="text-red-600 hover:text-red-800">
+                    <button disabled={deleteRenualLoad} onClick={() => handleDelete(r._id)} className="text-red-600 hover:text-red-800">
                       <Trash2 size={18} />
                     </button>
                   </td>
@@ -121,14 +127,14 @@ export default function RenualsPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
             {/* Modal Header */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-800">Add Renewal</h2>
+              <h2 className="text-lg font-semibold text-gray-800">{editable ? "Edit Renewal" : "Add Renewal"}</h2>
               <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-gray-700">
                 <X size={20} />
               </button>
             </div>
 
             {/* Form */}
-            <Formik initialValues={{ customer: '', renual_date: '', product: '' }} validationSchema={validationSchema} onSubmit={handleAddRenual}>
+            <Formik initialValues={editable || { customer: '', renual_date: '', product: '' }} enableReinitialize={true} validationSchema={validationSchema} onSubmit={handleAddRenual}>
               {() => (
                 <Form className="space-y-4">
                   <div>
@@ -153,8 +159,8 @@ export default function RenualsPage() {
                     <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
                       Cancel
                     </button>
-                    <button type="submit" disabled={CreateRenualLoading} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                      Save
+                    <button type="submit" disabled={CreateRenualLoading || updateRenualLoad} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                      {editable ? "Edit" : "Save"}
                     </button>
                   </div>
                 </Form>
