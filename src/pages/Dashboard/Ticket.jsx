@@ -26,7 +26,7 @@ export default function TicketsPage() {
   const [DeleteTicket] = useDeleteTicketMutation()
   const { data: tickets, isLoading: getTicketloading } = useGetTicketQuery()
 
-  console.log(tickets)
+  
 
   const getCurrentStatus = (ticket) => {
     if (Array.isArray(ticket.status) && ticket.status.length > 0) {
