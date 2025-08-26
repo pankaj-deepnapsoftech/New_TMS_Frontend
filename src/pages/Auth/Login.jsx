@@ -13,10 +13,11 @@ function LoginForm() {
   const [login, { isLoading }] = useLoginMutation();
   const navigate = useNavigate();
 
-  // Form validation schema
-  const validationSchema = Yup.object({
-    email: Yup.string().email('Invalid email address').required('Email is required'),
-    password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+ const validationSchema = Yup.object({
+    identifier: Yup.string().required('Username or Email is required'),
+    password: Yup.string()
+      .min(6, 'Password must be at least 6 characters')
+      .required('Password is required'),
   });
 
   // Google login
