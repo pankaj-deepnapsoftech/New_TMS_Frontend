@@ -18,8 +18,8 @@ export default function TicketsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editTicket, setEditTicket] = useState(null)
   const [DeleteTicket] = useDeleteTicketMutation()
-  const { data: tickets, isLoading: getTicketloading, error: ticketError } = useGetTicketQuery()
-  const { data: AdminCarddata, isLoading: adminCardDataload } = useGetAdminTicketcardDataQuery();
+  const { data: tickets, isLoading: getTicketloading, error: ticketError, refetch:refreshTicket  } = useGetTicketQuery()
+  const { data: AdminCarddata, isLoading: adminCardDataload,refetch } = useGetAdminTicketcardDataQuery();
 
 
 
@@ -82,6 +82,8 @@ export default function TicketsPage() {
     if (currentUser) {
       if (!isAdmin) {
         fetchAssignedTickets();
+        refetch()
+        refreshTicket()
       }
     }
   }, [currentUser, isAdmin]);
@@ -89,6 +91,8 @@ export default function TicketsPage() {
   const handleTicketCreated = () => {
     if (!isAdmin) {
       fetchAssignedTickets();
+      refetch()
+      refreshTicket()
     }
   };
 
