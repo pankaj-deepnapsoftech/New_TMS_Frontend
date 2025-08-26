@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useGetUserQuery } from '@/services/Users.service';
 import { useGetTicketByIdQuery } from '@/services/Ticket.service';
 import { useCreateTaskMutation } from '@/services/Task.service';
+import { useSelector } from 'react-redux';
 
 export default function TicketDetails() {
   const { ticketId: _ticketId } = useParams();
@@ -17,6 +18,9 @@ export default function TicketDetails() {
   const { data: User } = useGetUserQuery()
   const [createTask] = useCreateTaskMutation()
   const UserData = User?.data;
+  const currentUser = useSelector((state) => state.Auth.user);
+
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -111,10 +115,10 @@ export default function TicketDetails() {
 
   // Create new task
   const handleAddTask = async () => {
-    if (!newTask.title || !newTask.due_date) {
-      setError("Please fill in all required fields");
-      return;
-    }
+    // if (!newTask.title || !newTask.due_date) {
+    //   setError("Please fill in all required fields");
+    //   return;
+    // }
 
     try {
       setAddingTask(true);
@@ -194,7 +198,7 @@ export default function TicketDetails() {
       refetch()
       setShowStatusModal(false);
       setNewStatus('Not Started');
-    
+
     } catch (err) {
       console.error('Error updating status:', err);
       setError('Network error. Please try again.');
@@ -232,17 +236,17 @@ export default function TicketDetails() {
       console.log('Status edit response:', result);
 
 
-        // Close modal and reset form
-        refetch()
-        setShowEditStatusModal(false);
-        setSelectedStatus(null);
-        setEditStatusData({ status: 'Not Started' });
+      // Close modal and reset form
+      refetch()
+      setShowEditStatusModal(false);
+      setSelectedStatus(null);
+      setEditStatusData({ status: 'Not Started' });
 
-        console.log('Status updated successfully');
-      
+      console.log('Status updated successfully');
+
     } catch (err) {
       console.error('Error updating status:', err);
-      
+
     } finally {
       setEditingStatus(false);
     }
@@ -283,10 +287,10 @@ export default function TicketDetails() {
       const result = await response.json();
       console.log('Status delete response:', result);
 
-        refetch()
+      refetch()
     } catch (err) {
       console.error('Error deleting status:', err);
-      
+
     } finally {
       setDeletingStatus(false);
     }
@@ -407,7 +411,7 @@ export default function TicketDetails() {
 
     try {
       setUpdatingTaskStatus(true);
-      ;
+
 
       // Check if there's already a status for this task
       const existingStatus = selectedTaskForStatus.status?.find((status) => status.task_id === selectedTaskForStatus._id);
@@ -662,7 +666,7 @@ export default function TicketDetails() {
               </button>
             </div>
 
-            {/* Tasks List */}
+
             <div className="space-y-4">
               {tasks.length === 0 ? (
                 <div className="text-center py-8">
@@ -670,8 +674,6 @@ export default function TicketDetails() {
                 </div>
               ) : (
                 tasks.map((task, index) => {
-                  console.log('Rendering task:', task);
-                  console.log('Task description:', task.description);
                   return (
                     <div key={typeof task._id === 'string' ? task._id : index} className={`border rounded-xl p-4 hover:shadow-md transition-shadow ${task.status && task.status.length > 0 ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200'}`}>
                       <div className="flex justify-between items-start mb-2">
@@ -680,21 +682,24 @@ export default function TicketDetails() {
                           <button onClick={() => openTaskStatusModal(task)} className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(task))} px-3 py-1 rounded-lg text-xs font-medium hover:scale-105 transition-transform cursor-pointer`} title="Click to update status">
                             {getCurrentStatus(task)}
                           </button>
-
-                          <button onClick={() => openEditTaskModal(task)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="Edit task">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          <button onClick={() => handleDeleteTask(typeof task._id === 'string' ? task._id : null)} disabled={deletingTask} className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete task">
-                            {deletingTask ? (
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                            ) : (
+                          {(currentUser?.admin === true || ticket?.creator?._id === currentUser?._id) &&
+                            <button onClick={() => openEditTaskModal(task)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="Edit task">
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                               </svg>
-                            )}
-                          </button>
+                            </button>
+                          }
+
+                          {(currentUser?.admin === true || ticket?.creator?._id === currentUser?._id) &&
+                            <button onClick={() => handleDeleteTask(typeof task._id === 'string' ? task._id : null)} disabled={deletingTask} className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete task">
+                              {deletingTask ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                              ) : (
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              )}
+                            </button>}
                         </div>
                       </div>
                       {task.description && typeof task.description === 'string' && task.description.trim() !== '' ? (

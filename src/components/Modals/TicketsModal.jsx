@@ -1,10 +1,12 @@
 /* eslint-disable no-unused-vars */
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFormik } from 'formik';
 import { useCreateTicketMutation, useUpdateTicketMutation } from '../../services/Ticket.service';
 import { useGetDepartmentQuery } from '../../services/Department.service';
 import { TicketvalidationSchema } from '../../Validation/TicketCreateValidation';
+import { useGetCurrentUserQuery } from '@/services/Auth.service';
+
+
 
 
 const TicketModal = ({ isOpen, onClose, editTicket }) => {
@@ -12,8 +14,8 @@ const TicketModal = ({ isOpen, onClose, editTicket }) => {
   const { data } = useGetDepartmentQuery();
   const DepartmentData = data?.data || [];
   const [UpdatedTicket] = useUpdateTicketMutation();
-
-  // console.log(editTicket);
+  // console.log(currentUser)
+  // console.log(editTicket)
   const formik = useFormik({
     initialValues: {
       title: editTicket?.title || '',
@@ -29,32 +31,30 @@ const TicketModal = ({ isOpen, onClose, editTicket }) => {
     onSubmit: async (values) => {
       try {
         if (editTicket?._id) {
-         
-          const res = await UpdatedTicket({ id: editTicket._id, values }).unwrap();
-         
-        } else {
+          await UpdatedTicket({ id: editTicket._id, values }).unwrap();
+        } else { 
           await createTicket(values).unwrap();
         }
         formik.resetForm();
         onClose();
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error("Ticket save failed:", error);
       }
     },
-
   });
+
 
 
   return (
     <AnimatePresence>
-    { isOpen && (<motion.div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      {isOpen && (<motion.div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
         <motion.div className="bg-white rounded-xl shadow-lg w-[600px] max-h-[90vh] overflow-y-auto" initial={{ y: '-100px', opacity: 0, scale: 0.9 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: '-100px', opacity: 0, scale: 0.9 }} transition={{ duration: 0.3, ease: 'easeOut' }}>
           <div className="flex justify-between items-center border-b border-gray-300  px-6 py-4">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               {editTicket ? 'Edit Ticket' : 'Create New Ticket'}
             </h2>
 
-           
+
 
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
               ✖
@@ -109,7 +109,7 @@ const TicketModal = ({ isOpen, onClose, editTicket }) => {
               <input type="text" placeholder="Search employees..." className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
             </div>
 
-           
+
             <div className="flex justify-end gap-3 border-t border-gray-300 pt-4">
               <button
                 type="button"
