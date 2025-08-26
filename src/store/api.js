@@ -9,5 +9,5 @@ export const Api = createApi({
     credentials: 'include',
   }),
   endpoints: () => ({}),
-  tagTypes: ['User', 'Ticket', 'Task', 'Commet', 'Important Docs', 'Role', 'Departments'],
+  tagTypes: ['User', 'Ticket', 'Task', 'Comment', 'Important Docs', 'Role', 'Departments','Status'], 
 });
