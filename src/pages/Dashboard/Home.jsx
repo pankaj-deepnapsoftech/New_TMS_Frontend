@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend, PieChart, Pie, Cell } from 'recharts';
 import { Star } from 'lucide-react';
 import { Card } from '@components/ui/DashboardCards';
 import { Donut } from '@components/charts/DonutChart';
+import { useGetAdminTicketcardDataQuery } from '@/services/Ticket.service';
+import { StatusPie } from '@/constant/dynomicData';
+import { useSelector } from 'react-redux';
 
 // --- Main Dashboard ---
 export default function TaskDashboard() {
   const [selectedProject, setSelectedProject] = useState('Project Alpha');
+
+  const { data: AdminCarddata, isLoading: adminCardDataload, refetch } = useGetAdminTicketcardDataQuery();
+  const user = useSelector((state) => state.Auth.user)
 
   const progressLine = [
     { m: 'jan', v: 46 },
@@ -39,13 +45,6 @@ export default function TaskDashboard() {
     { name: 'dec', created: 280, completed: 260 },
   ];
 
-  // Pie segments for status distribution
-  const statusPie = [
-    { name: 'To Do', value: 120 },
-    { name: 'In Progress', value: 180 },
-    { name: 'Review', value: 60 },
-    { name: 'Completed', value: 420 },
-  ];
   const STATUS_COLORS = ['#6A5AE0', '#27AE60', '#F5A623', '#2D9CDB']; // purple, green, orange, blue
 
   // Latest updates (like reviews list)
@@ -74,6 +73,21 @@ export default function TaskDashboard() {
       attachments: [],
     },
   ];
+
+  const LoadData = useCallback(() => {
+    if (user) {
+      refetch();
+    }
+  }, [user,refetch]);
+
+  useEffect(() => {
+    LoadData()
+  }, [LoadData])
+
+
+  if (adminCardDataload) {
+    return <div>loading.....</div>
+  }
 
   return (
     <main className="flex-1  px-6 py-6 space-y-6">
@@ -262,8 +276,8 @@ export default function TaskDashboard() {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={statusPie} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
-                  {statusPie.map((e, idx) => (
+                <Pie data={StatusPie(AdminCarddata?.data?.statusCounts)} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
+                  {StatusPie(AdminCarddata?.data?.statusCounts).map((e, idx) => (
                     <Cell key={idx} fill={STATUS_COLORS[idx % STATUS_COLORS.length]} />
                   ))}
                 </Pie>
