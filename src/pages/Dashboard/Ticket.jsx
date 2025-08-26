@@ -101,7 +101,6 @@ export default function TicketsPage() {
 
   };
 
-  const myCreatedTickets = tickets?.data?.filter(ticket => ticket.creator === currentUser?._id) || [];
 
 
   const filteredAssignedTickets = isAdmin ? tickets?.data || [] : assignedTickets || [];
@@ -114,13 +113,7 @@ export default function TicketsPage() {
   });
 
 
-  const stats = {
-    total: isAdmin ? tickets?.data?.length : myCreatedTickets.length,
-    open: isAdmin ? tickets?.data?.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length : myCreatedTickets.filter((t) => getCurrentStatus(t) === 'Open' || getCurrentStatus(t) === 'Not Started').length,
-    inProgress: isAdmin ? tickets?.data?.filter((t) => getCurrentStatus(t) === 'In Progress').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'In Progress').length,
-    resolved: isAdmin ? tickets?.data?.filter((t) => getCurrentStatus(t) === 'Resolved').length : assignedTickets.filter((t) => getCurrentStatus(t) === 'Resolved').length,
-    overdue: isAdmin ? tickets?.data?.filter((t) => new Date(t.due_date) < new Date()).length : assignedTickets.filter((t) => new Date(t.due_date) < new Date()).length,
-  };
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

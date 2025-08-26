@@ -15,7 +15,6 @@ export default function RenualsPage() {
   const [deleteRenual,{isLoading:deleteRenualLoad}] = useDeleteRenualMutation();
   const [updateRenual,{isLoading:updateRenualLoad}] = useUpdateRenualMutation();
 
-
   const [editable,setEditable] = useState(null);
 
 
@@ -24,7 +23,6 @@ export default function RenualsPage() {
     if (!window.confirm('Are you sure you want to delete this renewal?')) return;
 
     try {
-      // you’ll need to create a delete mutation in your Renuals.service
       const res = await deleteRenual(id).unwrap();
       toast.success(res.message || 'Deleted successfully');
       refetch();

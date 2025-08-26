@@ -6,7 +6,7 @@ const initialNotes = [];
 export default function ImportantNotesPage() {
   const [notes, setNotes] = useState(initialNotes);
   const [showModal, setShowModal] = useState(false);
-
+  
   const [formData, setFormData] = useState({
     leads: "",
     deals: "",
@@ -53,6 +53,7 @@ export default function ImportantNotesPage() {
               <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Leads</th>
               <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Deals</th>
               <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Customers</th>
+               <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -68,6 +69,17 @@ export default function ImportantNotesPage() {
                   <td className="p-3">{note.leads}</td>
                   <td className="p-3">{note.deals.join(", ")}</td>
                   <td className="p-3">{note.customer.join(", ")}</td>
+                   <td className="px-6 py-4 flex items-center gap-3">
+                    {/* Edit Button */}
+                    <button className="text-blue-600 hover:text-blue-800">
+                      <Edit size={18} />
+                    </button>
+
+                    {/* Delete Button */}
+                    <button className="text-red-600 hover:text-red-800">
+                      <Trash2 size={18} />
+                    </button>
+                  </td>
                 </tr>
               )) 
             )}
