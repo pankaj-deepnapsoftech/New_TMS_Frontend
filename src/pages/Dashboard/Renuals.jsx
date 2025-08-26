@@ -1,21 +1,25 @@
 // src/pages/RenualsPage.jsx
-import { useState } from 'react';
+import {  useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { Edit, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { useGetRenualQuery,useUpdateRenualMutation,useDeleteRenualMutation,useCreateRenualMutation } from '@/services/Renuals.service';
+import { useGetRenualQuery, useUpdateRenualMutation, useDeleteRenualMutation, useCreateRenualMutation } from '@/services/Renuals.service';
+import Pagination from '@components/ui/Pagination';
 
 
 export default function RenualsPage() {
+  const [page,setPage] = useState(1)
+
+
   // --------------------- rtk queries ----------------------
   const [createRenual, { isloading: CreateRenualLoading }] = useCreateRenualMutation();
-  const { data: renuals, isLoading: getRenualsLoad, refetch } = useGetRenualQuery();
-  const [deleteRenual,{isLoading:deleteRenualLoad}] = useDeleteRenualMutation();
-  const [updateRenual,{isLoading:updateRenualLoad}] = useUpdateRenualMutation();
+  const { data: renuals, isLoading: getRenualsLoad, refetch } = useGetRenualQuery(page);
+  const [deleteRenual, { isLoading: deleteRenualLoad }] = useDeleteRenualMutation();
+  const [updateRenual, { isLoading: updateRenualLoad }] = useUpdateRenualMutation();
 
-  const [editable,setEditable] = useState(null);
+  const [editable, setEditable] = useState(null);
 
 
 
@@ -48,10 +52,10 @@ export default function RenualsPage() {
     setShowModal(false);
 
     try {
-      let res ;
-      if(editable){
-        res = await updateRenual({id:values._id,values}).unwrap();
-      }else {
+      let res;
+      if (editable) {
+        res = await updateRenual({ id: values._id, values }).unwrap();
+      } else {
         res = await createRenual(newRenual).unwrap();
       }
       toast.success(res.message);
@@ -70,7 +74,7 @@ export default function RenualsPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Renewals</h1>
-        <button onClick={() => {setShowModal(true),setEditable(null)}} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+        <button onClick={() => { setShowModal(true), setEditable(null) }} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
           <Plus size={18} /> Add Renewal
         </button>
       </div>
@@ -97,7 +101,7 @@ export default function RenualsPage() {
                   <td className="px-6 py-4 text-gray-700">{r.product}</td>
                   <td className="px-6 py-4 flex items-center gap-3">
                     {/* Edit Button */}
-                    <button onClick={() => {setEditable(r);setShowModal(true)}} className="text-blue-600 hover:text-blue-800">
+                    <button onClick={() => { setEditable(r); setShowModal(true) }} className="text-blue-600 hover:text-blue-800">
                       <Edit size={18} />
                     </button>
 
@@ -167,6 +171,9 @@ export default function RenualsPage() {
           </div>
         </div>
       )}
+
+      {/* pagination */}
+      <Pagination currentPage={page} onPageChange={setPage} totalPages={renuals?.totalPage}  />
     </div>
   );
 }

@@ -5,7 +5,7 @@ const RenualService = Api.injectEndpoints({
     // --------------- Renual service here ------------
 
     getRenual: build.query({
-      query: () => '/renuals/get',
+      query: (page) => `/renuals/get?page=${page}`,
       providesTags: ['Renual'],
     }),
     createRenual: build.mutation({
