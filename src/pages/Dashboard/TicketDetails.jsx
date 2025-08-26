@@ -770,7 +770,6 @@ export default function TicketDetails() {
 
               {/* Buttons */}
               <div className="flex justify-end gap-3">
-
                 <button type="submit" className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-700">
                   Submit
                 </button>
@@ -884,6 +883,7 @@ export default function TicketDetails() {
               <button
                 onClick={() => {
                   setShowStatusModal(false);
+
                   setNewStatus('Not Started');
                 }}
                 className="text-gray-500 hover:text-gray-700"
