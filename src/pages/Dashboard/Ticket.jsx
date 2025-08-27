@@ -2,18 +2,14 @@ import { useState, useEffect } from 'react';
 import { Search, Plus, Users, Clock, CheckCircle, AlertCircle, ListChecks, Trash2, Edit } from 'lucide-react';
 import TicketModal from '@components/Modals/TicketsModal';
 import { useNavigate } from 'react-router-dom';
-import { useDeleteTicketMutation,useGetAdminTicketcardDataQuery,useGetTicketQuery } from '@/services/Ticket.service';
+import { useDeleteTicketMutation, useGetAdminTicketcardDataQuery, useGetTicketQuery } from '@/services/Ticket.service';
 import { useSelector } from 'react-redux';
 
 
 export default function TicketsPage() {
   const navigate = useNavigate();
-
-  // Get current user
-
-  const currentUser = useSelector((state)=>state.Auth.user);
+  const currentUser = useSelector((state) => state.Auth.user);
   const isAdmin = currentUser?.admin || false;
-
   const [assignedTickets, setAssignedTickets] = useState([]);
   const [assignedLoading, setAssignedLoading] = useState(true);
   // eslint-disable-next-line no-unused-vars
@@ -22,10 +18,10 @@ export default function TicketsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [editTicket, setEditTicket] = useState(null)
   const [DeleteTicket] = useDeleteTicketMutation()
-  const { data: tickets, isLoading: getTicketloading, error: ticketError } = useGetTicketQuery()
-  const {data:AdminCarddata,isLoading:adminCardDataload} = useGetAdminTicketcardDataQuery();
+  const { data: tickets, isLoading: getTicketloading, error: ticketError, refetch:refreshTicket  } = useGetTicketQuery()
+  const { data: AdminCarddata, isLoading: adminCardDataload,refetch } = useGetAdminTicketcardDataQuery();
 
- 
+
 
   const getCurrentStatus = (ticket) => {
     if (Array.isArray(ticket.status) && ticket.status.length > 0) {
@@ -83,16 +79,20 @@ export default function TicketsPage() {
 
 
   useEffect(() => {
-    if ( currentUser) {
+    if (currentUser) {
       if (!isAdmin) {
         fetchAssignedTickets();
+        refetch()
+        refreshTicket()
       }
     }
-  }, [ currentUser, isAdmin]);
+  }, [currentUser, isAdmin]);
 
   const handleTicketCreated = () => {
     if (!isAdmin) {
       fetchAssignedTickets();
+      refetch()
+      refreshTicket()
     }
   };
 
@@ -100,7 +100,7 @@ export default function TicketsPage() {
     navigate(`/tickets/${ticket?.ticket_id || ticket?._id}`);
 
   };
- 
+
   const myCreatedTickets = tickets?.data?.filter(ticket => ticket?.creator === currentUser?._id) || [];
   const assignedOnlyTickets = assignedTickets?.filter(ticket => ticket?.creator !== currentUser?._id) || [];
 
@@ -148,7 +148,7 @@ export default function TicketsPage() {
     }
   };
 
-  if (  getTicketloading || adminCardDataload) {
+  if (getTicketloading || adminCardDataload) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6 flex items-center justify-center">
         <div className="text-center">
@@ -203,7 +203,7 @@ export default function TicketsPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full border-0 bg-gray-50/80 rounded-2xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition-all duration-300 shadow-sm"
-          /> 
+          />
         </div>
 
         <button
@@ -228,10 +228,10 @@ export default function TicketsPage() {
                   className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden"
                   onClick={() => handleTicketClick(ticket)}
                 >
-                 
+
                   <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 via-transparent to-emerald-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                 
+
                   {(currentUser?.admin === true || ticket?.creator === currentUser?._id) && (
                     <div className="absolute top-4 right-4 flex gap-2 z-20">
                       <button
@@ -358,10 +358,10 @@ export default function TicketsPage() {
             ) : (
               tickets?.data?.map((ticket) => (
                 <div key={ticket._id} className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
-                 
+
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-sky-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                 
+
                   {(currentUser?.admin === true || ticket?.creator === currentUser?._id) && (
                     <div className="absolute top-4 right-4 flex gap-2 z-20">
                       <button
@@ -409,7 +409,7 @@ export default function TicketsPage() {
                       </div>
                     </div>
 
-                   
+
                     {new Date(ticket.due_date) < new Date() && (
                       <div className="absolute bottom-1 right-1 z-20">
                         <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs shadow-lg border border-red-200">⏳ Overdue</span>
@@ -425,7 +425,7 @@ export default function TicketsPage() {
             )}
           </>
         ) : (
-        
+
           <>
             {assignedLoading ? (
               <div className="text-center py-16">
@@ -457,49 +457,49 @@ export default function TicketsPage() {
                 </p>
               </div>
             ) : (
-                      assignedOnlyTickets?.map((ticket) => (
+              assignedOnlyTickets?.map((ticket) => (
                 <div key={ticket._id} className="bg-gradient-to-br from-blue-50/80 to-sky-50/60 backdrop-blur-sm border border-blue-200/50 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
-                 
+
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-transparent to-sky-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                
+
                   <div className="absolute top-4 left-4 z-20">
                     <span className="bg-gradient-to-r from-blue-500 to-sky-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-blue-400/30">Assigned to You</span>
                   </div>
 
-                          {(currentUser?.admin === true || ticket?.creator === currentUser?._id) && (
-                            <div className="absolute top-4 right-4 flex gap-2 z-20">
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setIsOpen(true);
-                                  setEditTicket(ticket);
-                                }}
-                                className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-                                title="Edit ticket"
-                              >
-                                <Edit size={16} />
-                              </button>
+                  {(currentUser?.admin === true || ticket?.creator === currentUser?._id) && (
+                    <div className="absolute top-4 right-4 flex gap-2 z-20">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsOpen(true);
+                          setEditTicket(ticket);
+                        }}
+                        className="p-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                        title="Edit ticket"
+                      >
+                        <Edit size={16} />
+                      </button>
 
-                              <button
-                                onClick={(e) => handleDeleteTicket(ticket._id, e)}
-                                onMouseDown={(e) => e.stopPropagation()}
-                                className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-                                title="Delete ticket"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          )}
+                      <button
+                        onClick={(e) => handleDeleteTicket(ticket._id, e)}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        className="p-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                        title="Delete ticket"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
 
 
                   <div className="relative z-10 mt-8">
                     <div className="flex flex-wrap gap-2 text-xs mb-4">
                       <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-red-200/50">{ticket.ticket_id}</span>
                       <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{getCurrentStatus(ticket)}</span>
-                      <span className={`bg-gradient-to-r ${getPriorityColor(ticket.priority)} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{ticket.priority}</span>
-                      <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">Development</span>
+                      <span className={`bg-gradient-to-r ${getPriorityColor(ticket?.priority)} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{ticket?.priority}</span>
+                      <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">{ticket?.department?.name}</span>
                     </div>
 
                     <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-800 transition-colors duration-300">{ticket.title}</h3>
@@ -533,7 +533,7 @@ export default function TicketsPage() {
         )}
       </div>
 
-      
+
       <TicketModal
         isOpen={isOpen}
         onClose={() => {

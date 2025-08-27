@@ -2,7 +2,7 @@
  
  const TaskService = Api.injectEndpoints({
    endpoints: (build) => ({
-     // --------------- Ticket service here ------------
+     // --------------- Task service here ------------
 
      createTask: build.mutation({
        query: (body) => ({
@@ -13,11 +13,26 @@
        invalidatesTags: ['Task'],
      }),
 
+     updateTask:build.mutation({
+       query: ({ id, taskData }) => ({
+         url: `/task/update/${id}`,
+         method: 'PUT',
+         body: taskData,
+       }),
+       invalidatesTags: ['Task'],
+     }),
      
+       deleteTask: build.mutation({
+         query: (id) => ({
+           url: `/task/delete/${id}`,
+           method: 'DELETE',
+         }),
+         invalidatesTags: ['Task'],
+       }),
  
    }),
  });
  
  // ---------------------- all queries here --------------------
-export const { useCreateTaskMutation } = TaskService;
+export const { useCreateTaskMutation,useUpdateTaskMutation,useDeleteTaskMutation } = TaskService;
  

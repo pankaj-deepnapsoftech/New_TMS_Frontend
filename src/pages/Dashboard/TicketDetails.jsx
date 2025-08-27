@@ -5,10 +5,17 @@ import { X, Plus, Users, Clock, CheckCircle, AlertCircle, ListChecks } from 'luc
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetUserQuery } from '@/services/Users.service';
 import { useGetTicketByIdQuery } from '@/services/Ticket.service';
-import { useCreateTaskMutation } from '@/services/Task.service';
+import { useCreateTaskMutation, useDeleteTaskMutation, useUpdateTaskMutation } from '@/services/Task.service';
 import { useSelector } from 'react-redux';
-
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { useAddStatusMutation, useDeleteStatusMutation, useUpdateStatusMutation } from '@/services/Status.service';
+import { useAddCommentMutation } from '@/services/Comment.service';
 export default function TicketDetails() {
+
+
+
+
   const { ticketId: _ticketId } = useParams();
   const navigate = useNavigate();
   const { data, error, isLoading, refetch } = useGetTicketByIdQuery(_ticketId);
@@ -19,20 +26,6 @@ export default function TicketDetails() {
   const [createTask] = useCreateTaskMutation()
   const UserData = User?.data;
   const currentUser = useSelector((state) => state.Auth.user);
-
-
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!comment.trim()) return;
-    onSubmit?.(comment);
-    setComment('');
-  };
-
-  // const [ticket, setTicket] = useState(null);
-  // const [tasks, setTasks] = useState([]);
-  // const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState('');
   const [showAddTask, setShowAddTask] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -45,25 +38,28 @@ export default function TicketDetails() {
     status: 'Not Started',
   });
   const [deletingStatus, setDeletingStatus] = useState(false);
-  const [showEditTaskModal, setShowEditTaskModal] = useState(false);
-  const [editingTask, setEditingTask] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [editTaskData, setEditTaskData] = useState({
-    title: '',
-    description: '',
-    due_date: '',
-    isSchedule: false,
-    assign: '',
-  });
   const [deletingTask, setDeletingTask] = useState(false);
+  const [addComment] = useAddCommentMutation();
 
-  const [newTask, setNewTask] = useState({
-    title: '',
-    description: '',
-    due_date: '',
-    isSchedule: false,
-    assign: '',
-  });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!comment.trim()) return;
+
+    try {
+      await addComment({
+        ticket_id: ticket._id,
+        text: comment,
+        user_id: currentUser?._id,
+      }).unwrap();
+
+      setComment("");
+      refetch();
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    }
+  };
+
+
   // eslint-disable-next-line no-unused-vars
   const [loadingUsers, setLoadingUsers] = useState(false);
   // State for task status management
@@ -71,186 +67,114 @@ export default function TicketDetails() {
   const [selectedTaskForStatus, setSelectedTaskForStatus] = useState(null);
   const [newTaskStatus, setNewTaskStatus] = useState('Not Started');
   const [updatingTaskStatus, setUpdatingTaskStatus] = useState(false);
+  const [updatedTask] = useUpdateTaskMutation()
+  const [editTask, setEditTask] = useState(null)
+  const [deleteTask] = useDeleteTaskMutation()
+  const [addStatus] = useAddStatusMutation()
+  const [updatedStatus] = useUpdateStatusMutation()
+  const [deleteStatus] = useDeleteStatusMutation()
 
 
 
-  // // Fetch ticket details
-  // const fetchTicketDetails = async () => {
-  //   try {
-  //     setLoading(true);
-  //    ;
+  const addTaskForm = useFormik({
+    initialValues: {
+      title: editTask?.title || '',
+      description: editTask?.description || '',
+      due_date: editTask?.due_date
+        ? new Date(editTask.due_date).toISOString().slice(0, 16)
+        : '',
+      isSchedule: editTask?.isSchedule || false,
+      assign: editTask?.assign?._id || '',
+    },
+    enableReinitialize: true,
+    validationSchema: Yup.object({
+      title: Yup.string().trim().required('Title is required'),
+      due_date: Yup.string().required('Due date is required'),
+      description: Yup.string(),
+      assign: Yup.string().nullable(),
+      isSchedule: Yup.boolean(),
+    }),
+    onSubmit: async (values, helpers) => {
+      try {
+        const taskData = {
+          ...values,
+          ticket_id: ticket?._id,
+          due_date: new Date(values.due_date).toISOString(),
+        };
 
-  //     // First, get all tickets to find the specific one
-  //     const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/ticket/get`;
+        if (editTask) {
 
-  //     const response = await fetch(apiUrl, {
-  //       method: 'GET',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       credentials: 'include',
-  //     });
+          await updatedTask({ id: editTask?._id, taskData }).unwrap();
+        } else {
 
-  //     if (response.ok) {
-  //       const result = await response.json();
-  //       const foundTicket = result.data.find((t) => t.ticket_id === _ticketId || t._id === _ticketId);
-
-  //       if (foundTicket) {
-  //         setTicket(foundTicket);
-  //         setTasks(foundTicket.task || []);
-  //       } else {
-  //         setError('Ticket not found');
-  //       }
-  //     } else {
-  //       const errorData = await response.json().catch(() => ({}));
-  //       setError(errorData.message || 'Failed to fetch ticket details');
-  //     }
-  //   } catch (err) {
-  //     console.error('Error fetching ticket details:', err);
-  //     setError('Network error. Please try again.');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // Create new task
-  const handleAddTask = async () => {
-    // if (!newTask.title || !newTask.due_date) {
-    //   setError("Please fill in all required fields");
-    //   return;
-    // }
-
-    try {
-      setAddingTask(true);
+          await createTask(taskData).unwrap();
+        }
+        refetch();
+        helpers.resetForm();
+        setShowAddTask(false);
+        setShowEditTaskModal(false);
+      } catch (err) {
+        console.error('Error saving task:', err);
+        helpers.setStatus(err?.data?.message || 'Failed to save task');
+      } finally {
+        helpers.setSubmitting(false);
+      }
+    },
+  });
 
 
-      const taskData = {
-        ...newTask,
-        ticket_id: ticket?._id,
-        due_date: new Date(newTask.due_date).toISOString(),
-      };
-
-      console.log("Creating task with data:", taskData);
-
-
-      await createTask(taskData).unwrap();
-      refetch()
-      // Reset form & close modal
-      setNewTask({
-        title: "",
-        description: "",
-        due_date: "",
-        isSchedule: false,
-        assign: "",
-      });
-      setShowAddTask(false);
-
-      console.log("Task created successfully");
-    } catch (err) {
-      console.error("Error creating task:", err);
-      setError(err?.data?.message || "Failed to create task");
-    } finally {
-      setAddingTask(false);
-    }
-  };
 
   // Update ticket status
   const handleUpdateStatus = async () => {
     try {
       setUpdatingStatus(true);
-      ;
-
-      // Check if there's already a status for this ticket (not for tasks)
-      const existingStatus = ticket?.status?.find((status) => !status.task_id);
-
-      let apiUrl, method, statusData;
+      const existingStatus = ticket?.status?.find((status) => !status?.task_id);
 
       if (existingStatus) {
-        // Update existing status
-        apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/update/${existingStatus._id}`;
-        method = 'PUT';
-        statusData = {
-          status: newStatus,
-        };
+        await updatedStatus({
+          id: existingStatus._id,
+          status: { status: newStatus },
+        }).unwrap();
+
       } else {
-        // Create new status
-        apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/add`;
-        method = 'POST';
-        statusData = {
+        await addStatus({
           status: newStatus,
-          ticket_id: typeof ticket._id === 'string' ? ticket._id : null,
-        };
+          ticket_id: ticket?._id,
+        }).unwrap();
       }
 
-      console.log('Updating status with data:', statusData);
-
-      const response = await fetch(apiUrl, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(statusData),
-      });
-
-      const result = await response.json();
-      console.log('Status update response:', result);
-      refetch()
+      refetch();
       setShowStatusModal(false);
       setNewStatus('Not Started');
-
     } catch (err) {
       console.error('Error updating status:', err);
-      setError('Network error. Please try again.');
     } finally {
       setUpdatingStatus(false);
     }
   };
 
-  // Edit existing status
   const handleEditStatus = async () => {
     if (!selectedStatus) return;
-
     try {
       setEditingStatus(true);
-      ;
 
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/update/${selectedStatus._id}`;
-
-      const statusData = {
-        status: editStatusData.status,
-      };
-
-      console.log('Updating status with data:', statusData);
-
-      const response = await fetch(apiUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(statusData),
-      });
-
-      const result = await response.json();
-      console.log('Status edit response:', result);
+      await updatedStatus({
+        id: selectedStatus._id,
+        status: { status: editStatusData?.status },
+      }).unwrap();
 
 
-      // Close modal and reset form
-      refetch()
+      refetch();
       setShowEditStatusModal(false);
       setSelectedStatus(null);
       setEditStatusData({ status: 'Not Started' });
-
-      console.log('Status updated successfully');
-
     } catch (err) {
       console.error('Error updating status:', err);
-
     } finally {
       setEditingStatus(false);
     }
   };
+
 
   // Open edit status modal
   const openEditStatusModal = (status) => {
@@ -261,222 +185,63 @@ export default function TicketDetails() {
 
   // Delete status
   const handleDeleteStatus = async (statusId) => {
-    if (!statusId) return;
-
-    // Show confirmation dialog
-    if (!window.confirm('Are you sure you want to delete this status?')) {
-      return;
-    }
 
     try {
-      setDeletingStatus(true);
-      ;
-
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/delete/${statusId}`;
-
-      console.log('Deleting status with ID:', statusId);
-
-      const response = await fetch(apiUrl, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const result = await response.json();
-      console.log('Status delete response:', result);
-
+      if (window.confirm('Are you sure you want to delete this status?')) {
+        await deleteStatus(statusId).unwrap()
+      }
       refetch()
     } catch (err) {
       console.error('Error deleting status:', err);
-
-    } finally {
-      setDeletingStatus(false);
     }
   };
 
-  // Edit existing task
-  const handleEditTask = async () => {
-    if (!selectedTask) return;
-
-    try {
-      setEditingTask(true);
-      ;
-
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/task/update/${selectedTask._id}`;
-
-      const taskData = {
-        title: editTaskData.title,
-        description: editTaskData.description,
-        due_date: new Date(editTaskData.due_date).toISOString(),
-        isSchedule: editTaskData.isSchedule,
-        assign: editTaskData.assign,
-      };
-
-      console.log('Updating task with data:', taskData);
-
-      const response = await fetch(apiUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(taskData),
-      });
-
-      const result = await response.json();
-      console.log('Task edit response:', result);
-
-      if (response.ok) {
-        // Update the task in local state
-        // setTasks((prevTasks) => prevTasks?.map((task) => (typeof task._id === 'string' && typeof selectedTask._id === 'string' && task._id === selectedTask._id ? { ...task, ...editTaskData } : task)));
-
-        // Close modal and reset form
-
-        refetch()
-        setShowEditTaskModal(false);
-        setSelectedTask(null);
-        setEditTaskData({
-          title: '',
-          description: '',
-          due_date: '',
-          isSchedule: false,
-          assign: '',
-        });
-
-        console.log('Task updated successfully');
-      }
-    } catch (err) {
-      console.error('Error updating task:', err);
-
-    } finally {
-      setEditingTask(false);
-    }
-  };
-
-  // Open edit task modal
-  const openEditTaskModal = (task) => {
-    setSelectedTask(task);
-    setEditTaskData({
-      title: task.title || '',
-      description: task.description || '',
-      due_date: task.due_date ? new Date(task.due_date).toISOString().slice(0, 16) : '',
-      isSchedule: task.isSchedule || false,
-      assign: task.assign || '',
-    });
-    setShowEditTaskModal(true);
-  };
-
-  // Delete task
   const handleDeleteTask = async (taskId) => {
-    if (!taskId) return;
-
-    // Show confirmation dialog
-    if (!window.confirm('Are you sure you want to delete this task?')) {
-      return;
-    }
-
     try {
-      setDeletingTask(true);
-      ;
-
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/task/delete/${taskId}`;
-
-      console.log('Deleting task with ID:', taskId);
-
-      const response = await fetch(apiUrl, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const result = await response.json();
-      console.log('Task delete response:', result);
+      if (window.confirm('Are you sure you want to delete this task?')) {
+        await deleteTask(taskId)
+      }
       refetch()
-
     } catch (err) {
       console.error('Error deleting task:', err);
-
-    } finally {
-      setDeletingTask(false);
     }
   };
 
-  // Update task status function
+
   const handleUpdateTaskStatus = async () => {
     if (!selectedTaskForStatus) return;
-
     try {
       setUpdatingTaskStatus(true);
 
-
-      // Check if there's already a status for this task
-      const existingStatus = selectedTaskForStatus.status?.find((status) => status.task_id === selectedTaskForStatus._id);
-
-      let apiUrl, method, statusData;
+      const existingStatus = selectedTaskForStatus.status?.find(
+        (status) => status.task_id === selectedTaskForStatus._id
+      );
 
       if (existingStatus) {
-        // Update existing status
-        apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/update/${existingStatus._id}`;
-        method = 'PUT';
-        statusData = {
-          status: newTaskStatus,
-        };
+        await updatedStatus({
+          id: existingStatus._id,
+          status: { status: newTaskStatus },
+        }).unwrap();
       } else {
-        // Create new status
-        apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/status/add`;
-        method = 'POST';
-        statusData = {
+        await addStatus({
           status: newTaskStatus,
-          task_id: typeof selectedTaskForStatus._id === 'string' ? selectedTaskForStatus._id : null,
-          ticket_id: typeof ticket._id === 'string' ? ticket._id : null,
-        };
+          task_id: selectedTaskForStatus._id,
+          ticket_id: ticket._id,
+        }).unwrap();
       }
 
-      console.log('Updating task status with data:', statusData);
 
-      const response = await fetch(apiUrl, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(statusData),
-      });
-
-      const result = await response.json();
-      console.log('Task status update response:', result);
-
-      // if (response.ok) {
-      //   // Update the task's status in local state
-      //   setTasks((prevTasks) =>
-      //     prevTasks.map((task) =>
-      //       typeof task._id === 'string' && typeof selectedTaskForStatus._id === 'string' && task._id === selectedTaskForStatus._id
-      //         ? {
-      //           ...task,
-      //           status: existingStatus ? task.status.map((status) => (status._id === existingStatus._id ? { ...status, status: newTaskStatus } : status)) : [...(task.status || []), result.data],
-      //         }
-      //         : task,
-      //     ),
-      //   );
-
-      // Close modal and reset form
-      refetch()
+      refetch();
       setShowTaskStatusModal(false);
       setSelectedTaskForStatus(null);
       setNewTaskStatus('Not Started');
-
-      console.log('Task status updated successfully:', result.data);
     } catch (err) {
       console.error('Error updating task status:', err);
-      setError('Network error. Please try again.');
     } finally {
       setUpdatingTaskStatus(false);
     }
   };
+
 
   // Open task status update modal
   const openTaskStatusModal = (task) => {
@@ -485,12 +250,6 @@ export default function TicketDetails() {
     setShowTaskStatusModal(true);
   };
 
-  // // Load ticket details on component mount
-  // useEffect(() => {
-  //   fetchTicketDetails();
-  //   // fetchUsers();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [_ticketId]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -581,14 +340,14 @@ export default function TicketDetails() {
         <div className="lg:col-span-2">
           <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
             <div className="flex flex-wrap gap-2 text-xs mb-4">
-              <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1 rounded-lg font-medium">{ticket.ticket_id}</span>
+              <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1 rounded-lg font-medium">{ticket?.ticket_id}</span>
               <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1 rounded-lg font-medium`}>{getCurrentStatus(ticket)}</span>
               <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1 rounded-lg font-medium">{ticket.priority}</span>
               <span className="bg-gradient-to-r from-pink-100 to-pink-200 text-pink-700 px-3 py-1 rounded-lg font-medium">{ticket?.department?.name}</span>
             </div>
 
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">{ticket.title}</h2>
-            {ticket.description && <p className="text-gray-600 mb-6 bg-gray-50 p-4 rounded-lg">{ticket.description}</p>}
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">{ticket?.title}</h2>
+            {ticket?.description && <p className="text-gray-600 mb-6 bg-gray-50 p-4 rounded-lg">{ticket?.description}</p>}
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
@@ -626,20 +385,22 @@ export default function TicketDetails() {
                           <span className={`bg-gradient-to-r ${getStatusColor(status.status)} px-3 py-1 rounded-lg text-xs font-medium`}>{status.status}</span>
                           <span className="text-xs text-gray-500">Update #{status.updateCount || 0}</span>
                         </div>
-                        <button onClick={() => openEditStatusModal(status)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="Edit status">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
-                        <button onClick={() => handleDeleteStatus(status._id)} disabled={deletingStatus} className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete status">
-                          {deletingStatus ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                          ) : (
+                        <div>
+                          <button onClick={() => openEditStatusModal(status)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="Edit status">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
-                          )}
-                        </button>
+                          </button>
+                          <button onClick={() => handleDeleteStatus(status._id)} disabled={deletingStatus} className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete status">
+                            {deletingStatus ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
                       </div>
                       <div className="text-xs text-gray-500">Status ID: {status._id}</div>
                     </div>
@@ -661,7 +422,7 @@ export default function TicketDetails() {
                   </div>
                 )}
               </div>
-              <button onClick={() => setShowAddTask(true)} className="bg-gradient-to-r from-blue-600 via-sky-600 to-sky-800 text-white rounded-xl px-4 py-2 flex items-center gap-2 font-medium shadow-lg hover:scale-105 transition-transform">
+              <button onClick={() => { setShowAddTask(true); setEditTask(null) }} className="bg-gradient-to-r from-blue-600 via-sky-600 to-sky-800 text-white rounded-xl px-4 py-2 flex items-center gap-2 font-medium shadow-lg hover:scale-105 transition-transform">
                 <Plus size={16} /> Add Task
               </button>
             </div>
@@ -673,9 +434,9 @@ export default function TicketDetails() {
                   <p className="text-gray-500">No tasks found for this ticket.</p>
                 </div>
               ) : (
-                tasks.map((task, index) => {
+                tasks?.map((task, index) => {
                   return (
-                    <div key={typeof task._id === 'string' ? task._id : index} className={`border rounded-xl p-4 hover:shadow-md transition-shadow ${task.status && task.status.length > 0 ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200'}`}>
+                    <div key={typeof task?._id === 'string' ? task?._id : index} className={`border rounded-xl p-4 hover:shadow-md transition-shadow ${task.status && task.status.length > 0 ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200'}`}>
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-semibold text-gray-800">{typeof task.title === 'string' ? task.title : 'Untitled Task'}</h4>
                         <div className="flex items-center gap-2">
@@ -683,7 +444,7 @@ export default function TicketDetails() {
                             {getCurrentStatus(task)}
                           </button>
                           {(currentUser?.admin === true || ticket?.creator?._id === currentUser?._id) &&
-                            <button onClick={() => openEditTaskModal(task)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="Edit task">
+                            <button onClick={() => { setShowAddTask(true); setEditTask(task) }} className="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="Edit task">
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                               </svg>
@@ -746,40 +507,73 @@ export default function TicketDetails() {
           </div>
         </div>
 
-        {/* Sidebar */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl shadow-md p-6">
             <h3 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button onClick={() => setShowStatusModal(true)} className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              <button
+                onClick={() => setShowStatusModal(true)}
+                className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              >
                 Change Ticket Status
               </button>
-              {/* <button className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-                Mark Complete
-              </button>
-              <button onClick={handleAddTask} disabled={addingTask} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed">
-                {addingTask ? 'Adding...' : 'Add Task'}
-              </button> */}
             </div>
           </div>
-          <div className="bg-white rounded-2xl shadow-md p-6 mt-10 w-full max-w-xl">
-            <h1 className="text-lg font-semibold text-gray-800 mb-4">Add Comments</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Textarea */}
-              <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Write your comment..." className="w-full h-28 p-3 border border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-700" />
 
-              {/* Buttons */}
+          {/* Add Comment */}
+          <div className="bg-white rounded-2xl shadow-md p-6 mt-10 w-full max-w-xl">
+            <h1 className="text-lg font-semibold text-gray-800 mb-4">Add Comment</h1>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Write your comment..."
+                className="w-full h-28 p-3 border border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-700"
+              />
+
               <div className="flex justify-end gap-3">
-                <button type="submit" className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-700">
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-700"
+                >
                   Submit
                 </button>
               </div>
             </form>
           </div>
+
+          {/* Show Comments */}
+          <div className="bg-white rounded-2xl shadow-md p-6 mt-6 w-full max-w-xl">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Comments</h2>
+
+            {ticket?.comment?.length > 0 ? (
+              <div className="space-y-3 max-h-64 overflow-y-auto">
+                {ticket.comment.map((c, index) => (
+                  <div
+                    key={c._id || index}
+                    className="border border-gray-200 rounded-lg p-3"
+                  >
+                    <p className="text-gray-700">{c.text}</p>
+                    <div className="flex justify-between mt-2 text-xs text-gray-500">
+                      <span>By: {c.creator?.full_name || "Unknown"}</span>
+                      <span>
+                        {c.createdAt
+                          ? new Date(c.createdAt).toLocaleString()
+                          : "Just now"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No comments yet.</p>
+            )}
+          </div>
         </div>
+
       </div>
 
-      {/* Add Task Modal */}
+
       {showAddTask && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
@@ -788,14 +582,8 @@ export default function TicketDetails() {
               <h2 className="text-lg font-semibold flex items-center gap-2">Add New Task</h2>
               <button
                 onClick={() => {
+                  addTaskForm.resetForm();
                   setShowAddTask(false);
-                  setNewTask({
-                    title: '',
-                    description: '',
-                    due_date: '',
-                    isSchedule: false,
-                    assign: '',
-                  });
                 }}
                 className="text-gray-500 hover:text-gray-700"
               >
@@ -803,18 +591,43 @@ export default function TicketDetails() {
               </button>
             </div>
 
-            {/* Body */}
-            <div className="p-6 space-y-4">
+
+            <form onSubmit={addTaskForm.handleSubmit} className="p-6 space-y-4">
+
+              {addTaskForm.status && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded">
+                  {addTaskForm.status}
+                </div>
+              )}
+
               {/* Task Title */}
               <div>
                 <label className="text-sm font-medium text-gray-600">Task Title *</label>
-                <input type="text" value={newTask.title} onChange={(e) => setNewTask({ ...newTask, title: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter task title..." required />
+                <input
+                  type="text"
+                  name="title"
+                  value={addTaskForm.values.title}
+                  onChange={addTaskForm.handleChange}
+                  onBlur={addTaskForm.handleBlur}
+                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="Enter task title..."
+                />
+                {addTaskForm.touched.title && addTaskForm.errors.title && (
+                  <p className="text-xs text-red-600 mt-1">{addTaskForm.errors.title}</p>
+                )}
               </div>
 
               {/* Assign To */}
               <div>
                 <label className="text-sm font-medium text-gray-600">Assign To</label>
-                <select value={newTask.assign} onChange={(e) => setNewTask({ ...newTask, assign: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" disabled={loadingUsers}>
+                <select
+                  name="assign"
+                  value={addTaskForm.values.assign}
+                  onChange={addTaskForm.handleChange}
+                  onBlur={addTaskForm.handleBlur}
+                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                  disabled={loadingUsers}
+                >
                   <option value="">{loadingUsers ? 'Loading users...' : 'Select a user...'}</option>
                   {UserData?.filter(user => user.department?.name === ticket?.department?.name)
                     .map(user => (
@@ -822,56 +635,83 @@ export default function TicketDetails() {
                         {user.full_name} ({user.username})
                       </option>
                     ))}
-
                 </select>
               </div>
 
               {/* Description */}
               <div>
                 <label className="text-sm font-medium text-gray-600">Description</label>
-                <textarea value={newTask.description} onChange={(e) => setNewTask({ ...newTask, description: e.target.value })} rows="3" className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter task description..." />
+                <textarea
+                  name="description"
+                  rows="3"
+                  value={addTaskForm.values.description}
+                  onChange={addTaskForm.handleChange}
+                  onBlur={addTaskForm.handleBlur}
+                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="Enter task description..."
+                />
+                {addTaskForm.touched.description && addTaskForm.errors.description && (
+                  <p className="text-xs text-red-600 mt-1">{addTaskForm.errors.description}</p>
+                )}
               </div>
 
               {/* Due Date */}
               <div>
                 <label className="text-sm font-medium text-gray-600">Due Date *</label>
-                <input type="datetime-local" value={newTask.due_date} onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required />
+                <input
+                  type="datetime-local"
+                  name="due_date"
+                  value={addTaskForm.values.due_date}
+                  onChange={addTaskForm.handleChange}
+                  onBlur={addTaskForm.handleBlur}
+                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+                {addTaskForm.touched.due_date && addTaskForm.errors.due_date && (
+                  <p className="text-xs text-red-600 mt-1">{addTaskForm.errors.due_date}</p>
+                )}
               </div>
 
               {/* Is Schedule */}
               <div>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={newTask.isSchedule} onChange={(e) => setNewTask({ ...newTask, isSchedule: e.target.checked })} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  <input
+                    type="checkbox"
+                    name="isSchedule"
+                    checked={addTaskForm.values.isSchedule}
+                    onChange={addTaskForm.handleChange}
+                    onBlur={addTaskForm.handleBlur}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
                   <span className="text-sm font-medium text-gray-600">Is Scheduled</span>
                 </label>
               </div>
-            </div>
 
-            {/* Footer */}
-            <div className="flex justify-end gap-3 border-t px-6 py-4">
-              <button
-                onClick={() => {
-                  setShowAddTask(false);
-                  setNewTask({
-                    title: '',
-                    description: '',
-                    due_date: '',
-                    isSchedule: false,
-                    assign: '',
-                  });
-                }}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-100"
-                disabled={addingTask}
-              >
-                Cancel
-              </button>
-              <button onClick={handleAddTask} disabled={addingTask} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed">
-                {addingTask ? 'Adding...' : 'Add Task'}
-              </button>
-            </div>
+              {/* Footer */}
+              <div className="flex justify-end gap-3 border-t mt-6 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    addTaskForm.resetForm();
+                    setShowAddTask(false);
+                  }}
+                  className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                  disabled={addTaskForm.isSubmitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed"
+                  disabled={addTaskForm.isSubmitting || !addTaskForm.isValid}
+                >
+                  {addTaskForm.isSubmitting ? 'Adding...' : 'Add Task'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
+
 
       {/* Status Update Modal */}
       {showStatusModal && (
@@ -1014,106 +854,8 @@ export default function TicketDetails() {
         </div>
       )}
 
-      {/* Edit Task Modal */}
-      {showEditTaskModal && selectedTask && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg w-[500px] max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex justify-between items-center border-b px-6 py-4">
-              <h2 className="text-lg font-semibold flex items-center gap-2">Edit Task</h2>
-              <button
-                onClick={() => {
-                  setShowEditTaskModal(false);
-                  setSelectedTask(null);
-                  setEditTaskData({
-                    title: '',
-                    description: '',
-                    due_date: '',
-                    isSchedule: false,
-                    assign: '',
-                  });
-                }}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✖
-              </button>
-            </div>
 
-            {/* Body */}
-            <div className="p-6 space-y-4">
-              {/* Task Title */}
-              <div>
-                <label className="text-sm font-medium text-gray-600">Task Title *</label>
-                <input type="text" value={editTaskData.title} onChange={(e) => setEditTaskData({ ...editTaskData, title: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter task title..." required />
-              </div>
 
-              {/* Description */}
-              <div>
-                <label className="text-sm font-medium text-gray-600">Description</label>
-                <textarea
-                  value={editTaskData.description}
-                  onChange={(e) => setEditTaskData({ ...editTaskData, description: e.target.value })}
-                  rows="3"
-                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                  placeholder="Enter task description..."
-                />
-              </div>
-
-              {/* Due Date */}
-              <div>
-                <label className="text-sm font-medium text-gray-600">Due Date *</label>
-                <input type="datetime-local" value={editTaskData.due_date} onChange={(e) => setEditTaskData({ ...editTaskData, due_date: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" required />
-              </div>
-
-              {/* Is Schedule */}
-              <div>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={editTaskData.isSchedule} onChange={(e) => setEditTaskData({ ...editTaskData, isSchedule: e.target.checked })} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                  <span className="text-sm font-medium text-gray-600">Is Scheduled</span>
-                </label>
-              </div>
-
-              {/* Assign To */}
-              <div>
-                <label className="text-sm font-medium text-gray-600">Assign To</label>
-                <select value={editTaskData.assign} onChange={(e) => setEditTaskData({ ...editTaskData, assign: e.target.value })} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" disabled={loadingUsers}>
-                  <option value="">{loadingUsers ? 'Loading users...' : 'Select a user...'}</option>
-                  {UserData?.filter(user => user.department?.name === ticket?.department?.name)
-                    .map(user => (
-                      <option key={user._id} value={user._id}>
-                        {user.full_name} ({user.username})
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="flex justify-end gap-3 border-t px-6 py-4">
-              <button
-                onClick={() => {
-                  setShowEditTaskModal(false);
-                  setSelectedTask(null);
-                  setEditTaskData({
-                    title: '',
-                    description: '',
-                    due_date: '',
-                    isSchedule: false,
-                    assign: '',
-                  });
-                }}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-100"
-                disabled={editingTask}
-              >
-                Cancel
-              </button>
-              <button onClick={handleEditTask} disabled={editingTask} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
-                {editingTask ? 'Updating...' : 'Update Task'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Task Status Update Modal */}
       {showTaskStatusModal && selectedTaskForStatus && (
