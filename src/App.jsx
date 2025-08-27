@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useGetCurrentUserQuery } from './services/Auth.service';
 import { useDispatch } from 'react-redux';
 import { addUser } from '@store/slice/AuthSlice';
-import sound from "@/soundes/noti.mp3"
+// import sound from "@/soundes/noti.mp3"
 
 const App = () => {
 
@@ -15,9 +15,9 @@ const App = () => {
 
   
 
-  const handleSound = () => {
-    new Audio(sound).play()
-  }
+  // const handleSound = () => {
+  //   new Audio(sound).play()
+  // }
 
   useEffect(() => {
 
