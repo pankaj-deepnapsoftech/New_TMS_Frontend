@@ -1,27 +1,36 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from 'react';
 import { Search, Plus, Users, Clock, CheckCircle, AlertCircle, ListChecks, Trash2, Edit } from 'lucide-react';
 import TicketModal from '@components/Modals/TicketsModal';
 import { useNavigate } from 'react-router-dom';
-import { useDeleteTicketMutation, useGetAdminTicketcardDataQuery, useGetTicketQuery } from '@/services/Ticket.service';
+import { useDeleteTicketMutation, useGetAdminTicketcardDataQuery, useGetAssignedTicketQuery, useGetTicketQuery } from '@/services/Ticket.service';
 import { useSelector } from 'react-redux';
+import Pagination from '@/components/ui/Pagination';
 
 
 export default function TicketsPage() {
+
+
+  const [page, setPage] = useState(1)
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.Auth.user);
   const isAdmin = currentUser?.admin || false;
-  const [assignedTickets, setAssignedTickets] = useState([]);
-  const [assignedLoading, setAssignedLoading] = useState(true);
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line no-unused-vars   
   const [assignedError, setAssignedError] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [editTicket, setEditTicket] = useState(null)
   const [DeleteTicket] = useDeleteTicketMutation()
-  const { data: tickets, isLoading: getTicketloading, error: ticketError, refetch:refreshTicket  } = useGetTicketQuery()
-  const { data: AdminCarddata, isLoading: adminCardDataload,refetch } = useGetAdminTicketcardDataQuery();
+  const { data: AdminCarddata, isLoading: adminCardDataload, refetch } = useGetAdminTicketcardDataQuery(); 
+
+  const [limit, setLimit] = useState(10);
+
+  const { data: tickets, isLoading: getTicketloading, error: ticketError, refetch: refreshTicket } = useGetTicketQuery({ page, limit });
+
+  const { data: assignedTicket, isLoading: assignedLoading } = useGetAssignedTicketQuery({ page, limit });
 
 
+  const assignedTickets = assignedTicket?.data || [] ;
 
   const getCurrentStatus = (ticket) => {
     if (Array.isArray(ticket.status) && ticket.status.length > 0) {
@@ -31,39 +40,10 @@ export default function TicketsPage() {
         return latest?.status || 'Not Started';
       }
     }
-    return 'Not Started';
+    return 'Not Started'; 
   };
 
-  // console.log(TicketData)
-
-  // Fetch assigned tickets from API
-  const fetchAssignedTickets = async () => {
-    try {
-      setAssignedLoading(true);
-      setAssignedError('');
-
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8093'}/ticket/get-assign`;
-
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setAssignedTickets(result.data || []);
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        setAssignedError(errorData.message || 'Failed to fetch assigned tickets');
-      }
-    } catch (err) {
-      console.error('Error fetching assigned tickets:', err);
-      setAssignedError('Network error. Please try again.');
-    } finally {
-      setAssignedLoading(false);
-    }
-  };
+   
 
   const handleDeleteTicket = async (ticketId, e) => {
     e.preventDefault();
@@ -81,20 +61,13 @@ export default function TicketsPage() {
   useEffect(() => {
     if (currentUser) {
       if (!isAdmin) {
-        fetchAssignedTickets();
         refetch()
         refreshTicket()
       }
     }
   }, [currentUser, isAdmin]);
 
-  const handleTicketCreated = () => {
-    if (!isAdmin) {
-      fetchAssignedTickets();
-      refetch()
-      refreshTicket()
-    }
-  };
+
 
   const handleTicketClick = (ticket) => {
     navigate(`/tickets/${ticket?.ticket_id || ticket?._id}`);
@@ -168,7 +141,7 @@ export default function TicketsPage() {
             <h1 className="text-4xl font-extrabold bg-sky-800 bg-clip-text text-transparent tracking-tight">{isAdmin ? 'All Tickets Dashboard' : 'My Assigned Tickets'}</h1>
             <p className="text-gray-600 mt-2 text-lg font-medium">{isAdmin ? 'Manage and monitor all tickets across the organization' : 'View and manage tickets assigned to you'}</p>
           </div>
-        </div>
+        </div>  
       </div>
 
       {ticketError && <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">{ticketError}</div>}
@@ -205,7 +178,11 @@ export default function TicketsPage() {
             className="w-full border-0 bg-gray-50/80 rounded-2xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition-all duration-300 shadow-sm"
           />
         </div>
-
+        {/* <select value={limit} onChange={(e) => setLimit(Number(e.target.value))}>
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+        </select>  */}
         <button
           onClick={() => { setIsOpen(true); setEditTicket(null) }}
           className="bg-gradient-to-r from-blue-600 via-sky-600 to-sky-800 text-white rounded-2xl px-6 py-3 flex items-center justify-center gap-3 font-semibold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 w-full md:w-auto"
@@ -538,11 +515,10 @@ export default function TicketsPage() {
         isOpen={isOpen}
         onClose={() => {
           setIsOpen(false);
-          handleTicketCreated();
         }}
         editTicket={editTicket}
       />
-
+      <Pagination currentPage={page} onPageChange={setPage} totalPages={tickets?.totalPage || assignedTicket?.totalPage } />
     </div>
   );
 }
