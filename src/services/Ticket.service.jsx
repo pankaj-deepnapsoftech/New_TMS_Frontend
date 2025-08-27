@@ -5,8 +5,8 @@ const TicketService = Api.injectEndpoints({
     // --------------- Ticket service here ------------
 
     getTicket: build.query({
-      query: () => ({
-        url: '/ticket/get',
+      query: (page) => ({
+        url: `/ticket/get?page=${page}`,
         method: 'GET',
       }),
       providesTags: ['Ticket'],
@@ -18,6 +18,15 @@ const TicketService = Api.injectEndpoints({
       }),
       providesTags: ['Ticket'],
     }), 
+
+     getAssignedTicket:build.query({
+      query:(page) =>({
+         url: `/ticket/get-assign?page=${page}`,
+         method:"GET"
+      }),
+      providesTags:['Ticket']
+     }),
+
     createTicket: build.mutation({
       query: (body) => ({
         url: '/ticket/create',
@@ -54,6 +63,7 @@ const TicketService = Api.injectEndpoints({
 // ---------------------- all queries here --------------------
 export const { 
   useGetTicketQuery,
+  useGetAssignedTicketQuery,
   useGetTicketByIdQuery,
   useCreateTicketMutation, 
   useUpdateTicketMutation,
