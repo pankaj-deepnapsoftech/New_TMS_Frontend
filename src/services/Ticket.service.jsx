@@ -13,13 +13,14 @@ const TicketService = Api.injectEndpoints({
     }),
 
     getAssignedTicket: build.query({
-      query: ({ page, limit }) => ({
-        url: `/ticket/get-assign?page=${page}&limit=${limit}`,
+      query: ({ assignTicktPage,limit }) => ({
+        url: `/ticket/get-assign?page=${assignTicktPage}&limit=${limit}`,
         method: 'GET',
       }),
       providesTags: ['Ticket'],
     }),
 
+    
     getTicketById:build.query({
       query: (id) => ({
         url: `/ticket/get-ticket/${id}`,

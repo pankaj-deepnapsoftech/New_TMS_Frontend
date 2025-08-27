@@ -4,7 +4,7 @@ import { useAllDepartmentsQuery } from '../../services/Department.service';
 import { useUpdateUserMutation } from '../../services/Auth.service';
 import { toast } from 'react-toastify';
 
-export function UserModal({ onClose, id }) {
+export function UserModal({ onClose, id, refetch }) {
   // eslint-disable-next-line no-unused-vars
   const [roleName, setRoleName] = useState('');
 
@@ -25,6 +25,7 @@ export function UserModal({ onClose, id }) {
       const res = await UpdateUser({ id, data }).unwrap();
       toast.success(res.message);
       onClose();
+      refetch()
     } catch (error) {
       console.log(error);
     }

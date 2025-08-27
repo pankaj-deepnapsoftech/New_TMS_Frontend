@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import {  useState } from 'react';
 import { UserModal } from '@components/Modals/UserModal';
 import { useGetUserQuery } from '../../services/Users.service';
 
 export default function UsersPage() {
   const [open, setOpen] = useState(false);
-  const { data, isLoading } = useGetUserQuery();
+  const { data, isLoading, refetch } = useGetUserQuery();
   const [updateId, setUpdateId] = useState('');
+
+
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -68,7 +70,7 @@ export default function UsersPage() {
       </div>
 
       {/* Modal */}
-      {open && <UserModal onClose={() => setOpen(false)} id={updateId} />}
+      {open && <UserModal onClose={() => setOpen(false)} refetch={refetch} id={updateId} />}
     </div>
   );
 }
