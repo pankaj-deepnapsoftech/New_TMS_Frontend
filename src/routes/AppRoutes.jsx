@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 
 // --------------------- ProtectedRoute ---------------------
 const ProtectedRoute = ({ user, children }) => {
-  if (!user) {
+  if (!user && window.location.pathname === "/login") {
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -17,7 +17,7 @@ const ProtectedRoute = ({ user, children }) => {
 
 // --------------------- PublicRoute ------------------------
 const PublicRoute = ({ user, children }) => {
-  if (user) {
+  if (user ) {
     return <Navigate to="/" replace />;
   }
   return children;
