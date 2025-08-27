@@ -70,7 +70,7 @@ function LoginForm() {
             {({ isSubmitting }) => (
               <Form className="flex flex-col gap-4">
                 <div className="relative">
-                  <Field type="email" name="email" placeholder="Email Address" className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+                  <Field type="text" name="email" placeholder="Email Address & Username" className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
                   <ErrorMessage name="email" component="div" className="text-red-500 text-sm mt-1" />
                 </div>
                 <div className="relative">
