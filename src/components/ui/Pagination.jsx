@@ -11,7 +11,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
 
   return (
     <div className="flex items-center justify-center gap-2 mt-4">
-      {/* Prev */}
+     
       <button
         onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -20,7 +20,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         <ChevronLeft size={18} />
       </button>
 
-      {/* First Page */}
+      
       <button
         onClick={() => handlePageChange(1)}
         className={`px-3 py-1 rounded-lg border ${currentPage === 1
@@ -31,10 +31,10 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         1
       </button>
 
-      {/* Show dots if currentPage > 4 */}
+    
       {currentPage > 4 && <span className="px-2">...</span>}
 
-      {/* Middle Pages */}
+     
       {Array.from({ length: totalPages }, (_, i) => i + 1)
         .filter(
           (page) =>
@@ -56,10 +56,9 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
           </button>
         ))}
 
-      {/* Show dots if not near last page */}
+      
       {currentPage < totalPages - 3 && <span className="px-2">...</span>}
 
-      {/* Last Page */}
       {totalPages > 1 && (
         <button
           onClick={() => handlePageChange(totalPages)}
@@ -72,7 +71,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
         </button>
       )}
 
-      {/* Next */}
+    
       <button
         onClick={() => handlePageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
