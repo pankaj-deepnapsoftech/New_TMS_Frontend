@@ -168,6 +168,7 @@ export default function TicketsPage() {
 
       <div className="bg-white/70 backdrop-blur-sm flex flex-col md:flex-row gap-4 md:items-center justify-between border border-white/20 rounded-3xl p-6 mb-10 shadow-xl">
 
+      
         <div className="relative flex-1 max-w-full md:max-w-md w-full">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <input
@@ -178,18 +179,35 @@ export default function TicketsPage() {
             className="w-full border-0 bg-gray-50/80 rounded-2xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition-all duration-300 shadow-sm"
           />
         </div>
-        {/* <select value={limit} onChange={(e) => setLimit(Number(e.target.value))}>
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-        </select>  */}
-        <button
-          onClick={() => { setIsOpen(true); setEditTicket(null) }}
-          className="bg-gradient-to-r from-blue-600 via-sky-600 to-sky-800 text-white rounded-2xl px-6 py-3 flex items-center justify-center gap-3 font-semibold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 w-full md:w-auto"
-        >
-          <Plus size={20} /> Create Ticket
-        </button>
+
+    
+       
+        
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => { setIsOpen(true); setEditTicket(null) }}
+            className="bg-gradient-to-r from-blue-600 via-sky-600 to-sky-800 text-white rounded-2xl px-6 py-3 flex items-center justify-center gap-3 font-semibold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 w-full md:w-auto"
+          >
+            <Plus size={20} /> Create Ticket
+          </button>
+          <select
+            value={limit}
+            onChange={(e) => {
+              setLimit(Number(e.target.value));
+              setPage(1); 
+            }}
+            className="border border-gray-300 bg-gray-50/80 rounded-2xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none focus:bg-white transition-all duration-300 shadow-sm"
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+
+         
+        </div>
       </div>
+
 
       {/* My Created Tickets Section */}
       {!isAdmin && (
@@ -518,7 +536,12 @@ export default function TicketsPage() {
         }}
         editTicket={editTicket}
       />
-      <Pagination currentPage={page} onPageChange={setPage} totalPages={tickets?.totalPage || assignedTicket?.totalPage } />
+      <Pagination
+        currentPage={page}
+        onPageChange={setPage}
+        totalPages={tickets?.totalPage || assignedTicket?.totalPage}
+      />
+
     </div>
   );
 }
