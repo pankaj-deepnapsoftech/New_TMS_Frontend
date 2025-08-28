@@ -1,11 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bell, Search } from 'lucide-react';
+import { useGetNotificationQuery, useUpdatedStatusMutation } from '@/services/Notification.service';
+// import socket from '@/Socket';
 
 const Header = () => {
   const [openNotification, setOpenNotification] = useState(false);
   const notificationRef = useRef(null);
+  const { data} = useGetNotificationQuery()
+  const [updatedNotification] = useUpdatedStatusMutation()
+  const notificatonData = data?.data || [] ;
 
+  // useEffect(() => {
+  //   socket.on('notification', (data) => {
+  //    console.log(data)
+  //   });
+
+  //   return () => {
+  //     socket.off('notification');
+  //   };
+  // }, []);
  
+
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target)) {
@@ -41,20 +57,32 @@ const Header = () => {
                 <h3 className="font-semibold text-gray-800">Notifications</h3>
               </div>
               <ul className="max-h-64 overflow-y-auto divide-y divide-gray-100">
-                <li className="p-4 hover:bg-gray-50 transition-all">
-                  <p className="text-sm text-gray-700">
-                    <span className="font-medium">"Design Landing Page"</span>.
-                  </p>
-                  <span className="text-xs text-gray-400">5 minutes ago</span>
-                </li>
-                <li className="p-4 hover:bg-gray-50 transition-all">
-                  <p className="text-sm text-gray-700">
-                    <span className="font-medium">"Q3 Marketing Plan"</span> was approved.
-                  </p>
-                  <span className="text-xs text-gray-400">2 hours ago</span>
-                </li>
-               
+                {notificatonData && notificatonData.length > 0 ? (
+                  notificatonData.map((notification) => (
+                    <li
+                      key={notification._id}
+                      className={`p-4 hover:bg-gray-50 transition-all cursor-pointer ${notification.status === 'unread' ? 'bg-gray-100' : ''
+                        }`}
+                      onClick={() => {
+                        if (notification.status === 'unread') {
+                          updatedNotification(notification._id); 
+                        }
+                      }}
+                    >
+                      <p className="text-sm text-gray-700">
+                        <span className="font-medium">{notification.title}</span>: {notification.message}
+                      </p>
+                      <span className="text-xs text-gray-400">
+                        {new Date(notification.createdAt).toLocaleString()}
+                      </span>
+                    </li>
+                  ))
+                ) : (
+                  <li className="p-4 text-sm text-gray-500">No notifications</li>
+                )}
               </ul>
+
+
               <div className="p-2 text-center border-t">
                 <button className="text-sm text-blue-600 hover:underline">View all notifications</button>
               </div>

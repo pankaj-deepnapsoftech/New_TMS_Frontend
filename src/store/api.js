@@ -5,9 +5,9 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const Api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL,
+    baseUrl: import.meta.env.VITE_APP === "development" ? import.meta.env.VITE_LOCAL_API_URL  : import.meta.env.VITE_API_URL,
     credentials: 'include',
   }),
   endpoints: () => ({}),
-  tagTypes: ['User', 'Ticket', 'Task', 'Comment', 'Important Docs', 'Role', 'Departments','Status'], 
+  tagTypes: ['User', 'Ticket', 'Task', 'Comment', 'Important Docs', 'Role', 'Departments','Status',"Notification"], 
 });
