@@ -27,14 +27,28 @@ function MultiInput({ label, values, setValues, placeholder }) {
       <label className="block mb-1 font-medium">{label}</label>
       <div className="flex flex-wrap items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
         {values.map((val, i) => (
-          <span key={i} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm">
+          <span
+            key={i}
+            className="flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs sm:text-sm"
+          >
             {val}
-            <button type="button" onClick={() => removeValue(val)} className="text-blue-700 hover:text-red-600">
+            <button
+              type="button"
+              onClick={() => removeValue(val)}
+              className="text-blue-700 hover:text-red-600"
+            >
               <X size={14} />
             </button>
           </span>
         ))}
-        <input type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={handleKeyDown} placeholder={placeholder} className="flex-1 border-none focus:ring-0 outline-none text-sm" />
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          className="flex-1 border-none focus:ring-0 outline-none text-xs sm:text-sm"
+        />
       </div>
     </div>
   );
@@ -95,41 +109,52 @@ export default function ImportantNotesPage() {
     }
   };
 
-  // -------------- Render ---------------            
+  // -------------- Render ---------------
   if (isLoading) return <div className="p-6">Loading notes...</div>;
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Important Notes</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+        <h1 className="text-xl sm:text-2xl font-semibold">Important Notes</h1>
         <button
           onClick={() => {
             setShowModal(true);
             setEditable(null);
             setFormData({ leads: '', deals: [], customer: [] });
           }}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl shadow hover:bg-blue-700"
+          className="flex items-center gap-2 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-xl shadow hover:bg-blue-700 text-sm sm:text-base"
         >
           <Plus size={18} /> Add Notes
         </button>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-        <table className="w-full text-left">
+      {/* Table Wrapper (scrollable on mobile) */}
+      <div className="bg-white rounded-2xl shadow-md overflow-x-auto">
+        <table className="w-full min-w-[600px] text-left">
           <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
             <tr>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Leads</th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Deals</th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Customers</th>
-              <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+              <th className="px-4 sm:px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Leads
+              </th>
+              <th className="px-4 sm:px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Deals
+              </th>
+              <th className="px-4 sm:px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Customers
+              </th>
+              <th className="px-4 sm:px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 text-sm sm:text-base">
             {data?.data?.length === 0 ? (
               <tr>
-                <td colSpan={4} className="text-center py-6 text-gray-500 italic">
+                <td
+                  colSpan={4}
+                  className="text-center py-6 text-gray-500 italic"
+                >
                   No notes available
                 </td>
               </tr>
@@ -140,7 +165,10 @@ export default function ImportantNotesPage() {
                   <td className="px-4 py-2">
                     <div className="flex flex-wrap gap-2">
                       {note.deals?.map((deal, idx) => (
-                        <span key={idx} className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                        <span
+                          key={idx}
+                          className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs sm:text-sm font-medium"
+                        >
                           {deal}
                         </span>
                       ))}
@@ -150,7 +178,10 @@ export default function ImportantNotesPage() {
                   <td className="px-4 py-2">
                     <div className="flex flex-wrap gap-2">
                       {note.customer?.map((cust, idx) => (
-                        <span key={idx} className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">
+                        <span
+                          key={idx}
+                          className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs sm:text-sm font-medium"
+                        >
                           {cust}
                         </span>
                       ))}
@@ -172,7 +203,11 @@ export default function ImportantNotesPage() {
                     >
                       <Edit size={18} />
                     </button>
-                    <button disabled={deleting} onClick={() => handleDelete(note._id)} className="text-red-600 hover:text-red-800">
+                    <button
+                      disabled={deleting}
+                      onClick={() => handleDelete(note._id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
                       <Trash2 size={18} />
                     </button>
                   </td>
@@ -185,11 +220,13 @@ export default function ImportantNotesPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 p-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md shadow-lg">
             {/* Modal Header */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">{editable ? 'Edit Important Note' : 'Add Important Note'}</h2>
+              <h2 className="text-base sm:text-lg font-semibold">
+                {editable ? 'Edit Important Note' : 'Add Important Note'}
+              </h2>
               <button onClick={() => setShowModal(false)}>
                 <X size={20} />
               </button>
@@ -200,21 +237,50 @@ export default function ImportantNotesPage() {
               {/* Leads */}
               <div>
                 <label className="block mb-1 font-medium">Leads</label>
-                <input type="number" name="leads" value={formData.leads} onChange={(e) => setFormData({ ...formData, leads: e.target.value })} required className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" />
+                <input
+                  type="number"
+                  name="leads"
+                  value={formData.leads}
+                  onChange={(e) =>
+                    setFormData({ ...formData, leads: e.target.value })
+                  }
+                  required
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500"
+                />
               </div>
 
               {/* Deals MultiInput */}
-              <MultiInput label="Deals" values={formData.deals} setValues={(vals) => setFormData({ ...formData, deals: vals })} placeholder="Type deal and press Enter" />
+              <MultiInput
+                label="Deals"
+                values={formData.deals}
+                setValues={(vals) => setFormData({ ...formData, deals: vals })}
+                placeholder="Type deal and press Enter"
+              />
 
               {/* Customers MultiInput */}
-              <MultiInput label="Customers" values={formData.customer} setValues={(vals) => setFormData({ ...formData, customer: vals })} placeholder="Type customer and press Enter" />
+              <MultiInput
+                label="Customers"
+                values={formData.customer}
+                setValues={(vals) =>
+                  setFormData({ ...formData, customer: vals })
+                }
+                placeholder="Type customer and press Enter"
+              />
 
               {/* Buttons */}
               <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-3 sm:px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 text-sm sm:text-base"
+                >
                   Cancel
                 </button>
-                <button type="submit" disabled={creating || updating} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <button
+                  type="submit"
+                  disabled={creating || updating}
+                  className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
+                >
                   {editable ? 'Update' : 'Save'}
                 </button>
               </div>

@@ -21,8 +21,8 @@ export default function TicketDetails() {
   const ticket = data?.data || null;                             
   const tasks = ticket?.task || [];
   const [comment, setComment] = useState('');
-  const { data: User } = useGetUserQuery()
-  const [createTask] = useCreateTaskMutation()
+  const { data: User } = useGetUserQuery();
+  const [createTask] = useCreateTaskMutation();
   const UserData = User?.data;
   const currentUser = useSelector((state) => state.Auth.user);
   const [showAddTask, setShowAddTask] = useState(false);
@@ -38,7 +38,7 @@ export default function TicketDetails() {
   const [deletingStatus, setDeletingStatus] = useState(false);
   const [deletingTask, setDeletingTask] = useState(false);
   const [addComment] = useAddCommentMutation();
-  const [taskComment, setTaskComment] = useState("");
+  const [taskComment, setTaskComment] = useState('');
   // eslint-disable-next-line no-unused-vars
   const [loadingUsers, setLoadingUsers] = useState(false);
   // State for task status management
@@ -46,22 +46,18 @@ export default function TicketDetails() {
   const [selectedTaskForStatus, setSelectedTaskForStatus] = useState(null);
   const [newTaskStatus, setNewTaskStatus] = useState('Not Started');
   const [updatingTaskStatus, setUpdatingTaskStatus] = useState(false);
-  const [updatedTask] = useUpdateTaskMutation()
-  const [editTask, setEditTask] = useState(null)
-  const [deleteTask] = useDeleteTaskMutation()
-  const [addStatus] = useAddStatusMutation()
-  const [updatedStatus] = useUpdateStatusMutation()
-  const [deleteStatus] = useDeleteStatusMutation()
-
-
+  const [updatedTask] = useUpdateTaskMutation();
+  const [editTask, setEditTask] = useState(null);
+  const [deleteTask] = useDeleteTaskMutation();
+  const [addStatus] = useAddStatusMutation();
+  const [updatedStatus] = useUpdateStatusMutation();
+  const [deleteStatus] = useDeleteStatusMutation();
 
   const addTaskForm = useFormik({
     initialValues: {
       title: editTask?.title || '',
       description: editTask?.description || '',
-      due_date: editTask?.due_date
-        ? new Date(editTask.due_date).toISOString().slice(0, 16)
-        : '',
+      due_date: editTask?.due_date ? new Date(editTask.due_date).toISOString().slice(0, 16) : '',
       isSchedule: editTask?.isSchedule || false,
       assign: editTask?.assign?._id || '',
     },
@@ -82,10 +78,8 @@ export default function TicketDetails() {
         };
 
         if (editTask) {
-
           await updatedTask({ id: editTask?._id, taskData }).unwrap();
         } else {
-
           await createTask(taskData).unwrap();
         }
         refetch();
@@ -113,13 +107,12 @@ export default function TicketDetails() {
         user_id: currentUser?._id,
       }).unwrap();
 
-      setTaskComment("");
+      setTaskComment('');
       refetch();
     } catch (err) {
-      console.error("Error adding task comment:", err);
+      console.error('Error adding task comment:', err);
     }
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -132,10 +125,10 @@ export default function TicketDetails() {
         user_id: currentUser?._id,
       }).unwrap();
 
-      setComment("");
+      setComment('');
       refetch();
     } catch (err) {
-      console.error("Error adding comment:", err);
+      console.error('Error adding comment:', err);
     }
   };
 
@@ -150,7 +143,6 @@ export default function TicketDetails() {
           id: existingStatus._id,
           status: { status: newStatus },
         }).unwrap();
-
       } else {
         await addStatus({
           status: newStatus,
@@ -178,7 +170,6 @@ export default function TicketDetails() {
         status: { status: editStatusData?.status },
       }).unwrap();
 
-
       refetch();
       setShowEditStatusModal(false);
       setSelectedStatus(null);
@@ -190,7 +181,6 @@ export default function TicketDetails() {
     }
   };
 
-
   // Open edit status modal
   const openEditStatusModal = (status) => {
     setSelectedStatus(status);
@@ -200,12 +190,11 @@ export default function TicketDetails() {
 
   // Delete status
   const handleDeleteStatus = async (statusId) => {
-
     try {
       if (window.confirm('Are you sure you want to delete this status?')) {
-        await deleteStatus(statusId).unwrap()
+        await deleteStatus(statusId).unwrap();
       }
-      refetch()
+      refetch();
     } catch (err) {
       console.error('Error deleting status:', err);
     }
@@ -214,23 +203,20 @@ export default function TicketDetails() {
   const handleDeleteTask = async (taskId) => {
     try {
       if (window.confirm('Are you sure you want to delete this task?')) {
-        await deleteTask(taskId)
+        await deleteTask(taskId);
       }
-      refetch()
+      refetch();
     } catch (err) {
       console.error('Error deleting task:', err);
     }
   };
-
 
   const handleUpdateTaskStatus = async () => {
     if (!selectedTaskForStatus) return;
     try {
       setUpdatingTaskStatus(true);
 
-      const existingStatus = selectedTaskForStatus.status?.find(
-        (status) => status.task_id === selectedTaskForStatus._id
-      );
+      const existingStatus = selectedTaskForStatus.status?.find((status) => status.task_id === selectedTaskForStatus._id);
 
       if (existingStatus) {
         await updatedStatus({
@@ -245,7 +231,6 @@ export default function TicketDetails() {
         }).unwrap();
       }
 
-
       refetch();
       setShowTaskStatusModal(false);
       setSelectedTaskForStatus(null);
@@ -257,14 +242,12 @@ export default function TicketDetails() {
     }
   };
 
-
   // Open task status update modal
   const openTaskStatusModal = (task) => {
     setSelectedTaskForStatus(task);
     setNewTaskStatus(getCurrentStatus(task));
     setShowTaskStatusModal(true);
   };
-
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -369,7 +352,6 @@ export default function TicketDetails() {
                 <label className="text-sm font-medium text-gray-600">Creator</label>
                 <p className="mt-1 text-gray-800 font-medium">{ticket?.creator?.full_name}</p>
                 <p className="mt-1 text-gray-800 font-medium">{ticket?.creator?.email}</p>
-
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-600">Due Date</label>
@@ -437,11 +419,16 @@ export default function TicketDetails() {
                   </div>
                 )}
               </div>
-              <button onClick={() => { setShowAddTask(true); setEditTask(null) }} className="bg-gradient-to-r from-blue-600 via-sky-600 to-sky-800 text-white rounded-xl px-4 py-2 flex items-center gap-2 font-medium shadow-lg hover:scale-105 transition-transform">
+              <button
+                onClick={() => {
+                  setShowAddTask(true);
+                  setEditTask(null);
+                }}
+                className="bg-gradient-to-r from-blue-600 via-sky-600 to-sky-800 text-white rounded-xl px-4 py-2 flex items-center gap-2 font-medium shadow-lg hover:scale-105 transition-transform"
+              >
                 <Plus size={16} /> Add Task
               </button>
             </div>
-
 
             <div className="space-y-4">
               {tasks.length === 0 ? (
@@ -458,15 +445,22 @@ export default function TicketDetails() {
                           <button onClick={() => openTaskStatusModal(task)} className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(task))} px-3 py-1 rounded-lg text-xs font-medium hover:scale-105 transition-transform cursor-pointer`} title="Click to update status">
                             {getCurrentStatus(task)}
                           </button>
-                          {(currentUser?.admin === true || ticket?.creator?._id === currentUser?._id) &&
-                            <button onClick={() => { setShowAddTask(true); setEditTask(task) }} className="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="Edit task">
+                          {(currentUser?.admin === true || ticket?.creator?._id === currentUser?._id) && (
+                            <button
+                              onClick={() => {
+                                setShowAddTask(true);
+                                setEditTask(task);
+                              }}
+                              className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
+                              title="Edit task"
+                            >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                               </svg>
                             </button>
-                          }
+                          )}
 
-                          {(currentUser?.admin === true || ticket?.creator?._id === currentUser?._id) &&
+                          {(currentUser?.admin === true || ticket?.creator?._id === currentUser?._id) && (
                             <button onClick={() => handleDeleteTask(typeof task._id === 'string' ? task._id : null)} disabled={deletingTask} className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete task">
                               {deletingTask ? (
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
@@ -475,7 +469,8 @@ export default function TicketDetails() {
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                               )}
-                            </button>}
+                            </button>
+                          )}
                         </div>
                       </div>
                       {task.description && typeof task.description === 'string' && task.description.trim() !== '' ? (
@@ -500,7 +495,6 @@ export default function TicketDetails() {
                         </div>
                       </div>
 
-
                       {task.status && task.status.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
                           <h5 className="text-xs font-medium text-gray-600 mb-2">Status History:</h5>
@@ -524,53 +518,40 @@ export default function TicketDetails() {
                             className="w-full min-h-[100px] resize-none rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
                           />
 
-                        <div className='flex w-full justify-end'>
-                            <button
-                              type="submit"
-                              className="mt-2 px-3 py-1 bg-blue-500 text-white rounded-lg"
-                            >
+                          <div className="flex w-full justify-end">
+                            <button type="submit" className="mt-2 px-3 py-1 bg-blue-500 text-white rounded-lg">
                               Add Comment
                             </button>
-                        </div>
+                          </div>
                         </form>
                         {task?.comment?.length > 0 && (
                           <div className="mt-4 space-y-4">
                             {task.comment.map((c, idx) => (
-                              <div
-                                key={c?._id || idx}
-                                className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm"
-                              >
+                              <div key={c?._id || idx} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
                                 <p className="text-gray-800">{c.text}</p>
                                 <div className="mt-2 text-sm text-gray-500 flex items-center justify-between">
                                   <span>
-                                    By:{" "}
-                                    {Array.isArray(c?.creator) && c?.creator.length > 0 ? (
-                                      c?.creator.map((dets, i) => (
-                                        <span key={i}>
-                                          {dets?.full_name || "Unknown"}
-                                          {i < c?.creator.length - 1 ? ", " : ""}
-                                        </span>
-                                      ))
-                                    ) : (
-                                      "Unknown"
-                                    )}
+                                    By:{' '}
+                                    {Array.isArray(c?.creator) && c?.creator.length > 0
+                                      ? c?.creator.map((dets, i) => (
+                                          <span key={i}>
+                                            {dets?.full_name || 'Unknown'}
+                                            {i < c?.creator.length - 1 ? ', ' : ''}
+                                          </span>
+                                        ))
+                                      : 'Unknown'}
                                   </span>
-                                  <span className="text-xs">
-                                    {c?.createdAt ? new Date(c?.createdAt).toLocaleString() : "Just now"}
-                                  </span>
+                                  <span className="text-xs">{c?.createdAt ? new Date(c?.createdAt).toLocaleString() : 'Just now'}</span>
                                 </div>
                               </div>
                             ))}
                           </div>
                         )}
-
                       </div>
-
                     </div>
                   );
                 })
               )}
-
             </div>
           </div>
         </div>
@@ -579,10 +560,7 @@ export default function TicketDetails() {
           <div className="bg-white rounded-2xl shadow-md p-6">
             <h3 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button
-                onClick={() => setShowStatusModal(true)}
-                className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-              >
+              <button onClick={() => setShowStatusModal(true)} className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 Change Ticket Status
               </button>
             </div>
@@ -630,18 +608,11 @@ export default function TicketDetails() {
             {ticket?.comment?.length > 0 ? (
               <div className="space-y-3 max-h-64 overflow-y-auto">
                 {ticket.comment.map((c, index) => (
-                  <div
-                    key={c._id || index}
-                    className="border border-gray-200 rounded-lg p-3"
-                  >
+                  <div key={c._id || index} className="border border-gray-200 rounded-lg p-3">
                     <p className="text-gray-700">{c.text}</p>
                     <div className="flex justify-between mt-2 text-xs text-gray-500">
-                      <span>By: {c.creator?.full_name || "Unknown"}</span>
-                      <span>
-                        {c.createdAt
-                          ? new Date(c.createdAt).toLocaleString()
-                          : "Just now"}
-                      </span>
+                      <span>By: {c.creator?.full_name || 'Unknown'}</span>
+                      <span>{c.createdAt ? new Date(c.createdAt).toLocaleString() : 'Just now'}</span>
                     </div>
                   </div>
                 ))}
@@ -651,9 +622,7 @@ export default function TicketDetails() {
             )}
           </div>
         </div>
-
       </div>
-
 
       {showAddTask && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -672,50 +641,26 @@ export default function TicketDetails() {
               </button>
             </div>
 
-
             <form onSubmit={addTaskForm.handleSubmit} className="p-6 space-y-4">
-
-              {addTaskForm.status && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded">
-                  {addTaskForm.status}
-                </div>
-              )}
+              {addTaskForm.status && <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded">{addTaskForm.status}</div>}
 
               {/* Task Title */}
               <div>
                 <label className="text-sm font-medium text-gray-600">Task Title *</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={addTaskForm.values.title}
-                  onChange={addTaskForm.handleChange}
-                  onBlur={addTaskForm.handleBlur}
-                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                  placeholder="Enter task title..."
-                />
-                {addTaskForm.touched.title && addTaskForm.errors.title && (
-                  <p className="text-xs text-red-600 mt-1">{addTaskForm.errors.title}</p>
-                )}
+                <input type="text" name="title" value={addTaskForm.values.title} onChange={addTaskForm.handleChange} onBlur={addTaskForm.handleBlur} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Enter task title..." />
+                {addTaskForm.touched.title && addTaskForm.errors.title && <p className="text-xs text-red-600 mt-1">{addTaskForm.errors.title}</p>}
               </div>
 
               {/* Assign To */}
               <div>
                 <label className="text-sm font-medium text-gray-600">Assign To</label>
-                <select
-                  name="assign"
-                  value={addTaskForm.values.assign}
-                  onChange={addTaskForm.handleChange}
-                  onBlur={addTaskForm.handleBlur}
-                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                  disabled={loadingUsers}
-                >
+                <select name="assign" value={addTaskForm.values.assign} onChange={addTaskForm.handleChange} onBlur={addTaskForm.handleBlur} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" disabled={loadingUsers}>
                   <option value="">{loadingUsers ? 'Loading users...' : 'Select a user...'}</option>
-                  {UserData?.filter(user => user.department?.name === ticket?.department?.name)
-                    .map(user => (
-                      <option key={user._id} value={user._id}>
-                        {user.full_name} ({user.username})
-                      </option>
-                    ))}
+                  {UserData?.filter((user) => user.department?.name === ticket?.department?.name).map((user) => (
+                    <option key={user._id} value={user._id}>
+                      {user.full_name} ({user.username})
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -731,38 +676,20 @@ export default function TicketDetails() {
                   className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
                   placeholder="Enter task description..."
                 />
-                {addTaskForm.touched.description && addTaskForm.errors.description && (
-                  <p className="text-xs text-red-600 mt-1">{addTaskForm.errors.description}</p>
-                )}
+                {addTaskForm.touched.description && addTaskForm.errors.description && <p className="text-xs text-red-600 mt-1">{addTaskForm.errors.description}</p>}
               </div>
 
               {/* Due Date */}
               <div>
                 <label className="text-sm font-medium text-gray-600">Due Date *</label>
-                <input
-                  type="datetime-local"
-                  name="due_date"
-                  value={addTaskForm.values.due_date}
-                  onChange={addTaskForm.handleChange}
-                  onBlur={addTaskForm.handleBlur}
-                  className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-                {addTaskForm.touched.due_date && addTaskForm.errors.due_date && (
-                  <p className="text-xs text-red-600 mt-1">{addTaskForm.errors.due_date}</p>
-                )}
+                <input type="datetime-local" name="due_date" value={addTaskForm.values.due_date} onChange={addTaskForm.handleChange} onBlur={addTaskForm.handleBlur} className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
+                {addTaskForm.touched.due_date && addTaskForm.errors.due_date && <p className="text-xs text-red-600 mt-1">{addTaskForm.errors.due_date}</p>}
               </div>
 
               {/* Is Schedule */}
               <div>
                 <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    name="isSchedule"
-                    checked={addTaskForm.values.isSchedule}
-                    onChange={addTaskForm.handleChange}
-                    onBlur={addTaskForm.handleBlur}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
+                  <input type="checkbox" name="isSchedule" checked={addTaskForm.values.isSchedule} onChange={addTaskForm.handleChange} onBlur={addTaskForm.handleBlur} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                   <span className="text-sm font-medium text-gray-600">Is Scheduled</span>
                 </label>
               </div>
@@ -780,11 +707,7 @@ export default function TicketDetails() {
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed"
-                  disabled={addTaskForm.isSubmitting || !addTaskForm.isValid}
-                >
+                <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed" disabled={addTaskForm.isSubmitting || !addTaskForm.isValid}>
                   {addTaskForm.isSubmitting ? 'Adding...' : 'Add Task'}
                 </button>
               </div>
@@ -792,7 +715,6 @@ export default function TicketDetails() {
           </div>
         </div>
       )}
-
 
       {/* Status Update Modal */}
       {showStatusModal && (
@@ -935,9 +857,6 @@ export default function TicketDetails() {
         </div>
       )}
 
-
-
-
       {/* Task Status Update Modal */}
       {showTaskStatusModal && selectedTaskForStatus && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -950,7 +869,7 @@ export default function TicketDetails() {
                   setShowTaskStatusModal(false);
                   setSelectedTaskForStatus(null);
                   setNewTaskStatus('Not Started');
-                }}
+                }}   
                 className="text-gray-500 hover:text-gray-700"
               >
                 ✖

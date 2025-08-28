@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState } from 'react';
 import { RolesModal } from '@components/Modals/RoleModal';
 import { useGetRoleQuery, useDeleteRoleMutation } from '@/services/Roles.service';
@@ -7,75 +8,46 @@ import { useSelector } from 'react-redux';
 export default function RolesPage() {
   const [open, setOpen] = useState(false);
   const [editData, setEditData] = useState(null);
-  const user = useSelector((state) => state.Auth.user)
+  const user = useSelector((state) => state.Auth.user);
 
-  // Fetch roles data
   const { data: rolesData, isLoading, error, refetch } = useGetRoleQuery(user?._id);
-
-  // Delete role mutation
   const [deleteRole, { isLoading: isDeleting }] = useDeleteRoleMutation();
 
-  // Refresh data when modal closes
   const handleModalClose = () => {
     setOpen(false);
-    setEditData(null); // Reset edit data
-    refetch(); // Refresh the roles data
+    setEditData(null);
+    refetch();
   };
 
-  // Handle add new role
   const handleAddRole = () => {
-    setEditData(null); // Ensure no edit data
+    setEditData(null);
     setOpen(true);
   };
 
-  // Handle edit role
   const handleEditRole = (role) => {
-    setEditData(role); // Set the role data for editing
+    setEditData(role);
     setOpen(true);
   };
 
-  // Handle delete role
   const handleDeleteRole = async (roleId, roleName) => {
-    // Show confirmation dialog
     const isConfirmed = window.confirm(`Are you sure you want to delete the role "${roleName}"?\n\nThis action cannot be undone.`);
-
-    if (!isConfirmed) {
-      return; 
-    }
+    if (!isConfirmed) return;
 
     try {
       await deleteRole(roleId).unwrap();
-      console.log('Role deleted successfully');
-      toast.success(`Role "${roleName}" deleted successfully! 🗑️`, {
-        position: 'top-right',
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-      refetch(); // Refresh the roles data after deletion
+      toast.success(`Role "${roleName}" deleted successfully! 🗑️`);
+      refetch();
     } catch (error) {
-      console.error('Error deleting role:', error);
-      toast.error('Failed to delete role. Please try again! ❌', {
-        position: 'top-right',
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error('Failed to delete role. Please try again! ❌');
     }
   };
 
   if (isLoading) {
     return (
-      <div className="p-6">
-        <div className="flex justify-center items-center h-64">
-          <div className="flex flex-col items-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p className="text-gray-500 mt-4 text-lg">Loading roles...</p>
-          </div>
+      <div className="p-6 flex justify-center items-center min-h-screen">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p className="text-gray-500 mt-4 text-lg">Loading roles...</p>
         </div>
       </div>
     );
@@ -83,13 +55,11 @@ export default function RolesPage() {
 
   if (error) {
     return (
-      <div className="p-6">
-        <div className="flex justify-center items-center h-64">
-          <div className="text-center">
-            <div className="text-red-500 text-6xl mb-4">⚠️</div>
-            <div className="text-red-500 text-xl font-semibold">Error loading roles</div>
-            <div className="text-gray-500 mt-2">{error.message}</div>
-          </div>
+      <div className="p-6 flex justify-center items-center min-h-screen">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <div className="text-red-500 text-xl font-semibold">Error loading roles</div>
+          <div className="text-gray-500 mt-2">{error.message}</div>
         </div>
       </div>
     );
@@ -98,71 +68,70 @@ export default function RolesPage() {
   const roles = rolesData?.data || [];
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+    <div className="p-4 sm:p-6 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
       {/* Header Section */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Roles Management System</h1>
-            <p className="text-gray-600 text-lg">Manage roles and permissions for your loan application</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1">Roles Management System</h1>
+            <p className="text-gray-600 text-base sm:text-lg">Manage roles and permissions for your loan application</p>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between md:justify-end gap-4">
             <div className="text-right">
-              <div className="text-2xl font-bold text-blue-600">{roles.length}</div>
+              <div className="text-xl sm:text-2xl font-bold text-blue-600">{roles.length}</div>
               <div className="text-sm text-gray-500">Total Roles</div>
             </div>
-            <button onClick={handleAddRole} className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2">
-              {/* <span>➕</span> */}
-              <span>Add New Role</span>
+            <button
+              onClick={handleAddRole}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl 
+              hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl 
+              transform hover:-translate-y-0.5 text-sm sm:text-base"
+            >
+              Add New Role
             </button>
           </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100">
           <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <span className="text-2xl">👥</span>
-            </div>
+            <div className="p-3 bg-blue-100 rounded-lg text-lg sm:text-2xl">👥</div>
             <div className="ml-4">
-              <div className="text-2xl font-bold text-gray-800">{roles.length}</div>
-              <div className="text-gray-500">Active Roles</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-800">{roles.length}</div>
+              <div className="text-gray-500 text-sm sm:text-base">Active Roles</div>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100">
           <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <span className="text-2xl">🔐</span>
-            </div>
+            <div className="p-3 bg-green-100 rounded-lg text-lg sm:text-2xl">🔐</div>
             <div className="ml-4">
-              <div className="text-2xl font-bold text-gray-800">{roles.reduce((total, role) => total + role.allowedPage.length, 0)}</div>
-              <div className="text-gray-500">Total Permissions</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-800">{roles.reduce((total, role) => total + role.allowedPage.length, 0)}</div>
+              <div className="text-gray-500 text-sm sm:text-base">Total Permissions</div>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-100">
           <div className="flex items-center">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <span className="text-2xl">⚡</span>
-            </div>
+            <div className="p-3 bg-purple-100 rounded-lg text-lg sm:text-2xl">⚡</div>
             <div className="ml-4">
-              <div className="text-2xl font-bold text-gray-800">{roles.filter((role) => role.allowedPage.length > 2).length}</div>
-              <div className="text-gray-500">Admin Roles</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-800">{roles.filter((role) => role.allowedPage.length > 2).length}</div>
+              <div className="text-gray-500 text-sm sm:text-base">Admin Roles</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Roles Table */}
+      {/* Roles Table (unchanged) */}
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">Role Management</h2>
+        <div className="px-4 sm:px-6 py-4 bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Role Management</h2>
           <p className="text-gray-600 text-sm">Manage user roles and their access permissions</p>
         </div>
 
+        {/* Table kept as-is */}
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead className="bg-gray-50">
