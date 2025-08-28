@@ -7,7 +7,7 @@ export const TicketvalidationSchema = Yup.object({
 
   department: Yup.string().required('Please select a department'),
 
-  priority: Yup.string().oneOf(['Low', 'Medium', 'High', 'Critical'], 'Invalid priority'),
+  priority: Yup.string().oneOf(['Low', 'Medium', 'High'], 'Invalid priority'),
 
   due_date: Yup.date().nullable().min(new Date(), 'Due date cannot be in the past'),
 });

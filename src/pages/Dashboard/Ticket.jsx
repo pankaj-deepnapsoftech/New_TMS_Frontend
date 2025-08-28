@@ -241,7 +241,7 @@ export default function TicketsPage() {
 
 
                   {(currentUser?.admin === true || ticket?.creator === currentUser?._id) && (
-                    <div className="absolute top-4 right-4 flex gap-2 z-20">
+                    <div className="absolute top-4 right-4 flex gap-2 ">
                       <button
                         onClick={(e) => {
                           e.preventDefault();
@@ -266,7 +266,7 @@ export default function TicketsPage() {
                     </div>
                   )}
 
-                  <div className="relative z-10 mt-8">
+                  <div className="relative mt-8">
                     <div className="flex flex-wrap gap-2 text-xs mb-4">
                       <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-red-200/50">{ticket.ticket_id}</span>
                       <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{getCurrentStatus(ticket)}</span>
@@ -289,7 +289,7 @@ export default function TicketsPage() {
 
 
                     {new Date(ticket.due_date) < new Date() && (
-                      <div className="absolute bottom-1 right-1 z-20">
+                      <div className="absolute bottom-1 right-1">
                         <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs shadow-lg border border-red-200">⏳ Overdue</span>
                       </div>
                     )}
@@ -343,12 +343,12 @@ export default function TicketsPage() {
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-transparent to-sky-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
 
-                  <div className="absolute top-4 left-4 z-20">
+                  <div className="absolute top-4 left-4">
                     <span className="bg-gradient-to-r from-blue-500 to-sky-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-blue-400/30">Assigned to You</span>
                   </div>
 
                   {(currentUser?.admin === true || ticket?.creator === currentUser?._id) && (
-                    <div className="absolute top-4 right-4 flex gap-2 z-20">
+                    <div className="absolute top-4 right-4 flex gap-2 ">
                       <button
                         onClick={(e) => {
                           e.preventDefault();
@@ -374,10 +374,10 @@ export default function TicketsPage() {
                   )}
 
 
-                  <div className="relative z-10 mt-8">
+                  <div className="relative  mt-8">
                     <div className="flex flex-wrap gap-2 text-xs mb-4">
                       <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-red-200/50">{ticket.ticket_id}</span>
-                      <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{getCurrentStatus(ticket)}</span>
+                      <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{getCurrentStatus(ticket)}</span> 
                       <span className={`bg-gradient-to-r ${getPriorityColor(ticket?.priority)} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{ticket?.priority}</span>
                       <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">{ticket?.department?.name}</span>
                     </div>
@@ -397,7 +397,7 @@ export default function TicketsPage() {
 
                     {/* Overdue Indicator - Bottom Right Corner */}
                     {new Date(ticket.due_date) < new Date() && (
-                      <div className="absolute bottom-2 right-4 z-20">
+                      <div className="absolute bottom-2 right-4 ">
                         <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs shadow-lg border border-red-200">⏳ Overdue</span>
                       </div>
                     )}
@@ -442,7 +442,7 @@ export default function TicketsPage() {
 
 
                     {(currentUser?.admin === true || ticket?.creator === currentUser?._id) && (
-                      <div className="absolute top-4 right-4 flex gap-2 z-20">
+                      <div className="absolute top-4 right-4 flex gap-2 ">
                         <button
                           onClick={(e) => {
                             e.preventDefault();
@@ -469,7 +469,7 @@ export default function TicketsPage() {
 
 
                     {/* content */}
-                    <div className="relative z-10 mt-8">
+                    <div className="relative  mt-8">
                       <div className="flex flex-wrap gap-2 text-xs mb-4">
                         <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-red-200/50">
                           {ticket.ticket_id}
@@ -510,7 +510,7 @@ export default function TicketsPage() {
 
                       {/* Overdue indicator */}
                       {new Date(ticket.due_date) < new Date() && (
-                        <div className="absolute bottom-1 right-1 z-20">
+                        <div className="absolute bottom-1 right-1 ">
                           <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs shadow-lg border border-red-200">
                             ⏳ Overdue
                           </span>

@@ -6,7 +6,10 @@ import Adminlayout from "./layout/Admin.layout";
 import { DashbaordNavLinks } from "@/constant/dashboardNavigation";
 import TicketDetails from "@pages/Dashboard/TicketDetails";
 import { useSelector } from "react-redux";
-import {socket} from "@/Socket";
+
+
+
+
 
 // --------------------- ProtectedRoute ---------------------
 const ProtectedRoute = ({ user, children }) => {
@@ -14,13 +17,10 @@ const ProtectedRoute = ({ user, children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  socket.on("connection", () => {
-    console.log("connected")
-  })
+
   return children;
 };
-
-
+ 
 
 // --------------------- PublicRoute ------------------------
 const PublicRoute = ({ user, children }) => {

@@ -8,14 +8,15 @@ const NotificationService = Api.injectEndpoints({
             query: () => '/notification/get',
             providesTags: ['Notification']
         }),
-        updatedStatus:build.mutation({
-            query:(id)=>({
-                 url:`/notification/update/${id}`,
-                 method:"PUT",
-                
+        updatedStatus: build.mutation({
+            query: ({ id, status }) => ({
+                url: `/notification/update/${id}`,
+                method: "PUT",
+                body: { status} ,
             }),
-            invalidatesTags:['Notification']
-        })
+            invalidatesTags: ['Notification']
+        }),
+
 
     })
 })

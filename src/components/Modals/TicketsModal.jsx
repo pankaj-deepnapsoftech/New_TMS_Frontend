@@ -93,7 +93,6 @@ const TicketModal = ({ isOpen, onClose, editTicket }) => {
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
-                <option value="Critical">Critical</option>
               </select>
               {formik.errors.priority && formik.touched.priority && <p className="text-sm text-red-600 mt-1">{formik.errors.priority}</p>}
             </div>
