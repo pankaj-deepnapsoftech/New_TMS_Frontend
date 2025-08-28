@@ -1,10 +1,11 @@
 import { io } from "socket.io-client";
+import { config } from "./config/env.config";
 
  
 
-const socket = io(import.meta.env.VITE_APP === "development" ? import.meta.env.VITE_LOCAL_BACKEND_URL : import.meta.env.VITE_BACKEND_URL , {
+const socket = io(config.Dev === "development" ? config.LOCAL_BACKEND_URL : config.BACKEND_URL , {
     transports: ['websocket'],
-    secure: import.meta.env.VITE_APP !== "development",
+    secure: config.Dev !== "development",
     withCredentials:true
 });
 
