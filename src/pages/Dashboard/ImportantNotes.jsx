@@ -95,7 +95,7 @@ export default function ImportantNotesPage() {
     }
   };
 
-  // ---------- Render ----------
+  // -------------- Render ---------------            
   if (isLoading) return <div className="p-6">Loading notes...</div>;
 
   return (

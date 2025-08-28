@@ -8,10 +8,8 @@ import { toast } from 'react-toastify';
 import { useGetRenualQuery, useUpdateRenualMutation, useDeleteRenualMutation, useCreateRenualMutation } from '@/services/Renuals.service';
 import Pagination from '@components/ui/Pagination';
 
-
 export default function RenualsPage() {
-  const [page,setPage] = useState(1)
-
+  const [page, setPage] = useState(1);
 
   // --------------------- rtk queries ----------------------
   const [createRenual, { isloading: CreateRenualLoading }] = useCreateRenualMutation();
@@ -20,8 +18,6 @@ export default function RenualsPage() {
   const [updateRenual, { isLoading: updateRenualLoad }] = useUpdateRenualMutation();
 
   const [editable, setEditable] = useState(null);
-
-
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this renewal?')) return;
@@ -74,7 +70,12 @@ export default function RenualsPage() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Renewals</h1>
-        <button onClick={() => { setShowModal(true), setEditable(null) }} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow">
+        <button
+          onClick={() => {
+            (setShowModal(true), setEditable(null));
+          }}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
+        >
           <Plus size={18} /> Add Renewal
         </button>
       </div>
@@ -101,7 +102,13 @@ export default function RenualsPage() {
                   <td className="px-6 py-4 text-gray-700">{r.product}</td>
                   <td className="px-6 py-4 flex items-center gap-3">
                     {/* Edit Button */}
-                    <button onClick={() => { setEditable(r); setShowModal(true) }} className="text-blue-600 hover:text-blue-800">
+                    <button
+                      onClick={() => {
+                        setEditable(r);
+                        setShowModal(true);
+                      }}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
                       <Edit size={18} />
                     </button>
 
@@ -129,7 +136,7 @@ export default function RenualsPage() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
             {/* Modal Header */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-800">{editable ? "Edit Renewal" : "Add Renewal"}</h2>
+              <h2 className="text-lg font-semibold text-gray-800">{editable ? 'Edit Renewal' : 'Add Renewal'}</h2>
               <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-gray-700">
                 <X size={20} />
               </button>
@@ -162,7 +169,7 @@ export default function RenualsPage() {
                       Cancel
                     </button>
                     <button type="submit" disabled={CreateRenualLoading || updateRenualLoad} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                      {editable ? "Edit" : "Save"}
+                      {editable ? 'Edit' : 'Save'}
                     </button>
                   </div>
                 </Form>

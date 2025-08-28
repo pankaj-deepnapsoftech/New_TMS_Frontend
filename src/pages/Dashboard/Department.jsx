@@ -1,23 +1,22 @@
 import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Pencil, Plus } from 'lucide-react';
 import { useCreateMutation, useDeleteDepartmentMutation, useGetDepartmentQuery, useUpdateDapartmentMutation } from '../../services/Department.service';
 
 export default function DepartmentTable() {
   const [inputValue, setInputValue] = useState('');
   const [clickInput, setClickInput] = useState(false);
   const [ClickId, setClickId] = useState('');
-  const [create] = useCreateMutation();
-  const { data, isLoading, refetch } = useGetDepartmentQuery();
   const [upddatDepart, setUpdateDepart] = useState('');
 
+  const [create] = useCreateMutation();
+  const { data, isLoading, refetch } = useGetDepartmentQuery();
   const [deleteDepartment, { isLoading: DepDeleteLoad }] = useDeleteDepartmentMutation();
   const [updateDapartment] = useUpdateDapartmentMutation();
 
   const createHandler = async () => {
+    if (!inputValue.trim()) return;
     try {
-      const res = await create({ name: inputValue }).unwrap();
-
-      console.log(res);
+      await create({ name: inputValue.trim() }).unwrap();
       setInputValue('');
       refetch();
     } catch (error) {
@@ -27,9 +26,7 @@ export default function DepartmentTable() {
 
   const deleteHandle = async (id) => {
     try {
-      const res = await deleteDepartment(id).unwrap();
-
-      console.log(res);
+      await deleteDepartment(id).unwrap();
       refetch();
     } catch (error) {
       console.log(error);
@@ -38,12 +35,8 @@ export default function DepartmentTable() {
 
   const updateHandler = async (id, data) => {
     try {
-      const res = await updateDapartment({ id, data }).unwrap();
-
-      console.log(res);
-      setClickInput(false);
-      setClickId('');
-      setUpdateDepart('');
+      await updateDapartment({ id, data }).unwrap();
+      resetEdit();
       refetch();
     } catch (error) {
       console.log(error);
@@ -52,81 +45,111 @@ export default function DepartmentTable() {
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && inputValue.trim() !== '') {
-      createHandler(inputValue.trim());
-      setInputValue('');
+      createHandler();
     }
 
     if (e.key === 'Enter' && upddatDepart.trim() !== '') {
       updateHandler(ClickId, { name: upddatDepart.trim() });
-      setInputValue('');
     }
   };
 
+  const resetEdit = () => {
+    setClickInput(false);
+    setClickId('');
+    setUpdateDepart('');
+  };
+
   if (isLoading) {
-    return <div>loading .....</div>;
+    return <div className="px-10 mt-12">Loading departments...</div>;
   }
 
   return (
     <div className="w-full px-10 mt-12">
-      {/* Heading + Tagline */}
-      <div className=" mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Department Management</h1>
-        <p className="text-gray-500 text-sm mt-1">Add, manage, and organize all your departments in one place.</p>
+      {/* Heading */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Department Management</h1>
+        <p className="text-gray-500 text-sm mt-1">Create, edit, and organize your departments with ease.</p>
       </div>
 
-      {/* Table Container */}
-      <div className="bg-white w-full shadow-lg rounded-lg border border-gray-200 overflow-hidden">
+      {/* Card Container */}
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
           <h2 className="text-lg font-semibold text-gray-800">Departments</h2>
-        </div>
-
-        {/* Input Row */}
-        <div className="px-6 py-4 border-b border-gray-200">
-          <input type="text" placeholder="Add department" className="w-[200px] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={handleKeyDown} />
+          <div className="flex items-center gap-2">
+            <input type="text" placeholder="Add new department..." className="w-[220px] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" value={inputValue} onChange={(e) => setInputValue(e.target.value)}onKeyDown={handleKeyDown} />
+            <button onClick={createHandler} className="flex items-center gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium shadow-sm">
+              <Plus size={16} /> Add
+            </button>
+          </div>
         </div>
 
         {/* Department List */}
         <div>
-          {data?.data?.map((dept, index) => (
-            <div key={index} className="flex items-center justify-between px-6 py-3 border-b border-gray-100 hover:bg-gray-50">
-              <div className="px-6 py-4 border-b border-gray-200">
+          {data?.data?.map((dept) => (
+            <div key={dept._id} className="flex items-center justify-between px-6 py-4 border-b border-gray-100 hover:bg-gray-50 transition">
+              {/* Editable Department Name */}
+              <div>
                 {clickInput && ClickId === dept._id ? (
                   <input
                     type="text"
-                    placeholder="Add department"
-                    className="w-[200px] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    value={upddatDepart ? upddatDepart : dept.name}
+                    className="w-[220px] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    value={upddatDepart}
                     onChange={(e) => setUpdateDepart(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    onBlur={() => {
+                      if (upddatDepart.trim()) {
+                        updateHandler(ClickId, { name: upddatDepart.trim() });
+                      } else {
+                        resetEdit();
+                      }
+                    }}
+                    autoFocus
                   />
                 ) : (
                   <span
                     onClick={() => {
                       setClickId(dept._id);
                       setClickInput(true);
+                      setUpdateDepart(dept.name);
                     }}
-                    className="text-gray-700"
+                    className="text-gray-800 font-medium cursor-pointer hover:text-blue-600"
                   >
                     {dept.name}
                   </span>
                 )}
               </div>
-              <button
-                disabled={DepDeleteLoad}
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to delete this department?')) {
-                    deleteHandle(dept._id);
-                  }
-                }}
-                className="text-red-500 hover:text-red-700"
-              >
-                <Trash2 size={18} />
-              </button>
+
+              {/* Actions */}
+              <div className="flex items-center gap-3">
+                {!clickInput && (
+                  <button
+                    onClick={() => {
+                      setClickId(dept._id);
+                      setClickInput(true);
+                      setUpdateDepart(dept.name);
+                    }}
+                    className="text-blue-500 hover:text-blue-800 transition"
+                  >
+                    <Pencil size={18} />
+                  </button>
+                )}
+                <button
+                  disabled={DepDeleteLoad}
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to delete this department?')) {
+                      deleteHandle(dept._id);
+                    }
+                  }}
+                  className="text-red-500 hover:text-red-800 transition"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
             </div>
           ))}
 
-          {data?.data?.length === 0 && <div className="px-6 py-6 text-center text-gray-400 text-sm">No departments added yet. Start by typing above and pressing Enter.</div>}
+          {data?.data?.length === 0 && <div className="px-6 py-6 text-center text-gray-400 text-sm">No departments added yet. Start by typing a name above.</div>}
         </div>
       </div>
     </div>
