@@ -14,7 +14,7 @@ const RolesService = Api.injectEndpoints({
 
     // --------------- get role here --------------
     getRole: build.query({
-      query: (creator) => `/role/get/${creator}`,
+      query: () => `/role/get`,
       providesTags: ['role'],
     }),
 

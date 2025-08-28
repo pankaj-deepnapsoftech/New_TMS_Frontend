@@ -1,66 +1,65 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import LoginPage from "@pages/Auth/Login";
+import RegisterPage from "@pages/Auth/Register";
+import ForgotPasswordPage from "@pages/Auth/ForgotPassword";
+import Adminlayout from "./layout/Admin.layout";
+import { DashbaordNavLinks } from "@/constant/dashboardNavigation";
+import TicketDetails from "@pages/Dashboard/TicketDetails";
+import { useSelector } from "react-redux";
 
-import LoginPage from '@pages/Auth/Login';
-import RegisterPage from '@pages/Auth/Register';
-import ForgotPasswordPage from '@pages/Auth/ForgotPassword';
-import Adminlayout from './layout/Admin.layout';
-import { DashbaordNavLinks } from '@/constant/dashboardNavigation';
-import TicketDetails from '@pages/Dashboard/TicketDetails';
+// --------------------- ProtectedRoute ---------------------
+const ProtectedRoute = ({ user, children }) => {
+  if (!user && window.location.pathname === "/login") {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
+// --------------------- PublicRoute ------------------------
+const PublicRoute = ({ user, children }) => {
+  if (user ) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
+
+// --------------------- AppRoutes --------------------------
 const AppRoutes = () => {
   const user = useSelector((state) => state.Auth.user);
-
-  // Redirect to dashboard if already logged in
-  const GuestOnlyRoute = ({ children }) => {
-    if (user) {
-      return <Navigate to="/" replace />; // You can set default protected page
-    }
-    return children;
-  };
-
-  // Redirect to login if not logged in
-  const ProtectedRoute = ({ children }) => {
-    if (!user) {
-      return <Navigate to="/login" replace />;
-    }
-    return children;
-  };
 
   return (
     <Router>
       <Routes>
-
-        {/* Guest-only routes */}
+        {/* ---------- Public Routes ---------- */}
         <Route
           path="/login"
           element={
-            <GuestOnlyRoute>
+            <PublicRoute user={user}>
               <LoginPage />
-            </GuestOnlyRoute>
+            </PublicRoute>
           }
         />
         <Route
           path="/register"
           element={
-            <GuestOnlyRoute>
+            <PublicRoute user={user}>
               <RegisterPage />
-            </GuestOnlyRoute>
+            </PublicRoute>
           }
         />
         <Route
           path="/forgot-password"
           element={
-            <GuestOnlyRoute>
+            <PublicRoute user={user}>
               <ForgotPasswordPage />
-            </GuestOnlyRoute>
+            </PublicRoute>
           }
         />
 
-        {/* Protected routes */}
+        {/* ---------- Protected Routes ---------- */}
         <Route
           element={
-            <ProtectedRoute>
+            <ProtectedRoute user={user}>
               <Adminlayout />
             </ProtectedRoute>
           }
@@ -71,8 +70,19 @@ const AppRoutes = () => {
           <Route path="/tickets/:ticketId" element={<TicketDetails />} />
         </Route>
 
-        {/* Catch-all route */}
-        <Route path="*" element={<Navigate to={user ? "/" : "/login"} replace />} />
+        {/* ---------- Catch All ---------- */}
+        <Route
+          path="*"
+          element={
+            user ? (
+              <h1 className="text-center mt-10 text-xl font-semibold">
+                404 - Page Not Found
+              </h1>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
       </Routes>
     </Router>
   );

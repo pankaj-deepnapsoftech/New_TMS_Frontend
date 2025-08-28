@@ -14,8 +14,6 @@ import { useAddCommentMutation } from '@/services/Comment.service';
 export default function TicketDetails() {
 
 
-
-
   const { ticketId: _ticketId } = useParams();
   const navigate = useNavigate();
   const { data, error, isLoading, refetch } = useGetTicketByIdQuery(_ticketId);
@@ -27,7 +25,6 @@ export default function TicketDetails() {
   const UserData = User?.data;
   const currentUser = useSelector((state) => state.Auth.user);
   const [showAddTask, setShowAddTask] = useState(false);
-  const [addingTask, setAddingTask] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState('Not Started');
@@ -40,26 +37,7 @@ export default function TicketDetails() {
   const [deletingStatus, setDeletingStatus] = useState(false);
   const [deletingTask, setDeletingTask] = useState(false);
   const [addComment] = useAddCommentMutation();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!comment.trim()) return;
-
-    try {
-      await addComment({
-        ticket_id: ticket._id,
-        text: comment,
-        user_id: currentUser?._id,
-      }).unwrap();
-
-      setComment("");
-      refetch();
-    } catch (err) {
-      console.error("Error adding comment:", err);
-    }
-  };
-
-
+  const [taskComment, setTaskComment] = useState("");
   // eslint-disable-next-line no-unused-vars
   const [loadingUsers, setLoadingUsers] = useState(false);
   // State for task status management
@@ -122,7 +100,43 @@ export default function TicketDetails() {
     },
   });
 
+  const handleTaskCommentSubmit = async (e, taskId) => {
+    e.preventDefault();
+    if (!taskComment.trim()) return;
 
+    try {
+      await addComment({
+        ticket_id: ticket._id,
+        task_id: taskId,
+        text: taskComment,
+        user_id: currentUser?._id,
+      }).unwrap();
+
+      setTaskComment("");
+      refetch();
+    } catch (err) {
+      console.error("Error adding task comment:", err);
+    }
+  };
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!comment.trim()) return;
+
+    try {
+      await addComment({
+        ticket_id: ticket._id,
+        text: comment,
+        user_id: currentUser?._id,
+      }).unwrap();
+
+      setComment("");
+      refetch();
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    }
+  };
 
   // Update ticket status
   const handleUpdateStatus = async () => {
@@ -485,7 +499,7 @@ export default function TicketDetails() {
                         </div>
                       </div>
 
-                      {/* Task Status History */}
+
                       {task.status && task.status.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
                           <h5 className="text-xs font-medium text-gray-600 mb-2">Status History:</h5>
@@ -499,10 +513,63 @@ export default function TicketDetails() {
                           </div>
                         </div>
                       )}
+
+                      <div className="mt-3">
+                        <form onSubmit={(e) => handleTaskCommentSubmit(e, task?._id)}>
+                          <textarea
+                            value={taskComment}
+                            onChange={(e) => setTaskComment(e.target.value)}
+                            placeholder="Write a comment for this task..."
+                            className="w-full min-h-[100px] resize-none rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+                          />
+
+                        <div className='flex w-full justify-end'>
+                            <button
+                              type="submit"
+                              className="mt-2 px-3 py-1 bg-blue-500 text-white rounded-lg"
+                            >
+                              Add Comment
+                            </button>
+                        </div>
+                        </form>
+                        {task?.comment?.length > 0 && (
+                          <div className="mt-4 space-y-4">
+                            {task.comment.map((c, idx) => (
+                              <div
+                                key={c?._id || idx}
+                                className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm"
+                              >
+                                <p className="text-gray-800">{c.text}</p>
+                                <div className="mt-2 text-sm text-gray-500 flex items-center justify-between">
+                                  <span>
+                                    By:{" "}
+                                    {Array.isArray(c?.creator) && c?.creator.length > 0 ? (
+                                      c?.creator.map((dets, i) => (
+                                        <span key={i}>
+                                          {dets?.full_name || "Unknown"}
+                                          {i < c?.creator.length - 1 ? ", " : ""}
+                                        </span>
+                                      ))
+                                    ) : (
+                                      "Unknown"
+                                    )}
+                                  </span>
+                                  <span className="text-xs">
+                                    {c?.createdAt ? new Date(c?.createdAt).toLocaleString() : "Just now"}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                      </div>
+
                     </div>
                   );
                 })
               )}
+
             </div>
           </div>
         </div>
@@ -528,7 +595,7 @@ export default function TicketDetails() {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Write your comment..."
-                className="w-full h-28 p-3 border border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-700"
+                className="w-full min-h-[112px] resize-none rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
               />
 
               <div className="flex justify-end gap-3">

@@ -1,5 +1,5 @@
 // src/pages/RenualsPage.jsx
-import { useState } from 'react';
+import {  useState } from 'react'; 
 import { Plus, X } from 'lucide-react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -13,7 +13,7 @@ export default function RenualsPage() {
 
   // --------------------- rtk queries ----------------------
   const [createRenual, { isloading: CreateRenualLoading }] = useCreateRenualMutation();
-  const { data: renuals, isLoading: getRenualsLoad, refetch } = useGetRenualQuery(page);
+  const { data: renuals, isLoading: getRenualsLoad, refetch } = useGetRenualQuery(page); 
   const [deleteRenual, { isLoading: deleteRenualLoad }] = useDeleteRenualMutation();
   const [updateRenual, { isLoading: updateRenualLoad }] = useUpdateRenualMutation();
 
@@ -179,8 +179,8 @@ export default function RenualsPage() {
         </div>
       )}
 
-      {/* pagination */}
-      <Pagination currentPage={page} onPageChange={setPage} totalPages={renuals?.totalPage} />
+      
+      <Pagination currentPage={page} onPageChange={setPage} totalPages={renuals?.totalPage}  />
     </div>
   );
 }
