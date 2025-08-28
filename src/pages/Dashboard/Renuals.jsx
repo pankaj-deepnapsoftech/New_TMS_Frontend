@@ -1,9 +1,8 @@
 // src/pages/RenualsPage.jsx
-import {  useState } from 'react'; 
-import { Plus, X } from 'lucide-react';
+import { useState } from 'react';
+import { Plus, X, Edit, Trash2 } from 'lucide-react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { Edit, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useGetRenualQuery, useUpdateRenualMutation, useDeleteRenualMutation, useCreateRenualMutation } from '@/services/Renuals.service';
 import Pagination from '@components/ui/Pagination';
@@ -13,7 +12,7 @@ export default function RenualsPage() {
 
   // --------------------- rtk queries ----------------------
   const [createRenual, { isloading: CreateRenualLoading }] = useCreateRenualMutation();
-  const { data: renuals, isLoading: getRenualsLoad, refetch } = useGetRenualQuery(page); 
+  const { data: renuals, isLoading: getRenualsLoad, refetch } = useGetRenualQuery(page);
   const [deleteRenual, { isLoading: deleteRenualLoad }] = useDeleteRenualMutation();
   const [updateRenual, { isLoading: updateRenualLoad }] = useUpdateRenualMutation();
 
@@ -62,19 +61,19 @@ export default function RenualsPage() {
   };
 
   if (getRenualsLoad) {
-    return <div>loging ........</div>;
+    return <div className="p-6 text-center">Loading...</div>;
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Renewals</h1>
         <button
           onClick={() => {
-            (setShowModal(true), setEditable(null));
+            setShowModal(true), setEditable(null);
           }}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow w-full sm:w-auto justify-center"
         >
           <Plus size={18} /> Add Renewal
         </button>
@@ -82,7 +81,7 @@ export default function RenualsPage() {
 
       {/* Table */}
       <div className="overflow-x-auto bg-white shadow-lg rounded-xl border border-gray-200">
-        <table className="w-full text-sm text-left">
+        <table className="w-full text-sm text-left min-w-[600px]">
           <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
             <tr>
               <th className="px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">Customer</th>
@@ -97,10 +96,12 @@ export default function RenualsPage() {
                 <tr key={r.id} className="hover:bg-blue-50 transition-colors duration-200">
                   <td className="px-6 py-4 font-medium text-gray-800">{r.customer}</td>
                   <td className="px-6 py-4">
-                    <span className="px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">{new Date(r.renual_date).toLocaleDateString()}</span>
+                    <span className="px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
+                      {new Date(r.renual_date).toLocaleDateString()}
+                    </span>
                   </td>
                   <td className="px-6 py-4 text-gray-700">{r.product}</td>
-                  <td className="px-6 py-4 flex items-center gap-3">
+                  <td className="px-6 py-4 flex flex-wrap sm:flex-nowrap items-center gap-3">
                     {/* Edit Button */}
                     <button
                       onClick={() => {
@@ -113,7 +114,11 @@ export default function RenualsPage() {
                     </button>
 
                     {/* Delete Button */}
-                    <button disabled={deleteRenualLoad} onClick={() => handleDelete(r._id)} className="text-red-600 hover:text-red-800">
+                    <button
+                      disabled={deleteRenualLoad}
+                      onClick={() => handleDelete(r._id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
                       <Trash2 size={18} />
                     </button>
                   </td>
@@ -121,7 +126,7 @@ export default function RenualsPage() {
               ))
             ) : (
               <tr>
-                <td colSpan="3" className="text-center py-6 text-gray-500 italic">
+                <td colSpan="4" className="text-center py-6 text-gray-500 italic">
                   No renewals added yet.
                 </td>
               </tr>
@@ -130,9 +135,9 @@ export default function RenualsPage() {
         </table>
       </div>
 
-      {/* Add Renewal Modal */}
+      {/* Add/Edit Renewal Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
             {/* Modal Header */}
             <div className="flex justify-between items-center mb-4">
@@ -143,32 +148,57 @@ export default function RenualsPage() {
             </div>
 
             {/* Form */}
-            <Formik initialValues={editable || { customer: '', renual_date: '', product: '' }} enableReinitialize={true} validationSchema={validationSchema} onSubmit={handleAddRenual}>
+            <Formik
+              initialValues={editable || { customer: '', renual_date: '', product: '' }}
+              enableReinitialize={true}
+              validationSchema={validationSchema}
+              onSubmit={handleAddRenual}
+            >
               {() => (
                 <Form className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Customer</label>
-                    <Field name="customer" type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring focus:ring-blue-200" />
+                    <Field
+                      name="customer"
+                      type="text"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring focus:ring-blue-200"
+                    />
                     <ErrorMessage name="customer" component="p" className="text-red-500 text-xs mt-1" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Renewal Date</label>
-                    <Field name="renual_date" type="date" className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring focus:ring-blue-200" />
+                    <Field
+                      name="renual_date"
+                      type="date"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring focus:ring-blue-200"
+                    />
                     <ErrorMessage name="renual_date" component="p" className="text-red-500 text-xs mt-1" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Product</label>
-                    <Field name="product" type="text" className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring focus:ring-blue-200" />
+                    <Field
+                      name="product"
+                      type="text"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:ring focus:ring-blue-200"
+                    />
                     <ErrorMessage name="product" component="p" className="text-red-500 text-xs mt-1" />
                   </div>
 
-                  <div className="flex justify-end gap-2">
-                    <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                  <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                      className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 w-full sm:w-auto"
+                    >
                       Cancel
                     </button>
-                    <button type="submit" disabled={CreateRenualLoading || updateRenualLoad} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    <button
+                      type="submit"
+                      disabled={CreateRenualLoading || updateRenualLoad}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full sm:w-auto"
+                    >
                       {editable ? 'Edit' : 'Save'}
                     </button>
                   </div>
@@ -179,8 +209,10 @@ export default function RenualsPage() {
         </div>
       )}
 
-      
-      <Pagination currentPage={page} onPageChange={setPage} totalPages={renuals?.totalPage}  />
+      {/* Pagination */}
+      <div className="mt-6">
+        <Pagination currentPage={page} onPageChange={setPage} totalPages={renuals?.totalPage} />
+      </div>
     </div>
   );
 }

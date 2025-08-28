@@ -7,21 +7,18 @@ import { useDeleteTicketMutation, useGetAdminTicketcardDataQuery, useGetAssigned
 import { useSelector } from 'react-redux';
 import Pagination from '@/components/ui/Pagination';
 
-
 export default function TicketsPage() {
-
-
-  const [page, setPage] = useState(1)
-  const [assignTicktPage, setAssigneTicketPage] = useState(1)
+  const [page, setPage] = useState(1);
+  const [assignTicktPage, setAssigneTicketPage] = useState(1);
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.Auth.user);
   const isAdmin = currentUser?.admin || false;
-  // eslint-disable-next-line no-unused-vars   
+  // eslint-disable-next-line no-unused-vars
   const [assignedError, setAssignedError] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [editTicket, setEditTicket] = useState(null)
-  const [DeleteTicket] = useDeleteTicketMutation()
+  const [editTicket, setEditTicket] = useState(null);
+  const [DeleteTicket] = useDeleteTicketMutation();
   const { data: AdminCarddata, isLoading: adminCardDataload, refetch } = useGetAdminTicketcardDataQuery();
 
   const [limit, setLimit] = useState(10);
@@ -45,8 +42,6 @@ export default function TicketsPage() {
     return 'Not Started';
   };
 
-
-
   const handleDeleteTicket = async (ticketId, e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -59,30 +54,20 @@ export default function TicketsPage() {
     }
   };
 
-
   useEffect(() => {
-
-    refetch()
-    refreshTicket()
-    refreshAssignTicket()
-
+    refetch();
+    refreshTicket();
+    refreshAssignTicket();
   }, [refetch, refreshTicket, refreshAssignTicket]);
-
-
 
   const handleTicketClick = (ticket) => {
     navigate(`/tickets/${ticket?.ticket_id || ticket?._id}`);
-
   };
 
-  const myCreatedTickets = tickets?.data?.filter(ticket => ticket?.creator === currentUser?._id) || [];
-  const assignedOnlyTickets = assignedTickets?.filter(ticket => ticket?.creator !== currentUser?._id) || [];
+  const myCreatedTickets = tickets?.data?.filter((ticket) => ticket?.creator === currentUser?._id) || [];
+  const assignedOnlyTickets = assignedTickets?.filter((ticket) => ticket?.creator !== currentUser?._id) || [];
 
-  const filteredAssignedTickets = isAdmin
-    ? tickets?.data || []
-    : assignedTickets?.filter(ticket => ticket?.creator !== currentUser?._id) || [];
-
-
+  const filteredAssignedTickets = isAdmin ? tickets?.data || [] : assignedTickets?.filter((ticket) => ticket?.creator !== currentUser?._id) || [];
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -134,8 +119,7 @@ export default function TicketsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-sky-50/50 p-6">
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-sky-50 to-blue-100/40 p-8 lg:p-10">
       <div className="mb-10">
         <div className="flex items-center justify-center gap-4 mb-6">
           <div className="text-center">
@@ -150,12 +134,12 @@ export default function TicketsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
         {[
           { title: 'Total Tickets', count: AdminCarddata?.data?.total || 0, icon: <ListChecks className="text-yellow-100" size={14} />, color: 'from-yellow-300 to-yellow-500', bgColor: 'bg-gradient-to-br from-yellow-50 to-orange-50' },
-          { title: 'Not Started', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === "Not Started")?.count || 0, icon: <AlertCircle className="text-blue-100" size={14} />, color: 'from-blue-300 to-blue-500', bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-50' },
-          { title: 'On Hold', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === "On Hold")?.count || 0, icon: <Clock className="text-indigo-100" size={14} />, color: 'from-indigo-300 to-indigo-500', bgColor: 'bg-gradient-to-br from-indigo-50 to-purple-50' },
-          { title: 'Re Open', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === "Re Open")?.count || 0, icon: <CheckCircle className="text-green-100" size={14} />, color: 'from-green-300 to-green-500', bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50' },
+          { title: 'Not Started', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === 'Not Started')?.count || 0, icon: <AlertCircle className="text-blue-100" size={14} />, color: 'from-blue-300 to-blue-500', bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-50' },
+          { title: 'On Hold', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === 'On Hold')?.count || 0, icon: <Clock className="text-indigo-100" size={14} />, color: 'from-indigo-300 to-indigo-500', bgColor: 'bg-gradient-to-br from-indigo-50 to-purple-50' },
+          { title: 'Re Open', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === 'Re Open')?.count || 0, icon: <CheckCircle className="text-green-100" size={14} />, color: 'from-green-300 to-green-500', bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50' },
           { title: 'Overdue', count: AdminCarddata?.data?.overdue, icon: <Clock className="text-red-100" size={14} />, color: 'from-red-300 to-red-500', bgColor: 'bg-gradient-to-br from-red-50 to-pink-50' },
         ].map((stat, i) => (
-          <div key={i} className={`group ${stat.bgColor} border border-gray-200/50 rounded-3xl shadow-lg p-6 flex items-center justify-between transform hover:scale-105 hover:shadow-2xl transition-all duration-500 hover:rotate-1`}>
+          <div key={i} className={`group ${stat.bgColor} border border-gray-200/60 backdrop-blur-md rounded-3xl shadow-md hover:shadow-xl p-6 flex items-center justify-between transform hover:scale-105 transition-all duration-300`}>
             <div>
               <p className="text-sm font-semibold text-gray-600 mb-1">{stat.title}</p>
               <h2 className="text-4xl font-black text-gray-800">{stat.count}</h2>
@@ -165,8 +149,7 @@ export default function TicketsPage() {
         ))}
       </div>
 
-      <div className="bg-white/70 backdrop-blur-sm flex flex-col md:flex-row gap-4 md:items-center justify-between border border-white/20 rounded-3xl p-6 mb-10 shadow-xl">
-
+      <div className="bg-white/80 backdrop-blur-md flex flex-col md:flex-row gap-4 md:items-center justify-between border border-gray-200/50 rounded-2xl p-6 mb-10 shadow-md hover:shadow-lg transition-all">
         <div className="relative flex-1 max-w-full md:max-w-md w-full">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
           <input
@@ -179,7 +162,10 @@ export default function TicketsPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => { setIsOpen(true); setEditTicket(null) }}
+            onClick={() => {
+              setIsOpen(true);
+              setEditTicket(null);
+            }}
             className="bg-gradient-to-r from-blue-600 via-sky-600 to-sky-800 text-white rounded-2xl px-6 py-3 flex items-center justify-center gap-3 font-semibold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 w-full md:w-auto"
           >
             <Plus size={20} /> Create Ticket
@@ -199,7 +185,6 @@ export default function TicketsPage() {
           </select>
         </div>
       </div>
-
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {isAdmin ? (
@@ -226,19 +211,16 @@ export default function TicketsPage() {
                   <Users className="text-white" size={32} />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">No Assigned Tickets</h3>
-                <p className="text-gray-600 max-w-md mx-auto">
-                  {searchTerm
-                    ? 'No tickets match your current filters. Try adjusting your search criteria.'
-                    : 'No tickets have been created yet. Create your first ticket to get started!'
-                  }
-                </p>
+                <p className="text-gray-600 max-w-md mx-auto">{searchTerm ? 'No tickets match your current filters. Try adjusting your search criteria.' : 'No tickets have been created yet. Create your first ticket to get started!'}</p>
               </div>
             ) : (
               tickets?.data?.map((ticket) => (
-                <div key={ticket._id} className="bg-white/90  border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
-
+                <div
+                  key={ticket._id}
+                  className="bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-2xl shadow-md hover:shadow-xl transform hover:-translate-y-1.5 hover:scale-[1.01] transition-all duration-300 p-6 cursor-pointer relative group overflow-hidden"
+                  onClick={() => handleTicketClick(ticket)}
+                >
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-sky-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
 
                   {(currentUser?.admin === true || ticket?.creator === currentUser?._id) && (
                     <div className="absolute top-4 right-4 flex gap-2 z-20">
@@ -287,7 +269,6 @@ export default function TicketsPage() {
                       </div>
                     </div>
 
-
                     {new Date(ticket.due_date) < new Date() && (
                       <div className="absolute bottom-1 right-1 z-20">
                         <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs shadow-lg border border-red-200">⏳ Overdue</span>
@@ -300,12 +281,9 @@ export default function TicketsPage() {
                   </div>
                 </div>
               ))
-
             )}
-
           </>
         ) : (
-
           <>
             {assignedLoading ? (
               <div className="text-center py-16">
@@ -329,19 +307,16 @@ export default function TicketsPage() {
                   <Users className="text-white" size={32} />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">No Assigned Tickets</h3>
-                <p className="text-gray-600 max-w-md mx-auto">
-                  {searchTerm
-                    ? 'No assigned tickets match your current filters. Try adjusting your search criteria.'
-                    : 'You don\'t have any tickets assigned to you yet. Check back later or contact your administrator.'
-                  }
-                </p>
+                <p className="text-gray-600 max-w-md mx-auto">{searchTerm ? 'No assigned tickets match your current filters. Try adjusting your search criteria.' : "You don't have any tickets assigned to you yet. Check back later or contact your administrator."}</p>
               </div>
             ) : (
               assignedOnlyTickets?.map((ticket) => (
-                <div key={ticket._id} className="bg-gradient-to-br from-blue-50/80 to-sky-50/60  border border-blue-200/50 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
-
+                <div
+                  key={ticket._id}
+                  className="bg-gradient-to-br from-blue-50/80 to-sky-50/60  border border-blue-200/50 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden"
+                  onClick={() => handleTicketClick(ticket)}
+                >
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-transparent to-sky-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
 
                   <div className="absolute top-4 left-4 z-20">
                     <span className="bg-gradient-to-r from-blue-500 to-sky-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg border border-blue-400/30">Assigned to You</span>
@@ -372,7 +347,6 @@ export default function TicketsPage() {
                       </button>
                     </div>
                   )}
-
 
                   <div className="relative z-10 mt-8">
                     <div className="flex flex-wrap gap-2 text-xs mb-4">
@@ -409,15 +383,14 @@ export default function TicketsPage() {
                 </div>
               ))
             )}
-
           </>
         )}
-
       </div>
-      {isAdmin &&
+      {isAdmin && (
         <div className="mt-6 flex justify-center">
           <Pagination currentPage={page} onPageChange={setPage} totalPages={tickets?.totalPage} />
-        </div>}
+        </div>
+      )}
 
       <div className="mt-6 flex justify-center">
         <Pagination currentPage={assignTicktPage} onPageChange={setAssigneTicketPage} totalPages={assignedTicket?.totalPage} />
@@ -431,15 +404,9 @@ export default function TicketsPage() {
               <p className="text-gray-600">You haven’t created any tickets yet.</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {myCreatedTickets.map(ticket => (
-                  <div
-                    key={ticket._id}
-                    className="bg-white/90  border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden"
-                    onClick={() => handleTicketClick(ticket)}
-                  >
-
+                {myCreatedTickets.map((ticket) => (
+                  <div key={ticket._id} className="bg-white/90  border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
                     <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 via-transparent to-emerald-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
 
                     {(currentUser?.admin === true || ticket?.creator === currentUser?._id) && (
                       <div className="absolute top-4 right-4 flex gap-2 z-20">
@@ -467,43 +434,24 @@ export default function TicketsPage() {
                       </div>
                     )}
 
-
                     {/* content */}
                     <div className="relative z-10 mt-8">
                       <div className="flex flex-wrap gap-2 text-xs mb-4">
-                        <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-red-200/50">
-                          {ticket.ticket_id}
-                        </span>
-                        <span
-                          className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}
-                        >
-                          {getCurrentStatus(ticket)}
-                        </span>
-                        <span
-                          className={`bg-gradient-to-r ${getPriorityColor(ticket.priority)} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}
-                        >
-                          {ticket.priority}
-                        </span>
-                        <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">
-                          {ticket?.department?.name}
-                        </span>
+                        <span className="bg-gradient-to-r from-red-100 to-red-200 text-red-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-red-200/50">{ticket.ticket_id}</span>
+                        <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{getCurrentStatus(ticket)}</span>
+                        <span className={`bg-gradient-to-r ${getPriorityColor(ticket.priority)} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{ticket.priority}</span>
+                        <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">{ticket?.department?.name}</span>
                       </div>
 
-                      <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-800 transition-colors duration-300">
-                        {ticket.title}
-                      </h3>
-                      {ticket.description && (
-                        <p className="text-sm text-gray-600 mb-4 line-clamp-2">{ticket.description}</p>
-                      )}
+                      <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-800 transition-colors duration-300">{ticket.title}</h3>
+                      {ticket.description && <p className="text-sm text-gray-600 mb-4 line-clamp-2">{ticket.description}</p>}
 
                       <div className="flex justify-between items-center text-sm">
                         <div className="flex items-center gap-3 text-gray-700">
                           <div className="flex items-center gap-2 bg-gray-100/80 px-3 py-1.5 rounded-full">
                             <Users size={16} className="text-gray-500" />
                             <span className="font-semibold">Due:</span>
-                            <span className="bg-white px-2 py-0.5 rounded-full text-xs shadow-sm font-medium">
-                              {formatDate(ticket.due_date)}
-                            </span>
+                            <span className="bg-white px-2 py-0.5 rounded-full text-xs shadow-sm font-medium">{formatDate(ticket.due_date)}</span>
                           </div>
                         </div>
                       </div>
@@ -511,16 +459,12 @@ export default function TicketsPage() {
                       {/* Overdue indicator */}
                       {new Date(ticket.due_date) < new Date() && (
                         <div className="absolute bottom-1 right-1 z-20">
-                          <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs shadow-lg border border-red-200">
-                            ⏳ Overdue
-                          </span>
+                          <span className="text-red-500 font-bold animate-pulse bg-red-100 px-3 py-1 rounded-full text-xs shadow-lg border border-red-200">⏳ Overdue</span>
                         </div>
                       )}
 
                       <div className="mt-4 pt-3 border-t border-gray-100/50">
-                        <span className="text-xs text-gray-500 font-medium">
-                          Created: {formatDate(ticket.createdAt)}
-                        </span>
+                        <span className="text-xs text-gray-500 font-medium">Created: {formatDate(ticket.createdAt)}</span>
                       </div>
                     </div>
                   </div>
@@ -532,9 +476,6 @@ export default function TicketsPage() {
         </div>
       )}
 
-
-
-
       <TicketModal
         isOpen={isOpen}
         onClose={() => {
@@ -542,7 +483,6 @@ export default function TicketsPage() {
         }}
         editTicket={editTicket}
       />
-
     </div>
   );
 }
