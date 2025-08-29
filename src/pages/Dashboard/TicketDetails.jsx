@@ -921,7 +921,6 @@ export default function TicketDetails() {
                   Submit
                 </button>
               </div>
-
             </form>
           </div>
 

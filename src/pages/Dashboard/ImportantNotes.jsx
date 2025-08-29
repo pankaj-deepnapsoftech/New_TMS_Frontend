@@ -244,7 +244,6 @@ export default function ImportantNotesPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, leads: e.target.value })
                   }
-                  required
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500"
                 />
               </div>
