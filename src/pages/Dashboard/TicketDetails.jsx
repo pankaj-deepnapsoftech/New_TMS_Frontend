@@ -10,15 +10,13 @@ import { useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAddStatusMutation, useDeleteStatusMutation, useUpdateStatusMutation } from '@/services/Status.service';
-import { BiImageAdd } from "react-icons/bi";
+import { BiImageAdd } from 'react-icons/bi';
 import { useAddCommentMutation } from '@/services/Comment.service';
 export default function TicketDetails() {
-
-
-  const { ticketId: _ticketId } = useParams();     
+  const { ticketId: _ticketId } = useParams();
   const navigate = useNavigate();
   const { data, error, isLoading, refetch } = useGetTicketByIdQuery(_ticketId);
-  const ticket = data?.data || null;                             
+  const ticket = data?.data || null;
   const tasks = ticket?.task || [];
   const [comment, setComment] = useState('');
   const { data: User } = useGetUserQuery();
@@ -576,12 +574,10 @@ export default function TicketDetails() {
                 placeholder="Write your comment..."
                 className="w-full min-h-[112px] resize-none rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
               />
-               
+
               <div className="flex justify-end gap-3 items-center">
-              
                 <BiImageAdd />
 
-              
                 <input
                   id="imageUpload"
                   type="file"
@@ -590,14 +586,10 @@ export default function TicketDetails() {
                   // onChange={handleImageUpload}
                 />
 
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-700 transition"
-                >
+                <button type="submit" className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-700 transition">
                   Submit
                 </button>
               </div>
-
             </form>
           </div>
 
@@ -869,7 +861,7 @@ export default function TicketDetails() {
                   setShowTaskStatusModal(false);
                   setSelectedTaskForStatus(null);
                   setNewTaskStatus('Not Started');
-                }}   
+                }}
                 className="text-gray-500 hover:text-gray-700"
               >
                 ✖
