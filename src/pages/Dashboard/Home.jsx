@@ -24,7 +24,7 @@ export default function TaskDashboard() {
 
   const {data: OpenTasks, isLoading: OpenTasksLoad, refetch: OpenTasksRefetch} = useGetOpenTasksQuery();
 
-  const STATUS_COLORS = ['#6A5AE0', '#27AE60', '#F5A623', '#2D9CDB']; // purple, green, orange, blue
+  const STATUS_COLORS = ['#6A5AE0', '#27AE60', '#F5A623', '#2D9CDB']; 
 
   const cards = [
     {
@@ -87,6 +87,16 @@ export default function TaskDashboard() {
       attachments: [],
     },
   ];
+
+  const handlePercentage = (data) => {
+    const total = data.reduce((i,r)=>i + r.count,0);
+    const notStarted = data.find(item => item._id === "Not Started")?.count;
+    const percentage = (notStarted * 100) / total;
+    return percentage.toFixed();
+  }
+
+
+
   useEffect(() => {
     if (user) {
       refetch();
@@ -96,7 +106,7 @@ export default function TaskDashboard() {
     }
   }, [user, refetch]);
 
-  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad) {
+  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad) {
     return <div>loading.....</div>;
   }
 
@@ -162,13 +172,13 @@ export default function TaskDashboard() {
 
         <Card title="Open Tasks" right={<span className="text-xs text-gray-500">New: 5.9k · Returning: 3.1k</span>}>
           <div className="flex items-center justify-between">
-            <Donut percent={OpenTasks?.data?.reduce((i,r)=>i.count + r.count)/(100*OpenTasks?.data?.find((item)=>item._id === "Not Started"))} value={OpenTasks?.data?.reduce((i,r)=>i.count + r.count)} label="open" color="#2563eb" />
+            <Donut percent={handlePercentage(OpenTasks?.data)} value={OpenTasks?.data?.reduce((i,r)=>i.count + r.count)} label="open" color="#2563eb" />
             <div className="text-sm text-gray-600">
               <div className="flex items-center gap-2">
-                <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span> New: 5,900
+                <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span> Not Started: {OpenTasks?.data?.find((item) => item._id === "Not Started")?.count}
               </div>
               <div className="flex items-center gap-2 mt-1">
-                <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span> Returning: 3,145
+                <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span> Re Open: {OpenTasks?.data?.find((item) => item._id === "Re Open")?.count}
               </div>
             </div>
           </div>
