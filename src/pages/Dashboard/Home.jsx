@@ -18,7 +18,7 @@ export default function TaskDashboard() {
   const { data: AdminCarddata, isLoading: adminCardDataload, refetch } = useGetAdminTicketcardDataQuery();
   const user = useSelector((state) => state.Auth.user);
 
-  const { data: TicketOverviews, isLoading: TicketOverviewLoad, refetch: TicketOverviewRefetch, error } = useGetTicketOverviewQuery();
+  const { data: TicketOverviews, isLoading: TicketOverviewLoad, refetch: TicketOverviewRefetch } = useGetTicketOverviewQuery();
 
   const { data: WorkstreamActivity, isLoading: WorkstreamActivityLoad, refetch: WorkstreamActivityRefetch } = useGetWorkstreamActivityQuery();
 
@@ -109,7 +109,7 @@ export default function TaskDashboard() {
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}                 
             transition={{ duration: 0.5, delay: i * 0.1 }}
             whileHover={{ scale: 1.05, boxShadow: '0 8px 20px rgba(0,0,0,0.1)' }}
             className={`p-5 rounded-2xl border border-gray-100 bg-gradient-to-br ${card.bg} transition`}
@@ -162,7 +162,7 @@ export default function TaskDashboard() {
 
         <Card title="Open Tasks" right={<span className="text-xs text-gray-500">New: 5.9k · Returning: 3.1k</span>}>
           <div className="flex items-center justify-between">
-            <Donut percent={OpenTasks?.data?.reduce((i,r)=>i.count + r.count)/(100*OpenTasks?.data?.find((item)=>item._id === "Not Started"))} value={OpenTasks?.data?.reduce((i,r)=>i.count + r.count)} label="open" color="#2563eb" />
+            <Donut percent={OpenTasks?.data?.reduce((i,r)=>i.count + r.count)/(100*OpenTasks?.data?.find((item)=>item._id === "Not Started"))} value={OpenTasks?.data?.reduce((i,r)=>i.count + r.count)}label="open" color="#2563eb" />
             <div className="text-sm text-gray-600">
               <div className="flex items-center gap-2">
                 <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span> New: 5,900
