@@ -10,17 +10,29 @@ const DashboardService = Api.injectEndpoints({
 
     // ---------------- get workstream activity here ------------------
     getWorkstreamActivity: build.query({
-        query: () => '/dashboard/ticket-activity',
-        providesTags: ['Dashboard']
+      query: () => '/dashboard/ticket-activity',
+      providesTags: ['Dashboard'],
     }),
 
     // ---------------- get open tasks here ---------------------
     getOpenTasks: build.query({
-        query: () => '/dashboard/open-task',
-        providesTags: ['Dashboard']
-    })
+      query: () => '/dashboard/open-task',
+      providesTags: ['Dashboard'],
+    }),
+
+    //--------------- get completed task here --------------------
+    getCompletedTasks: build.query({
+      query: () => '/dashboard/complete-task',
+      providesTags: ['Dashboard'],
+    }),
+
+    // ---------------- get cards data here ---------------------
+    getCardsData : build.query({
+        query: () => '/dashboard/card-data',
+        providesTags: ['Dashboard'],
+    }),
   }),
 });
 
 // ---------------- all query here ----------------------
-export const { useGetTicketOverviewQuery, useGetWorkstreamActivityQuery, useGetOpenTasksQuery } = DashboardService;
+export const { useGetTicketOverviewQuery, useGetWorkstreamActivityQuery, useGetOpenTasksQuery, useGetCompletedTasksQuery,useGetCardsDataQuery } = DashboardService;

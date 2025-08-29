@@ -4,12 +4,11 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, L
 import { Card } from '@components/ui/DashboardCards';
 import { Donut } from '@components/charts/DonutChart';
 import { useGetAdminTicketcardDataQuery } from '@/services/Ticket.service';
-import { StatusPie } from '@/constant/dynomicData';
+import { CardsDataa, StatusPie } from '@/constant/dynomicData';
 import { useSelector } from 'react-redux';
-import { useGetOpenTasksQuery, useGetTicketOverviewQuery, useGetWorkstreamActivityQuery } from '@/services/Dashboard.services';
-import { Users, Briefcase, RefreshCcw, Building2 } from 'lucide-react';
+import { useGetCardsDataQuery, useGetCompletedTasksQuery, useGetOpenTasksQuery, useGetTicketOverviewQuery, useGetWorkstreamActivityQuery } from '@/services/Dashboard.services';
 // eslint-disable-next-line no-unused-vars
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 
 // --- Main Dashboard ---
 export default function TaskDashboard() {
@@ -22,44 +21,15 @@ export default function TaskDashboard() {
 
   const { data: WorkstreamActivity, isLoading: WorkstreamActivityLoad, refetch: WorkstreamActivityRefetch } = useGetWorkstreamActivityQuery();
 
-  const {data: OpenTasks, isLoading: OpenTasksLoad, refetch: OpenTasksRefetch} = useGetOpenTasksQuery();
+  const { data: OpenTasks, isLoading: OpenTasksLoad, refetch: OpenTasksRefetch } = useGetOpenTasksQuery();
 
-  const STATUS_COLORS = ['#6A5AE0', '#27AE60', '#F5A623', '#2D9CDB']; 
+  const { data: CompletedTasks, isLoading: CompletedTasksLoad, refetch: CompletedTasksRefetch } = useGetCompletedTasksQuery();
 
-  const cards = [
-    {
-      title: 'Leads',
-      value: '1,245',
-      caption: 'this month',
-      icon: <Users className="h-5 w-5 text-indigo-600" />,
-      bg: 'from-indigo-50 to-white',
-      iconBg: 'bg-indigo-100',
-    },
-    {
-      title: 'Deals',
-      value: '567',
-      caption: 'closed',
-      icon: <Briefcase className="h-5 w-5 text-green-600" />,
-      bg: 'from-green-50 to-white',
-      iconBg: 'bg-green-100',
-    },
-    {
-      title: 'Renewals',
-      value: '312',
-      caption: 'active',
-      icon: <RefreshCcw className="h-5 w-5 text-yellow-600" />,
-      bg: 'from-yellow-50 to-white',
-      iconBg: 'bg-yellow-100',
-    },
-    {
-      title: 'Customers',
-      value: '4,829',
-      caption: 'total',
-      icon: <Building2 className="h-5 w-5 text-pink-600" />,
-      bg: 'from-pink-50 to-white',
-      iconBg: 'bg-pink-100',
-    },
-  ];
+  const { data: CardsData, isLoading: CardsDataLoad, refetch: CardsDataRefetch } = useGetCardsDataQuery();
+
+  const STATUS_COLORS = ['#6A5AE0', '#27AE60', '#F5A623', '#2D9CDB'];
+
+
 
   // Latest updates (like reviews list)
   const updates = [
@@ -89,24 +59,24 @@ export default function TaskDashboard() {
   ];
 
   const handlePercentage = (data) => {
-    const total = data.reduce((i,r)=>i + r.count,0);
-    const notStarted = data.find(item => item._id === "Not Started")?.count;
+    const total = data.reduce((i, r) => i + r.count, 0);
+    const notStarted = data.find((item) => item._id === 'Not Started')?.count;
     const percentage = (notStarted * 100) / total;
     return percentage.toFixed();
-  }
-
-
-
+  };
+  console.log(CompletedTasks);
   useEffect(() => {
     if (user) {
       refetch();
       TicketOverviewRefetch();
       WorkstreamActivityRefetch();
       OpenTasksRefetch();
+      CompletedTasksRefetch();
+      CardsDataRefetch();
     }
   }, [user, refetch]);
 
-  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad) {
+  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad) {
     return <div>loading.....</div>;
   }
 
@@ -115,11 +85,11 @@ export default function TaskDashboard() {
       {/* // ------------- Cards ------------- // */}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {cards.map((card, i) => (
+        {CardsDataa(CardsData?.data).map((card, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}                 
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
             whileHover={{ scale: 1.05, boxShadow: '0 8px 20px rgba(0,0,0,0.1)' }}
             className={`p-5 rounded-2xl border border-gray-100 bg-gradient-to-br ${card.bg} transition`}
@@ -170,15 +140,15 @@ export default function TaskDashboard() {
           </div>
         </Card>
 
-        <Card title="Open Tasks" right={<span className="text-xs text-gray-500">New: 5.9k · Returning: 3.1k</span>}>
+        <Card title="Open Tasks">
           <div className="flex items-center justify-between">
-            <Donut percent={handlePercentage(OpenTasks?.data)} value={OpenTasks?.data?.reduce((i,r)=>i.count + r.count)} label="open" color="#2563eb" />
+            <Donut percent={handlePercentage(OpenTasks?.data)} value={OpenTasks?.data?.reduce((i, r) => i.count + r.count)} label="open" color="#2563eb" />
             <div className="text-sm text-gray-600">
               <div className="flex items-center gap-2">
-                <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span> Not Started: {OpenTasks?.data?.find((item) => item._id === "Not Started")?.count}
+                <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span> Not Started: {OpenTasks?.data?.find((item) => item._id === 'Not Started')?.count}
               </div>
               <div className="flex items-center gap-2 mt-1">
-                <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span> Re Open: {OpenTasks?.data?.find((item) => item._id === "Re Open")?.count}
+                <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span> Re Open: {OpenTasks?.data?.find((item) => item._id === 'Re Open')?.count}
               </div>
             </div>
           </div>
@@ -223,15 +193,15 @@ export default function TaskDashboard() {
 
         {/* Right column donuts */}
         <div className="space-y-6">
-          <Card title="Completed Tasks" right={<span className="text-xs text-gray-500">New: 2.6k · Returning: 671</span>}>
+          <Card title="Completed Tasks">
             <div className="flex items-center justify-between">
-              <Donut percent={58} value={'3,271'} label="completed" color="#16a34a" />
+              <Donut percent={(CompletedTasks?.overdueCompleted * 100) / CompletedTasks?.totalCompleted} value={CompletedTasks?.totalCompleted} label="completed" color="#16a34a" />
               <div className="text-sm text-gray-600">
                 <div className="flex items-center gap-2">
-                  <span className="inline-block w-2 h-2 rounded-full bg-green-600"></span> On time: 2,600
+                  <span className="inline-block w-2 h-2 rounded-full bg-green-600"></span> Completed: {CompletedTasks?.totalCompleted}
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span> Late: 671
+                  <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span> Overdue: {CompletedTasks?.overdueCompleted}
                 </div>
               </div>
             </div>
@@ -251,7 +221,7 @@ export default function TaskDashboard() {
         </div>
       </div>
 
-      {/* Status distribution like screenshot (donut list) */}
+      {/* Status distribution */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         <Card title="Task Status Distribution">
           <div className="h-64">
