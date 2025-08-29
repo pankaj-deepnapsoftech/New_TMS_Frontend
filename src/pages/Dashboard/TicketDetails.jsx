@@ -10,15 +10,16 @@ import { useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAddStatusMutation, useDeleteStatusMutation, useUpdateStatusMutation } from '@/services/Status.service';
-import { BiImageAdd } from "react-icons/bi";
 import { useAddCommentMutation } from '@/services/Comment.service';
+import axios from 'axios';
+import { LuImagePlus } from "react-icons/lu";
 export default function TicketDetails() {
 
 
-  const { ticketId: _ticketId } = useParams();     
+  const { ticketId: _ticketId } = useParams();
   const navigate = useNavigate();
   const { data, error, isLoading, refetch } = useGetTicketByIdQuery(_ticketId);
-  const ticket = data?.data || null;                             
+  const ticket = data?.data || null;
   const tasks = ticket?.task || [];
   const [comment, setComment] = useState('');
   const { data: User } = useGetUserQuery();
@@ -38,7 +39,7 @@ export default function TicketDetails() {
   const [deletingStatus, setDeletingStatus] = useState(false);
   const [deletingTask, setDeletingTask] = useState(false);
   const [addComment] = useAddCommentMutation();
-  const [taskComment, setTaskComment] = useState('');
+  const [taskComment, setTaskComment] = useState({});
   // eslint-disable-next-line no-unused-vars
   const [loadingUsers, setLoadingUsers] = useState(false);
   // State for task status management
@@ -52,29 +53,133 @@ export default function TicketDetails() {
   const [addStatus] = useAddStatusMutation();
   const [updatedStatus] = useUpdateStatusMutation();
   const [deleteStatus] = useDeleteStatusMutation();
+  const [imagePreview, setImagePreview] = useState(null)
+  const [imagesfile, setImageFile] = useState(null);
+  const [taskImagePreview, setTaskImagePreview] = useState(null);
+  const [taskImageFile, setTaskImageFile] = useState(null);
+
+
+  const ImageUploader = async (formData) => {
+
+    try {
+      const res = await axios.post("https://images.deepmart.shop/upload", formData);
+      // console.log(res.data?.[0])
+      return res.data?.[0];
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      return null;
+    }
+  };
+
+  const handleDownload = async (url, name) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = name || "download";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch (err) {
+      console.error("Download failed:", err);
+    }
+  };
+
 
   const addTaskForm = useFormik({
     initialValues: {
       title: editTask?.title || '',
       description: editTask?.description || '',
-      due_date: editTask?.due_date ? new Date(editTask.due_date).toISOString().slice(0, 16) : '',
-      isSchedule: editTask?.isSchedule || false,
+      due_date: editTask?.due_date
+        ? new Date(editTask.due_date).toISOString().slice(0, 16)
+        : '',
+      isSchedule: editTask?.isSchedule ?? false,   // <- yaha default true/false hona chahiye
       assign: editTask?.assign?._id || '',
+      schedule: {
+        schedule_type: editTask?.schedule?.schedule_type || '',
+        date: editTask?.schedule?.date
+          ? new Date(editTask.schedule.date).toISOString().slice(0, 10)
+          : '',
+        weekly: editTask?.schedule?.weekly || [],
+        time: editTask?.schedule?.time
+          ? new Date(editTask.schedule.time).toISOString().slice(11, 16)
+          : '',
+      },
     },
     enableReinitialize: true,
     validationSchema: Yup.object({
-      title: Yup.string().trim().required('Title is required'),
-      due_date: Yup.string().required('Due date is required'),
+      title: Yup.string().trim().required("Title is required"),
+      due_date: Yup.string().required("Due date is required"),
       description: Yup.string(),
       assign: Yup.string().nullable(),
       isSchedule: Yup.boolean(),
+      schedule: Yup.object().shape({
+        schedule_type: Yup.string().when("..isSchedule", {
+          is: true,
+          then: (schema) => schema.required("Schedule type is required"),
+          otherwise: (schema) => schema.notRequired(),
+        }),
+        date: Yup.string().when("schedule_type", {
+          is: (val) => ["Monthly", "daily", "yearly"].includes(val),
+          then: (schema) => schema.required("Date is required"),
+          otherwise: (schema) => schema.notRequired(),
+        }),
+        weekly: Yup.array().when("schedule_type", {
+          is: "Weekly",
+          then: (schema) =>
+            schema.min(1, "Please select at least one day").required(),
+          otherwise: (schema) => schema.notRequired(),
+        }),
+        time: Yup.string().when("..isSchedule", {
+          is: true,
+          then: (schema) => schema.required("Time is required"),
+          otherwise: (schema) => schema.notRequired(),
+        }),
+      }),
     }),
     onSubmit: async (values, helpers) => {
       try {
+        let scheduleData = null;
+
+        if (values.isSchedule) {   // <-- only if true
+          const timeString = values.schedule.time;
+          const today = new Date();
+          const [hours, minutes] = timeString.split(":").map(Number);
+          const timeDate = new Date(today);
+          timeDate.setHours(hours, minutes, 0, 0);
+
+          if (values.schedule.schedule_type === "Monthly") {
+            scheduleData = {
+              schedule_type: "Monthly",
+              date: values.schedule.date,
+              time: timeDate.toISOString(),
+            };
+          } else if (values.schedule.schedule_type === "Weekly") {
+            scheduleData = {
+              schedule_type: "Weekly",
+              weekly: values.schedule.weekly,
+              time: timeDate.toISOString(),
+            };
+          } else if (values.schedule.schedule_type === "daily") {
+            scheduleData = {
+              schedule_type: "daily",
+              date: values.schedule.date,
+              time: timeDate.toISOString(),
+            };
+          } else if (values.schedule.schedule_type === "yearly") {
+            scheduleData = {
+              schedule_type: "yearly",
+              date: values.schedule.date,
+              time: timeDate.toISOString(),
+            };
+          }
+        }
+
         const taskData = {
           ...values,
           ticket_id: ticket?._id,
           due_date: new Date(values.due_date).toISOString(),
+          schedule: values.isSchedule ? scheduleData : undefined
         };
 
         if (editTask) {
@@ -82,68 +187,100 @@ export default function TicketDetails() {
         } else {
           await createTask(taskData).unwrap();
         }
+
         refetch();
         helpers.resetForm();
         setShowAddTask(false);
-        setShowEditTaskModal(false);
       } catch (err) {
         console.error('Error saving task:', err);
         helpers.setStatus(err?.data?.message || 'Failed to save task');
       } finally {
         helpers.setSubmitting(false);
       }
-    },
+    }
+
+
   });
+
+
+
+  const handleCommentChange = (taskId, value) => {
+    setTaskComment((prev) => ({ ...prev, [taskId]: value }));
+  };
 
   const handleTaskCommentSubmit = async (e, taskId) => {
     e.preventDefault();
-    if (!taskComment.trim()) return;
+    const text = taskComment[taskId] || "";  
+
+    if (!text.trim() && !taskImageFile) return;
 
     try {
+      let imageUrl = null;
+
+      if (taskImageFile) {
+        const formData = new FormData();
+        formData.append("file", taskImageFile);
+        imageUrl = await ImageUploader(formData);
+      }
+
       await addComment({
-        ticket_id: ticket._id,
         task_id: taskId,
-        text: taskComment,
+        text,
         user_id: currentUser?._id,
+        file: imageUrl,
       }).unwrap();
 
-      setTaskComment('');
+   
+      setTaskComment((prev) => ({ ...prev, [taskId]: "" }));
+      setTaskImagePreview(null);
+      setTaskImageFile(null);
       refetch();
     } catch (err) {
       console.error('Error adding task comment:', err);
     }
   };
 
+
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!comment.trim()) return;
+    if (!comment.trim() && !imagePreview) return;
 
     try {
+      let imageUrl = null;
+
+      if (imagesfile) {
+        const formData = new FormData();
+        formData.append("file", imagesfile);
+        imageUrl = await ImageUploader(formData);
+      }
+
       await addComment({
         ticket_id: ticket._id,
         text: comment,
         user_id: currentUser?._id,
+        file: imageUrl,
       }).unwrap();
 
-      setComment('');
+      setComment("");
+      setImagePreview(null);
+
       refetch();
     } catch (err) {
-      console.error('Error adding comment:', err);
+      console.error("Error adding comment:", err);
     }
   };
 
+
   // Update ticket status
-  const handleUpdateStatus = async () => {
+  const handleAddStatus = async () => {
     try {
       setUpdatingStatus(true);
-      const existingStatus = ticket?.status?.find((status) => !status?.task_id);
+      // const existingStatus = ticket?.status?.find((status) => !status?.task_id);
 
-      if (existingStatus) {
-        await updatedStatus({
-          id: existingStatus._id,
-          status: { status: newStatus },
-        }).unwrap();
-      } else {
+      {
         await addStatus({
           status: newStatus,
           ticket_id: ticket?._id,
@@ -360,51 +497,76 @@ export default function TicketDetails() {
             </div>
           </div>
 
-          {/* Status History Section */}
-          <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-gray-800">Ticket Status</h3>
-            </div>
+          {(ticket?.creator?._id === currentUser?._id) && (
+            <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-gray-800">Ticket Status</h3>
+              </div>
 
-            {/* Status List */}
-            <div className="space-y-3">
-              {!ticket.status || ticket?.status?.length === 0 ? (
-                <div className="text-center py-4">
-                  <p className="text-gray-500">No status history found.</p>
-                </div>
-              ) : (
-                ticket?.status
-                  .filter((status) => !status?.task_id) // Filter out task statuses, keep only ticket statuses
-                  .map((status) => (
-                    <div key={status._id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-3">
-                          <span className={`bg-gradient-to-r ${getStatusColor(status.status)} px-3 py-1 rounded-lg text-xs font-medium`}>{status.status}</span>
-                          <span className="text-xs text-gray-500">Update #{status.updateCount || 0}</span>
-                        </div>
-                        <div>
-                          <button onClick={() => openEditStatusModal(status)} className="p-1 text-gray-500 hover:text-blue-600 transition-colors" title="Edit status">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          <button onClick={() => handleDeleteStatus(status._id)} disabled={deletingStatus} className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Delete status">
-                            {deletingStatus ? (
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                            ) : (
+              <div className="space-y-3">
+                {!ticket?.status || ticket?.status?.filter((s) => !s?.task_id).length === 0 ? (
+                  <div className="text-center py-4">
+                    <p className="text-gray-500">No status history found.</p>
+                  </div>
+                ) : (
+                  (() => {
+                    const filteredStatuses = ticket.status.filter((status) => !status?.task_id);
+                    const lastStatus = filteredStatuses[filteredStatuses.length - 1];
+
+                    return (
+                      <div key={lastStatus._id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-3">
+                            <span className={`bg-gradient-to-r ${getStatusColor(lastStatus.status)} px-3 py-1 rounded-lg text-xs font-medium`}>
+                              {lastStatus.status}
+                            </span>
+                            <span className="text-xs text-gray-500">Update #{lastStatus.updateCount || 0}</span>
+                          </div>
+                          <div>
+                            <button
+                              onClick={() => openEditStatusModal(lastStatus)}
+                              className="p-1 text-gray-500 hover:text-blue-600 transition-colors"
+                              title="Edit status"
+                            >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
                               </svg>
-                            )}
-                          </button>
+                            </button>
+                            <button
+                              onClick={() => handleDeleteStatus(lastStatus._id)}
+                              disabled={deletingStatus}
+                              className="p-1 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              title="Delete status"
+                            >
+                              {deletingStatus ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                              ) : (
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                  />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
                         </div>
+                        <div className="text-xs text-gray-500">Status ID: {lastStatus._id}</div>
                       </div>
-                      <div className="text-xs text-gray-500">Status ID: {status._id}</div>
-                    </div>
-                  ))
-              )}
+                    );
+                  })()
+                )}
+              </div>
             </div>
-          </div>
+          )}
+
 
           {/* Tasks Section */}
           <div className="bg-white rounded-2xl shadow-md p-6">
@@ -512,36 +674,137 @@ export default function TicketDetails() {
                       <div className="mt-3">
                         <form onSubmit={(e) => handleTaskCommentSubmit(e, task?._id)}>
                           <textarea
-                            value={taskComment}
-                            onChange={(e) => setTaskComment(e.target.value)}
+                            value={taskComment[task._id] || ""}
+                            onChange={(e) => handleCommentChange(task._id, e.target.value)}
                             placeholder="Write a comment for this task..."
                             className="w-full min-h-[100px] resize-none rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
                           />
 
-                          <div className="flex w-full justify-end">
-                            <button type="submit" className="mt-2 px-3 py-1 bg-blue-500 text-white rounded-lg">
+
+
+                          <div className="flex justify-end gap-5 items-center mt-2">
+                            {taskImagePreview && (
+                              <div className="mt-4 relative">
+                                {typeof taskImagePreview === "string" ? (
+                                  <img
+                                    src={taskImagePreview}
+                                    alt="Preview"
+                                    className="w-full max-h-18 rounded-lg object-contain border border-gray-200"
+                                  />
+                                ) : (
+                                  <div className="flex items-center gap-2 border p-2 rounded bg-gray-100">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-6 w-6 text-blue-500"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M12 4v16m8-8H4"
+                                      />
+                                    </svg>
+                                    <span className="text-sm text-gray-700">{taskImagePreview.name}</span>
+                                  </div>
+                                )}
+
+                                <button
+                                  type="button"
+                                  onClick={() => setTaskImagePreview(null)}
+                                  className="absolute -top-3 -right-2 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            )}
+
+                            <label
+                              htmlFor={`taskFileUpload-${task._id}`}
+                              className="cursor-pointer text-md p-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-lg hover:scale-105 transition-transform duration-200"
+                            >
+                              <LuImagePlus />
+                            </label>
+                            <input
+                              id={`taskFileUpload-${task._id}`}
+                              type="file"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  setTaskImageFile(file);
+
+                                  if (file.type.startsWith("image/")) {
+                                    // agar image hai to preview image
+                                    setTaskImagePreview(URL.createObjectURL(file));
+                                  } else {
+                                    // pdf / zip / docx ke liye object with name
+                                    setTaskImagePreview({
+                                      type: "file",
+                                      name: file.name,
+                                    });
+                                  }
+                                }
+                              }}
+                            />
+
+
+                            <button type="submit" className="px-3 py-1 bg-blue-500 text-white rounded-lg">
                               Add Comment
                             </button>
                           </div>
                         </form>
+
                         {task?.comment?.length > 0 && (
                           <div className="mt-4 space-y-4">
                             {task.comment.map((c, idx) => (
-                              <div key={c?._id || idx} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
-                                <p className="text-gray-800">{c.text}</p>
+                              <div
+                                key={c?._id || idx}
+                                className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm"
+                              >
+                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                                  <p className="text-gray-800 text-sm leading-relaxed">{c.text}</p>
+
+                                  {c.file && (
+                                    <div className="mt-2">
+                                      <span className="text-sm text-gray-600">Attachment: </span>
+                                      <a href={c.file} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm hover:underline">
+                                        View
+                                      </a>
+                                      <a onClick={(e) => {
+                                        e.preventDefault();
+                                        handleDownload(c.file, c.text || "attachment");
+                                      }}
+                                        target="_blank" download className="text-green-600 cursor-pointer text-sm hover:underline ml-2">
+                                        Download
+                                      </a>
+                                    </div>
+                                  )}
+
+                                </div>
+
+
+
+
                                 <div className="mt-2 text-sm text-gray-500 flex items-center justify-between">
                                   <span>
                                     By:{' '}
                                     {Array.isArray(c?.creator) && c?.creator.length > 0
-                                      ? c?.creator.map((dets, i) => (
-                                          <span key={i}>
-                                            {dets?.full_name || 'Unknown'}
-                                            {i < c?.creator.length - 1 ? ', ' : ''}
-                                          </span>
-                                        ))
+                                      ? c.creator.map((dets, i) => (
+                                        <span key={i}>
+                                          {dets?.full_name || 'Unknown'}
+                                          {i < c.creator.length - 1 ? ', ' : ''}
+                                        </span>
+                                      ))
                                       : 'Unknown'}
                                   </span>
-                                  <span className="text-xs">{c?.createdAt ? new Date(c?.createdAt).toLocaleString() : 'Just now'}</span>
+                                  <span className="text-xs">
+                                    {c?.createdAt
+                                      ? new Date(c.createdAt).toLocaleString()
+                                      : 'Just now'}
+                                  </span>
                                 </div>
                               </div>
                             ))}
@@ -557,14 +820,14 @@ export default function TicketDetails() {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl shadow-md p-6">
+          {(ticket?.creator?._id === currentUser?._id) && <div className="bg-white rounded-2xl shadow-md p-6">
             <h3 className="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
             <div className="space-y-3">
               <button onClick={() => setShowStatusModal(true)} className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 Change Ticket Status
               </button>
             </div>
-          </div>
+          </div>}
 
           {/* Add Comment */}
           <div className="bg-white rounded-2xl shadow-md p-6 mt-10 w-full max-w-xl">
@@ -576,20 +839,81 @@ export default function TicketDetails() {
                 placeholder="Write your comment..."
                 className="w-full min-h-[112px] resize-none rounded-md border border-gray-300 bg-white p-3 text-sm text-gray-800 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
               />
-               
+
               <div className="flex justify-end gap-3 items-center">
-              
-                <BiImageAdd />
 
-              
+
+
+                {imagePreview && (
+                  <div className="mt-4 relative">
+                    {typeof imagePreview === "string" ? (
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full max-h-18 rounded-lg object-contain border border-gray-200"
+                      />
+                    ) : (
+                      <div className="flex items-center gap-2 border p-2 rounded bg-gray-100">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6 text-red-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 4v16m8-8H4"
+                          />
+                        </svg>
+                        <span className="text-sm text-gray-700">{imagePreview.name}</span>
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => setImagePreview(null)}
+                      className="absolute -top-3 -right-2 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                )}
+
+
+
+
+                <label
+                  htmlFor="fileUpload"
+                  className="cursor-pointer text-xl p-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-lg hover:scale-105 transition-transform duration-200"
+                >
+                  <LuImagePlus />
+                </label>
+
                 <input
-                  id="imageUpload"
+                  id="fileUpload"
                   type="file"
-                  accept="image/*"
                   className="hidden"
-                  // onChange={handleImageUpload}
-                />
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setImageFile(file);
 
+                      if (file.type.startsWith("image/")) {
+                        setImagePreview(URL.createObjectURL(file));
+                      } else {
+
+                        setImagePreview({
+                          type: "file",
+                          name: file?.name,
+                        });
+
+                      }
+                    }
+                  }}
+                />
                 <button
                   type="submit"
                   className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-700 transition"
@@ -601,16 +925,39 @@ export default function TicketDetails() {
             </form>
           </div>
 
-          {/* Show Comments */}
+          {/* Comments Section */}
           <div className="bg-white rounded-2xl shadow-md p-6 mt-6 w-full max-w-xl">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Comments</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-5">Comments</h2>
 
             {ticket?.comment?.length > 0 ? (
-              <div className="space-y-3 max-h-64 overflow-y-auto">
+              <div className="space-y-4 max-h-64 overflow-y-auto pr-2">
                 {ticket.comment.map((c, index) => (
-                  <div key={c._id || index} className="border border-gray-200 rounded-lg p-3">
-                    <p className="text-gray-700">{c.text}</p>
-                    <div className="flex justify-between mt-2 text-xs text-gray-500">
+                  <div
+                    key={c._id || index}
+                    className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                      <p className="text-gray-800 text-sm leading-relaxed">{c.text}</p>
+
+                      {c.file && (
+                        <div className="mt-2">
+                          <span className="text-sm text-gray-600">Attachment: </span>
+                          <a href={c.file} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm hover:underline">
+                            View
+                          </a>
+                          <a onClick={(e) => {
+                            e.preventDefault();
+                            handleDownload(c.file, c.text || "attachment");
+                          }}
+                            target="_blank" download className="text-green-600  cursor-pointer text-sm hover:underline ml-2">
+                            Download
+                          </a>
+                        </div>
+                      )}
+
+                    </div>
+
+                    <div className="flex justify-between mt-3 text-xs text-gray-500">
                       <span>By: {c.creator?.full_name || 'Unknown'}</span>
                       <span>{c.createdAt ? new Date(c.createdAt).toLocaleString() : 'Just now'}</span>
                     </div>
@@ -618,9 +965,10 @@ export default function TicketDetails() {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500">No comments yet.</p>
+              <p className="text-gray-500 text-sm">No comments yet.</p>
             )}
           </div>
+
         </div>
       </div>
 
@@ -686,13 +1034,117 @@ export default function TicketDetails() {
                 {addTaskForm.touched.due_date && addTaskForm.errors.due_date && <p className="text-xs text-red-600 mt-1">{addTaskForm.errors.due_date}</p>}
               </div>
 
-              {/* Is Schedule */}
+              
+              {/* Is Schedule Checkbox */}
               <div>
                 <label className="flex items-center gap-2">
-                  <input type="checkbox" name="isSchedule" checked={addTaskForm.values.isSchedule} onChange={addTaskForm.handleChange} onBlur={addTaskForm.handleBlur} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  <input
+                    type="checkbox"
+                    name="isSchedule"
+                    checked={addTaskForm.values.isSchedule}
+                    onChange={addTaskForm.handleChange}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
                   <span className="text-sm font-medium text-gray-600">Is Scheduled</span>
                 </label>
               </div>
+
+              {/* Conditional Schedule Fields */}
+              {addTaskForm.values.isSchedule && (
+                <div className="space-y-4 mt-3 p-3 border rounded-lg bg-gray-50">
+
+                  {/* Schedule Type */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Schedule Type *</label>
+                    <select
+                      name="schedule.schedule_type"
+                      value={addTaskForm.values.schedule.schedule_type}
+                      onChange={addTaskForm.handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2"
+                    >
+                      <option value="">Select...</option>
+                      <option value="Monthly">Monthly</option>
+                      <option value="Weekly">Weekly</option>
+                      <option value="daily">Daily</option>
+                      <option value="yearly">Yearly</option>
+                    </select>
+                  </div>
+
+                  {/* Date (for Monthly, Daily, Yearly) */}
+                  {(addTaskForm.values.schedule.schedule_type === "Monthly" ||
+                    addTaskForm.values.schedule.schedule_type === "daily" ||
+                    addTaskForm.values.schedule.schedule_type === "yearly") && (
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Date *</label>
+                        <input
+                          type="date"
+                          name="schedule.date"
+                          value={addTaskForm.values.schedule.date}
+                          onChange={addTaskForm.handleChange}
+                          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2"
+                        />
+                      </div>
+                    )}
+
+                  {/* Weekly (multiple select) */}
+                  {addTaskForm.values.schedule.schedule_type === "Weekly" && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-600">Select Days *</label>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day) => (
+                          <label
+                            key={day}
+                            className={`flex items-center gap-2 px-3 py-2 border rounded-lg cursor-pointer transition
+            ${addTaskForm.values.schedule.weekly.includes(day)
+                                ? "bg-blue-500 text-white border-blue-600"
+                                : "bg-white text-gray-700 border-gray-300"
+                              }`}
+                          >
+                            <input
+                              type="checkbox"
+                              value={day}
+                              checked={addTaskForm.values.schedule.weekly.includes(day)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  addTaskForm.setFieldValue("schedule.weekly", [
+                                    ...addTaskForm.values.schedule.weekly,
+                                    day,
+                                  ]);
+                                } else {
+                                  addTaskForm.setFieldValue(
+                                    "schedule.weekly",
+                                    addTaskForm.values.schedule.weekly.filter((d) => d !== day)
+                                  );
+                                }
+                              }}
+                              className="hidden"
+                            />
+                            {day}
+                          </label>
+                        ))}
+                      </div>
+                      {addTaskForm.touched.schedule?.weekly && addTaskForm.errors.schedule?.weekly && (
+                        <p className="text-xs text-red-600 mt-1">{addTaskForm.errors.schedule.weekly}</p>
+                      )}
+                    </div>
+                  )}
+
+
+                  {/* Time (for all types) */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">Time *</label>
+                    <input
+                      type="time"
+                      name="schedule.time"
+                      value={addTaskForm.values.schedule.time}
+                      onChange={addTaskForm.handleChange}
+                      className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2"
+                    />
+                  </div>
+                </div>
+              )}
+
+
 
               {/* Footer */}
               <div className="flex justify-end gap-3 border-t mt-6 pt-4">
@@ -775,7 +1227,7 @@ export default function TicketDetails() {
               >
                 Cancel
               </button>
-              <button onClick={handleUpdateStatus} disabled={updatingStatus} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
+              <button onClick={handleAddStatus} disabled={updatingStatus} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed">
                 {updatingStatus ? 'Updating...' : 'Update Status'}
               </button>
             </div>
@@ -869,7 +1321,7 @@ export default function TicketDetails() {
                   setShowTaskStatusModal(false);
                   setSelectedTaskForStatus(null);
                   setNewTaskStatus('Not Started');
-                }}   
+                }}
                 className="text-gray-500 hover:text-gray-700"
               >
                 ✖

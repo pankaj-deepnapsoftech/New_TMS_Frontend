@@ -17,7 +17,7 @@
          query: ({ id, status }) => ({
            url: `/status/update/${id}`,
            method: 'PUT',
-           body: status,
+           body: status, 
          }),
          invalidatesTags: ['Status'],
        }),
