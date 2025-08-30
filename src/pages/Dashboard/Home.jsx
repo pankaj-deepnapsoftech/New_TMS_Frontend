@@ -6,13 +6,14 @@ import { Donut } from '@components/charts/DonutChart';
 import { useGetAdminTicketcardDataQuery } from '@/services/Ticket.service';
 import { CardsDataa, StatusPie } from '@/constant/dynomicData';
 import { useSelector } from 'react-redux';
-import { useGetCardsDataQuery, useGetCompletedTasksQuery, useGetOpenTasksQuery, useGetTicketOverviewQuery, useGetWorkstreamActivityQuery } from '@/services/Dashboard.services';
+import { useGetCardsDataQuery, useGetCompletedTasksQuery, useGetOpenTasksQuery, useGetTicketOverviewQuery, useGetUserDataQuery, useGetWorkstreamActivityQuery } from '@/services/Dashboard.services';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 
 // --- Main Dashboard ---
 export default function TaskDashboard() {
   const [selectedProject, setSelectedProject] = useState('Project Alpha');
+  const [selectedUser, setSelectedUser] = useState('');
 
   const { data: AdminCarddata, isLoading: adminCardDataload, refetch } = useGetAdminTicketcardDataQuery();
   const user = useSelector((state) => state.Auth.user);
@@ -27,36 +28,35 @@ export default function TaskDashboard() {
 
   const { data: CardsData, isLoading: CardsDataLoad, refetch: CardsDataRefetch } = useGetCardsDataQuery();
 
+  const { data: UserData, isLoading: UserDataLoad, refetch: UserDataRefetch } = useGetUserDataQuery();
   const STATUS_COLORS = ['#6A5AE0', '#27AE60', '#F5A623', '#2D9CDB'];
 
-
-
   // Latest updates (like reviews list)
-  const updates = [
-    {
-      name: 'Deena Timmons',
-      time: '5 hours ago',
-      source: 'Sprint Board',
-      text: 'Moved ‘Marketing site QA’ to Review. Great progress; waiting on copy approval.',
-      chips: ['marketing', 'frontend', 'priority:medium'],
-    },
-    {
-      name: 'Sheila Lee',
-      time: '2 days ago',
-      source: 'Automations',
-      text: 'Recurring task ‘Weekly analytics report’ completed and archived.',
-      chips: ['reporting', 'data', 'automation'],
-      attachments: [],
-    },
-    {
-      name: 'Sarah Doyle',
-      time: '5 days ago',
-      source: 'Mentions',
-      text: '@Sarah marked ‘Mobile onboarding redesign’ as blocked by API changes.',
-      chips: ['mobile', 'ux', 'blocked'],
-      attachments: [],
-    },
-  ];
+  // const updates = [
+  //   {
+  //     name: 'Deena Timmons',
+  //     time: '5 hours ago',
+  //     source: 'Sprint Board',
+  //     text: 'Moved ‘Marketing site QA’ to Review. Great progress; waiting on copy approval.',
+  //     chips: ['marketing', 'frontend', 'priority:medium'],
+  //   },
+  //   {
+  //     name: 'Sheila Lee',
+  //     time: '2 days ago',
+  //     source: 'Automations',
+  //     text: 'Recurring task ‘Weekly analytics report’ completed and archived.',
+  //     chips: ['reporting', 'data', 'automation'],
+  //     attachments: [],
+  //   },
+  //   {
+  //     name: 'Sarah Doyle',
+  //     time: '5 days ago',
+  //     source: 'Mentions',
+  //     text: '@Sarah marked ‘Mobile onboarding redesign’ as blocked by API changes.',
+  //     chips: ['mobile', 'ux', 'blocked'],
+  //     attachments: [],
+  //   },
+  // ];
 
   const handlePercentage = (data) => {
     const total = data.reduce((i, r) => i + r.count, 0);
@@ -64,7 +64,7 @@ export default function TaskDashboard() {
     const percentage = (notStarted * 100) / total;
     return percentage.toFixed();
   };
-  console.log(CompletedTasks);
+
   useEffect(() => {
     if (user) {
       refetch();
@@ -73,10 +73,11 @@ export default function TaskDashboard() {
       OpenTasksRefetch();
       CompletedTasksRefetch();
       CardsDataRefetch();
+      UserDataRefetch();
     }
   }, [user, refetch]);
 
-  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad) {
+  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad || UserDataLoad) {
     return <div>loading.....</div>;
   }
 
@@ -124,7 +125,7 @@ export default function TaskDashboard() {
         </Card>
 
         {/* Workstream Activity */}
-        <Card title="Workstream Activity" subtitle="Created vs Completed">
+        <Card title="Ticket Activity" subtitle="Created vs Completed">
           <div className="h-36">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={WorkstreamActivity?.data}>
@@ -142,7 +143,7 @@ export default function TaskDashboard() {
 
         <Card title="Open Tasks">
           <div className="flex items-center justify-between">
-            <Donut percent={handlePercentage(OpenTasks?.data)} value={OpenTasks?.data?.reduce((i, r) => i?.count + r?.count,0)} label="open" color="#2563eb" />
+            <Donut percent={handlePercentage(OpenTasks?.data || [])} value={OpenTasks?.data?.reduce((i, r) => i.count + r.count, 0)} label="open" color="#2563eb" />
             <div className="text-sm text-gray-600">
               <div className="flex items-center gap-2">
                 <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span> Not Started: {OpenTasks?.data?.find((item) => item?._id === 'Not Started')?.count}
@@ -159,35 +160,47 @@ export default function TaskDashboard() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Latest Updates */}
         <Card title="Latest Updates" className="xl:col-span-2">
-          <div className="space-y-5">
-            {updates.map((u, idx) => (
-              <div key={idx} className="flex gap-3">
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <div className="font-semibold">{u.name}</div>
-                    <div className="text-xs text-gray-500">{u.time}</div>
-                    <span className="text-xs text-sky-600">{u.source}</span>
-                  </div>
-                  <p className="text-sm text-gray-700 mt-1">{u.text}</p>
-                  {u.chips?.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {u.chips.map((c) => (
-                        <span key={c} className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700 border border-gray-200">
-                          {c}
-                        </span>
-                      ))}
+          <div className="space-y-6">
+            {/* Dropdown */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Select User</label>
+              <select value={selectedUser || ''} onChange={(e) => setSelectedUser(e.target.value)} className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+                <option value="">-- Choose User --</option>
+                {UserData?.data?.map((u) => (
+                  <option key={u._id} value={u._id}>
+                    {u.name || u.username || u._id}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* User Details Card */}
+            {selectedUser && (
+              <div className="bg-white shadow-md border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition duration-200">
+                {(() => {
+                  const user = UserData?.data?.find((u) => u._id === selectedUser);
+                  if (!user) return <p className="text-gray-500 text-center">No details found</p>;
+
+                  return (
+                    <div className="flex items-start gap-4">
+                      {/* Avatar */}
+                      <div className="flex-shrink-0 w-14 h-14 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 text-lg font-semibold">{user.name?.[0] || 'U'}</div>
+
+                      {/* Info */}
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900">{user.name || user.username}</h3>
+                        <p className="text-sm text-gray-500 mb-3">{user.role || 'User Role'}</p>
+
+                        <div className="space-y-2 text-sm text-gray-700">
+                          {user.email && <div>{user.email}</div>}
+                          {user.phone && <div>{user.phone}</div>}
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  {u.attachments?.length > 0 && (
-                    <div className="mt-3 flex gap-2">
-                      {u.attachments.map((src, i) => (
-                        <img key={i} src={src} className="w-20 h-12 object-cover rounded-lg border" />
-                      ))}
-                    </div>
-                  )}
-                </div>
+                  );
+                })()}
               </div>
-            ))}
+            )}
           </div>
         </Card>
 

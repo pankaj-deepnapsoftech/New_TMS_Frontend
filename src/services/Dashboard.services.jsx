@@ -31,8 +31,14 @@ const DashboardService = Api.injectEndpoints({
         query: () => '/dashboard/card-data',
         providesTags: ['Dashboard'],
     }),
+
+    // ---------------- get users data here ---------------------
+    getUserData : build.query({
+        query: (id) => `/dashboard/user-tasks/${id}`,
+        providesTags: ['Dashboard'],
+    }),
   }),
 });
 
 // ---------------- all query here ----------------------
-export const { useGetTicketOverviewQuery, useGetWorkstreamActivityQuery, useGetOpenTasksQuery, useGetCompletedTasksQuery,useGetCardsDataQuery } = DashboardService;
+export const { useGetTicketOverviewQuery, useGetWorkstreamActivityQuery, useGetOpenTasksQuery, useGetCompletedTasksQuery,useGetCardsDataQuery, useGetUserDataQuery } = DashboardService;
