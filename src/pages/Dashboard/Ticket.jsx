@@ -69,6 +69,25 @@ export default function TicketsPage() {
 
   const filteredAssignedTickets = isAdmin ? tickets?.data || [] : assignedTickets?.filter((ticket) => ticket?.creator !== currentUser?._id) || [];
 
+  // Add this after you define myCreatedTickets, assignedOnlyTickets, etc.
+  const normalizedSearch = searchTerm.toLowerCase();
+
+  const filteredTickets = tickets?.data?.filter(ticket =>
+    ticket.title?.toLowerCase().includes(normalizedSearch) ||
+    ticket.ticket_id?.toLowerCase().includes(normalizedSearch)
+  ) || [];
+
+  const filteredAssignedOnlyTickets = assignedOnlyTickets?.filter(ticket =>
+    ticket.title?.toLowerCase().includes(normalizedSearch) ||
+    ticket.ticket_id?.toLowerCase().includes(normalizedSearch)
+  ) || [];
+
+  const filteredMyCreatedTickets = myCreatedTickets?.filter(ticket =>
+    ticket.title?.toLowerCase().includes(normalizedSearch) ||
+    ticket.ticket_id?.toLowerCase().includes(normalizedSearch)
+  ) || [];
+
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -221,7 +240,7 @@ export default function TicketsPage() {
                   </div>
 
             ) : (
-              tickets?.data?.map((ticket) => (
+                    filteredTickets?.map((ticket) => (
                 <div
                   key={ticket._id}
                   className="bg-white/90  border border-gray-200/50 rounded-2xl shadow-md hover:shadow-xl transform hover:-translate-y-1.5 hover:scale-[1.01] transition-all duration-300 p-6 cursor-pointer relative group overflow-hidden"
@@ -323,7 +342,7 @@ export default function TicketsPage() {
                 <p className="text-gray-600 max-w-md mx-auto">{searchTerm ? 'No assigned tickets match your current filters. Try adjusting your search criteria.' : "You don't have any tickets assigned to you yet. Check back later or contact your administrator."}</p>
               </div>
             ) : (
-              assignedOnlyTickets?.map((ticket) => (
+                      filteredAssignedOnlyTickets?.map((ticket) => (
                 <div
                   key={ticket._id}
                   className="bg-gradient-to-br from-blue-50/80 to-sky-50/60  border border-blue-200/50 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden"
@@ -420,7 +439,7 @@ export default function TicketsPage() {
               <p className="text-gray-600">You haven’t created any tickets yet.</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {myCreatedTickets.map((ticket) => (
+                  {filteredMyCreatedTickets.map((ticket) => (
                   <div key={ticket._id} className="bg-white/90  border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
                     <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 via-transparent to-emerald-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
