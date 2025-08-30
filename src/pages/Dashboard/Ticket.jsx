@@ -439,7 +439,7 @@ export default function TicketsPage() {
               <p className="text-gray-600">You haven’t created any tickets yet.</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredMyCreatedTickets.map((ticket) => (
+                  {filteredMyCreatedTickets?.map((ticket) => (
                   <div key={ticket._id} className="bg-white/90  border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 p-6 cursor-pointer relative group overflow-hidden" onClick={() => handleTicketClick(ticket)}>
                     <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 via-transparent to-emerald-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
