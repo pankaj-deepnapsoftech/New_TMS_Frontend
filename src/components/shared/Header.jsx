@@ -231,27 +231,27 @@ const Header = () => {
               className="absolute z-50 top-12 right-0 w-96 bg-white border border-gray-200 rounded-lg shadow-xl"
             >
               <div className="p-5 border-b border-gray-200 bg-gray-50 rounded-t-lg">
-                <h3 className="text-lg font-semibold text-gray-800">User Profile</h3>
+                <h3 className="text-lg  font-[500] text-gray-800">User Profile</h3>
                
               </div>
 
               <div className="p-5 space-y-4 text-sm text-gray-700">
-                <div>
+                <div className='flex gap-1'>
                   <span className="font-medium text-gray-600">Full Name:</span>
                   <p>{currentUser?.full_name || "N/A"}</p>
                 </div>
 
-                <div>
+                <div className='flex gap-1'>
                   <span className="font-medium text-gray-600">Username:</span>
                   <p>{currentUser?.username || "N/A"}</p>
                 </div>
 
-                <div>
+                <div className='flex gap-1'>
                   <span className="font-medium text-gray-600">Email:</span>
                   <p>{currentUser?.email || "N/A"}</p>
                 </div>
 
-                <div>
+                <div className='flex gap-1'>
                   <span className="font-medium text-gray-600">Phone:</span>
                   <p>{currentUser?.phone || "N/A"}</p>
                 </div>          
