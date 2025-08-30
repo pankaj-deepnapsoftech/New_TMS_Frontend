@@ -3,6 +3,7 @@ import { Bell, Search } from 'lucide-react';
 import { useGetNotificationQuery, useUpdatedStatusMutation } from '@/services/Notification.service';
 import { socket } from '@/Socket';
 import { useSelector } from 'react-redux';
+import { FaUserLarge } from "react-icons/fa6";
 
 
 
@@ -12,47 +13,93 @@ const Header = () => {
   const { data } = useGetNotificationQuery()
   const [updatedNotification] = useUpdatedStatusMutation()
   const [notifications, setNotifications] = useState([]);
-  // const [hasNewNotification, setHasNewNotification] = useState(false);
   const currentUser = useSelector((state) => state.Auth.user);
-  
+  const [showUserModal, setShowUserModal] = useState(false)
+  const userModalRef = useRef(null);
+
+  console.log(currentUser)
+
+
+  const handleMarkAsRead = (id) => {
+    updatedNotification({ id, status: "read" });
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n._id === id ? { ...n, status: "read" } : n
+      ) 
+    );
+  };
+
+  const sortByDateDesc = (arr) => {
+    return [...arr].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  };
 
   useEffect(() => {
     socket.connect();
 
     const handleNewNotification = (newNotification) => {
+      console.log("new notification", newNotification);
 
-      console.log("new notification", newNotification)
-      if (currentUser?._id === newNotification?.recipientId?._id) {
-        setNotifications((prev) => [newNotification, ...prev]);
-        // setHasNewNotification(true);
+      if (Array.isArray(newNotification)) {
+        const filtered = newNotification.filter(
+          (n) => currentUser?._id === n?.recipientId?._id
+        );
+        if (filtered.length > 0) {
+          setNotifications((prev) =>
+            sortByDateDesc([...filtered, ...prev]) 
+          );
+        }
+      } else if (
+        newNotification &&
+        currentUser?._id === newNotification?.recipientId?._id
+      ) {
+        setNotifications((prev) =>
+          sortByDateDesc([newNotification, ...prev]) 
+        );
       }
     };
 
     socket.on("notification", handleNewNotification);
-    
+
     return () => {
       socket.off("notification", handleNewNotification);
       socket.off("connect");
       socket.disconnect();
     };
+  }, [currentUser]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setOpenNotification(false);
+      }
+
+      if (
+        userModalRef.current &&
+        !userModalRef.current.contains(event.target)
+      ) {
+        setShowUserModal(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
-
-  // Update notifications when API gives data
   useEffect(() => {
     if (data?.data) {
       setNotifications((prev) => {
-        // Merge socket notifications with API ones without losing unread
         const merged = [...data.data];
-
-        // Keep socket ones if not already in API response
         prev.forEach((n) => {
           if (!merged.find((m) => m._id === n._id)) {
             merged.unshift(n);
           }
         });
-
-        return merged;
+        return sortByDateDesc(merged); // ensure sorted
       });
     }
   }, [data]);
@@ -80,7 +127,7 @@ const Header = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 relative">
+        <div className="flex items-center  gap-4 relative">
           <button
             onClick={() => {
               setOpenNotification(!openNotification);
@@ -105,8 +152,6 @@ const Header = () => {
           </button>
 
 
-
-
           {openNotification && (
             <div ref={notificationRef} className="absolute z-50 top-12 right-12 w-80 bg-white border border-gray-200 rounded-lg shadow-xl">
               <div className="p-4 border-b border-gray-200">
@@ -117,57 +162,51 @@ const Header = () => {
                   notifications
                     .filter(
                       (notification) =>
-                        notification?.recipientId?._id === currentUser?._id && // sirf jisko assign kiya ho
-                        notification?.creator?._id !== currentUser?._id        // creator ko apni na dikhe
+                        notification?.recipientId?._id === currentUser?._id
                     )
                     .map((notification) => (
                       <li
-                        key={notification._id}
-                        className={`p-4 flex justify-between items-center hover:bg-gray-50 transition-all ${notification.status === "unread" ? "bg-gray-100" : ""
+                        key={notification?._id}
+                        className={`p-4  hover:bg-gray-50 transition-all ${notification?.status === "unread" ? "bg-gray-100" : ""
                           }`}
                       >
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-gray-700 truncate">
-                            <span className="font-normal">{notification.title}</span>:{" "}
-                            {notification.message}
+                            <span className="font-normal capitalize">{notification?.title}</span>:{" "}
+                            {notification?.message}
                           </p>
                           <p className="text-xs font-normal text-gray-500">
                             Assigned By:{" "}
                             <span className="font-normal">
-                              {notification.creator?.full_name || "N/A"}
+                              {notification?.creator?.full_name || "N/A"}
                             </span>
                           </p>
                           <p className="text-xs text-gray-600">
                             Status:{" "}
                             <span
-                              className={`${notification.status === "unread"
-                                  ? "text-red-600"
-                                  : "text-green-600"
+                              className={`${notification?.status === "unread"
+                                ? "text-red-600"
+                                : "text-green-600"
                                 }`}
                             >
-                              {notification.status}
+                              {notification?.status}
                             </span>
                           </p>
                           <span className="text-xs text-gray-400">
-                            {new Date(notification.createdAt).toLocaleString()}
+                            {new Date(notification?.createdAt).toLocaleString()}
                           </span>
                         </div>
 
-                        {notification.status === "unread" && (
+                        {notification?.status === "unread" && (
                           <button
-                            className="text-xs text-blue-600 ml-4 hover:underline whitespace-nowrap cursor-pointer"
-                            onClick={() => {
-                              updatedNotification({ id: notification._id, status: "read" });
-                              setNotifications((prev) =>
-                                prev.map((n) =>
-                                  n._id === notification._id ? { ...n, status: "read" } : n
-                                )
-                              );
-                            }}
+                            className="text-xs text-white bg-blue-600 cursor-pointer hover:bg-blue-700 px-3 py-1 rounded-md transition duration-200 shadow-sm"
+                            onClick={() => handleMarkAsRead(notification._id)}
                           >
                             Mark as read
                           </button>
                         )}
+
+
                       </li>
                     ))
                 ) : (
@@ -177,17 +216,54 @@ const Header = () => {
 
 
 
-              <div className="p-2 text-center border-t border-gray-200">
+              {/* <div className="p-2 text-center border-t border-gray-200">
                 <button className="text-sm text-blue-600 hover:underline">View all notifications</button>
+              </div> */}
+            </div>
+          )}
+
+          <div onClick={() => setShowUserModal(true) } className="w-8 h-8 border border-gray-500 bg  flex items-center justify-center rounded-full overflow-hidden cursor-pointer">
+            <FaUserLarge color='gray' />
+          </div>
+          {showUserModal && (
+            <div
+              ref={userModalRef}
+              className="absolute z-50 top-12 right-0 w-96 bg-white border border-gray-200 rounded-lg shadow-xl"
+            >
+              <div className="p-5 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                <h3 className="text-lg font-semibold text-gray-800">User Profile</h3>
+               
+              </div>
+
+              <div className="p-5 space-y-4 text-sm text-gray-700">
+                <div>
+                  <span className="font-medium text-gray-600">Full Name:</span>
+                  <p>{currentUser?.full_name || "N/A"}</p>
+                </div>
+
+                <div>
+                  <span className="font-medium text-gray-600">Username:</span>
+                  <p>{currentUser?.username || "N/A"}</p>
+                </div>
+
+                <div>
+                  <span className="font-medium text-gray-600">Email:</span>
+                  <p>{currentUser?.email || "N/A"}</p>
+                </div>
+
+                <div>
+                  <span className="font-medium text-gray-600">Phone:</span>
+                  <p>{currentUser?.phone || "N/A"}</p>
+                </div>          
               </div>
             </div>
           )}
 
-          <div className="w-8 h-8 rounded-full overflow-hidden">
-            <img src="https://i.pravatar.cc/64?img=15" alt="avatar" />
-          </div>
+
         </div>
       </div>
+
+     
     </header>
   );
 };

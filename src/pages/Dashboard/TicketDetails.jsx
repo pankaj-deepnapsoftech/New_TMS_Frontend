@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { X, Plus, Users, Clock, CheckCircle, AlertCircle, ListChecks } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGetUserQuery } from '@/services/Users.service';
+import { useGetAssigneUserQuery } from '@/services/Users.service';
 import { useGetTicketByIdQuery } from '@/services/Ticket.service';
 import { useCreateTaskMutation, useDeleteTaskMutation, useUpdateTaskMutation } from '@/services/Task.service';
 import { useSelector } from 'react-redux';
@@ -22,7 +22,7 @@ export default function TicketDetails() {
   const ticket = data?.data || null;
   const tasks = ticket?.task || [];
   const [comment, setComment] = useState('');
-  const { data: User } = useGetUserQuery();
+  const { data: User } = useGetAssigneUserQuery();
   const [createTask] = useCreateTaskMutation();
   const UserData = User?.data;
   const currentUser = useSelector((state) => state.Auth.user);
@@ -569,7 +569,7 @@ export default function TicketDetails() {
 
 
           {/* Tasks Section */}
-          <div className="bg-white rounded-2xl shadow-md p-6">
+          <div className="bg-white rounded-2xl h-screen shadow-md p-6 overflow-y-scroll">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h3 className="text-xl font-bold text-gray-800">Tasks ({tasks.length})</h3>
@@ -758,7 +758,7 @@ export default function TicketDetails() {
                         </form>
 
                         {task?.comment?.length > 0 && (
-                          <div className="mt-4 space-y-4">
+                          <div className="mt-4 max-h-96 overflow-y-auto space-y-4 pr-2">
                             {task.comment.map((c, idx) => (
                               <div
                                 key={c?._id || idx}
@@ -770,23 +770,28 @@ export default function TicketDetails() {
                                   {c.file && (
                                     <div className="mt-2">
                                       <span className="text-sm text-gray-600">Attachment: </span>
-                                      <a href={c.file} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm hover:underline">
+                                      <a
+                                        href={c.file}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 text-sm hover:underline"
+                                      >
                                         View
                                       </a>
-                                      <a onClick={(e) => {
-                                        e.preventDefault();
-                                        handleDownload(c.file, c.text || "attachment");
-                                      }}
-                                        target="_blank" download className="text-green-600 cursor-pointer text-sm hover:underline ml-2">
+                                      <a
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          handleDownload(c.file, c.text || 'attachment');
+                                        }}
+                                        target="_blank"
+                                        download
+                                        className="text-green-600 cursor-pointer text-sm hover:underline ml-2"
+                                      >
                                         Download
                                       </a>
                                     </div>
                                   )}
-
                                 </div>
-
-
-
 
                                 <div className="mt-2 text-sm text-gray-500 flex items-center justify-between">
                                   <span>
@@ -801,14 +806,13 @@ export default function TicketDetails() {
                                       : 'Unknown'}
                                   </span>
                                   <span className="text-xs">
-                                    {c?.createdAt
-                                      ? new Date(c.createdAt).toLocaleString()
-                                      : 'Just now'}
+                                    {c?.createdAt ? new Date(c.createdAt).toLocaleString() : 'Just now'}
                                   </span>
                                 </div>
                               </div>
                             ))}
                           </div>
+
                         )}
                       </div>
                     </div>
@@ -887,7 +891,7 @@ export default function TicketDetails() {
 
                 <label
                   htmlFor="fileUpload"
-                  className="cursor-pointer text-xl p-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-lg hover:scale-105 transition-transform duration-200"
+                  className="cursor-pointer text-xl p-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-blue-500 text-white shadow-lg hover:scale-105 transition-transform duration-200"
                 >
                   <LuImagePlus />
                 </label>
@@ -916,7 +920,7 @@ export default function TicketDetails() {
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-700 transition"
+                  className="px-4 py-1.5 rounded-lg bg-blue-500 text-white hover:bg-blue-700 transition"
                 >
                   Submit
                 </button>

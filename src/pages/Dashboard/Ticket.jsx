@@ -206,13 +206,20 @@ export default function TicketsPage() {
                 <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl max-w-md mx-auto">{assignedError}</div>
               </div>
             ) : filteredAssignedTickets.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full shadow-lg mb-6">
-                  <Users className="text-white" size={32} />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">No Assigned Tickets</h3>
-                <p className="text-gray-600 max-w-md mx-auto">{searchTerm ? 'No tickets match your current filters. Try adjusting your search criteria.' : 'No tickets have been created yet. Create your first ticket to get started!'}</p>
-              </div>
+                  <div className="flex justify-center">
+                    <div className="text-center py-16">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full shadow-lg mb-6">
+                        <Users className="text-white" size={32} />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-800 mb-2">No Assigned Tickets</h3>
+                      <p className="text-gray-600 max-w-md mx-auto">
+                        {searchTerm
+                          ? 'No tickets match your current filters. Try adjusting your search criteria.'
+                          : 'No tickets have been created yet. Create your first ticket to get started!'}
+                      </p>
+                    </div>
+                  </div>
+
             ) : (
               tickets?.data?.map((ticket) => (
                 <div
