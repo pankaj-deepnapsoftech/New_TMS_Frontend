@@ -142,7 +142,7 @@ export default function TaskDashboard() {
 
         <Card title="Open Tasks">
           <div className="flex items-center justify-between">
-            <Donut percent={handlePercentage(OpenTasks?.data)} value={OpenTasks?.data?.reduce((i, r) => i.count + r.count)} label="open" color="#2563eb" />
+            <Donut percent={handlePercentage(OpenTasks?.data || [])} value={OpenTasks?.data?.reduce((i, r) => i.count + r.count,0)} label="open" color="#2563eb" />
             <div className="text-sm text-gray-600">
               <div className="flex items-center gap-2">
                 <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span> Not Started: {OpenTasks?.data?.find((item) => item._id === 'Not Started')?.count}

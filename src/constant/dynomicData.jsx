@@ -4,7 +4,7 @@ import { Users, Briefcase, RefreshCcw, Building2 } from 'lucide-react';
 
 export const StatusPie = (data) => {
   if (data) {
-    const newData = data.map((item) => ({ name: item.status, value: item.count }));
+    const newData = data.map((item) => ({ name: item?.status, value: item?.count }));
     return newData || [];
   } else {
     return [];
