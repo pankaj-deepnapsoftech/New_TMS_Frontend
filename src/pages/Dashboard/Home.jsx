@@ -6,15 +6,17 @@ import { Donut } from '@components/charts/DonutChart';
 import { useGetAdminTicketcardDataQuery } from '@/services/Ticket.service';
 import { CardsDataa, StatusPie } from '@/constant/dynomicData';
 import { useSelector } from 'react-redux';
-import { useGetCardsDataQuery, useGetCompletedTasksQuery, useGetOpenTasksQuery, useGetTicketOverviewQuery, useGetUserDataQuery, useGetWorkstreamActivityQuery } from '@/services/Dashboard.services';
+import { useGetCardsDataQuery, useGetCompletedTasksQuery, useGetOpenTasksQuery, useGetOverdueTicketsQuery, useGetTicketOverviewQuery, useGetUserDataQuery, useGetWorkstreamActivityQuery } from '@/services/Dashboard.services';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { useGetAssigneUserQuery } from '@/services/Users.service';
+import { useNavigate } from 'react-router-dom';
 
 // --- Main Dashboard ---
 export default function TaskDashboard() {
-  const [selectedProject, setSelectedProject] = useState('Project Alpha');
   const [selectedUser, setSelectedUser] = useState('');
+
+  const navigate = useNavigate();
 
   const { data: AdminCarddata, isLoading: adminCardDataload, refetch } = useGetAdminTicketcardDataQuery();
   const user = useSelector((state) => state.Auth.user);
@@ -29,15 +31,13 @@ export default function TaskDashboard() {
 
   const { data: CardsData, isLoading: CardsDataLoad, refetch: CardsDataRefetch } = useGetCardsDataQuery();
 
-  const { data: UserData, isLoading: UserDataLoad, refetch: UserDataRefetch,error } = useGetUserDataQuery(selectedUser);
+  const { data: UserData, isLoading: UserDataLoad, refetch: UserDataRefetch, error } = useGetUserDataQuery(selectedUser);
 
-  const {data :AllUserData,isloading:AllUsersDataLoading,refetch:GetAllUsersAgaian } =  useGetAssigneUserQuery()
+  const { data: AllUserData, isloading: AllUsersDataLoading, refetch: GetAllUsersAgaian } = useGetAssigneUserQuery();
+
+  const { data: OverdueTickets, isLoading: OverdueTicketsLoad, refetch: OverdueTicketsRefetch } = useGetOverdueTicketsQuery();
 
   const STATUS_COLORS = ['#6A5AE0', '#27AE60', '#F5A623', '#2D9CDB'];
-
-
-  console.log(UserData,error);
-  
 
   const handlePercentage = (data) => {
     const total = data.reduce((i, r) => i + r.count, 0);
@@ -45,6 +45,8 @@ export default function TaskDashboard() {
     const percentage = (notStarted * 100) / total;
     return percentage.toFixed();
   };
+
+  console.log(OverdueTickets);
 
   useEffect(() => {
     if (user) {
@@ -56,10 +58,11 @@ export default function TaskDashboard() {
       CardsDataRefetch();
       UserDataRefetch();
       GetAllUsersAgaian();
+      OverdueTicketsRefetch();
     }
   }, [user, refetch]);
 
-  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad || UserDataLoad || AllUsersDataLoading) {
+  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad || UserDataLoad || AllUsersDataLoading || OverdueTicketsLoad) {
     return <div>loading.....</div>;
   }
 
@@ -75,6 +78,7 @@ export default function TaskDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
             whileHover={{ scale: 1.05, boxShadow: '0 8px 20px rgba(0,0,0,0.1)' }}
+            onClick={() => navigate(card.path)}
             className={`p-5 rounded-2xl border border-gray-100 bg-gradient-to-br ${card.bg} transition`}
           >
             <div className="flex items-center justify-between">
@@ -156,31 +160,27 @@ export default function TaskDashboard() {
               </select>
             </div>
 
-            {/* User Details Card */}
+            {/* User Task Details */}
             {selectedUser && (
               <div className="bg-white shadow-md border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition duration-200">
-                {(() => {
-                  const user = UserData?.data?.find((u) => u._id === selectedUser);
-                  if (!user) return <p className="text-gray-500 text-center">No details found</p>;
-
-                  return (
-                    <div className="flex items-start gap-4">
-                      {/* Avatar */}
-                      <div className="flex-shrink-0 w-14 h-14 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 text-lg font-semibold">{user.name?.[0] || 'U'}</div>
-
-                      {/* Info */}
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900">{user.name || user.username}</h3>
-                        <p className="text-sm text-gray-500 mb-3">{user.role || 'User Role'}</p>
-
-                        <div className="space-y-2 text-sm text-gray-700">
-                          {user.email && <div>{user.email}</div>}
-                          {user.phone && <div>{user.phone}</div>}
-                        </div>
+                {UserDataLoad ? (
+                  <p className="text-gray-500 text-center">Loading...</p>
+                ) : error ? (
+                  <p className="text-red-500 text-center">Failed to load data</p>
+                ) : UserData?.data?.length === 0 ? (
+                  <p className="text-gray-500 text-center">No tasks found</p>
+                ) : (
+                  <div className="max-h-72 overflow-y-auto pr-2 space-y-4">
+                    {UserData?.data?.map((task) => (
+                      <div key={task._id} className="p-4 border border-gray-200 rounded-xl hover:shadow-sm transition">
+                        <h3 className="text-base font-semibold text-gray-900">{task.title}</h3>
+                        <p className="text-sm text-gray-600 mb-2">{task.description || 'No description'}</p>
+                        <p className="text-xs text-gray-500">Due: {new Date(task.due_date).toLocaleString()}</p>
+                        <p className={`mt-2 text-sm font-medium ${task.status?.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'}`}>Status: {task.status?.status}</p>
                       </div>
-                    </div>
-                  );
-                })()}
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -233,15 +233,17 @@ export default function TaskDashboard() {
             </ResponsiveContainer>
           </div>
         </Card>
-
-        <Card title="Project Selector" subtitle="Quick filters">
-          <div className="flex items-center gap-3">
-            <select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} className="border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
-              <option>Project Alpha</option>
-              <option>Project Beta</option>
-              <option>Project Gamma</option>
-            </select>
-            <button className="px-3 py-2 rounded-xl text-sm bg-gray-100 hover:bg-gray-200">Export</button>
+        <Card title="Overdue Tickets">
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={[{ name: 'Overdue', value: OverdueTickets?.overdureTicket || 0 }]} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
+                  <Cell fill={STATUS_COLORS[0]} />
+                </Pie>
+                <Legend />
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
         </Card>
 

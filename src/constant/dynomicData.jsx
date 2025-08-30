@@ -19,6 +19,7 @@ export const CardsDataa = (data) => {
         icon: <Users className="h-5 w-5 text-indigo-600" />,
         bg: 'from-indigo-50 to-white',
         iconBg: 'bg-indigo-100',
+        path: "/important",
       },
       {
         title: 'Deals',
@@ -26,6 +27,7 @@ export const CardsDataa = (data) => {
         icon: <Briefcase className="h-5 w-5 text-green-600" />,
         bg: 'from-green-50 to-white',
         iconBg: 'bg-green-100',
+        path: "/important",
       },
       {
         title: 'Renewals',
@@ -33,6 +35,7 @@ export const CardsDataa = (data) => {
         icon: <RefreshCcw className="h-5 w-5 text-yellow-600" />,
         bg: 'from-yellow-50 to-white',
         iconBg: 'bg-yellow-100',
+        path: "/renuals",
       },
       {
         title: 'Customers',
@@ -40,6 +43,7 @@ export const CardsDataa = (data) => {
         icon: <Building2 className="h-5 w-5 text-pink-600" />,
         bg: 'from-pink-50 to-white',
         iconBg: 'bg-pink-100',
+        path: "/important",
       },
     ];
 }
