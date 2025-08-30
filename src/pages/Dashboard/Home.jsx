@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { useGetCardsDataQuery, useGetCompletedTasksQuery, useGetOpenTasksQuery, useGetTicketOverviewQuery, useGetUserDataQuery, useGetWorkstreamActivityQuery } from '@/services/Dashboard.services';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
+import { useGetAssigneUserQuery } from '@/services/Users.service';
 
 // --- Main Dashboard ---
 export default function TaskDashboard() {
@@ -28,35 +29,15 @@ export default function TaskDashboard() {
 
   const { data: CardsData, isLoading: CardsDataLoad, refetch: CardsDataRefetch } = useGetCardsDataQuery();
 
-  const { data: UserData, isLoading: UserDataLoad, refetch: UserDataRefetch } = useGetUserDataQuery();
+  const { data: UserData, isLoading: UserDataLoad, refetch: UserDataRefetch,error } = useGetUserDataQuery(selectedUser);
+
+  const {data :AllUserData,isloading:AllUsersDataLoading,refetch:GetAllUsersAgaian } =  useGetAssigneUserQuery()
+
   const STATUS_COLORS = ['#6A5AE0', '#27AE60', '#F5A623', '#2D9CDB'];
 
-  // Latest updates (like reviews list)
-  // const updates = [
-  //   {
-  //     name: 'Deena Timmons',
-  //     time: '5 hours ago',
-  //     source: 'Sprint Board',
-  //     text: 'Moved ‘Marketing site QA’ to Review. Great progress; waiting on copy approval.',
-  //     chips: ['marketing', 'frontend', 'priority:medium'],
-  //   },
-  //   {
-  //     name: 'Sheila Lee',
-  //     time: '2 days ago',
-  //     source: 'Automations',
-  //     text: 'Recurring task ‘Weekly analytics report’ completed and archived.',
-  //     chips: ['reporting', 'data', 'automation'],
-  //     attachments: [],
-  //   },
-  //   {
-  //     name: 'Sarah Doyle',
-  //     time: '5 days ago',
-  //     source: 'Mentions',
-  //     text: '@Sarah marked ‘Mobile onboarding redesign’ as blocked by API changes.',
-  //     chips: ['mobile', 'ux', 'blocked'],
-  //     attachments: [],
-  //   },
-  // ];
+
+  console.log(UserData,error);
+  
 
   const handlePercentage = (data) => {
     const total = data.reduce((i, r) => i + r.count, 0);
@@ -74,10 +55,11 @@ export default function TaskDashboard() {
       CompletedTasksRefetch();
       CardsDataRefetch();
       UserDataRefetch();
+      GetAllUsersAgaian();
     }
   }, [user, refetch]);
 
-  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad || UserDataLoad) {
+  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad || UserDataLoad || AllUsersDataLoading) {
     return <div>loading.....</div>;
   }
 
@@ -143,7 +125,7 @@ export default function TaskDashboard() {
 
         <Card title="Open Tasks">
           <div className="flex items-center justify-between">
-            <Donut percent={handlePercentage(OpenTasks?.data || [])} value={OpenTasks?.data?.reduce((i, r) => i.count + r.count, 0)} label="open" color="#2563eb" />
+            <Donut percent={handlePercentage(OpenTasks?.data || [])} value={OpenTasks?.data?.reduce((i, r) => i + r.count, 0)} label="open" color="#2563eb" />
             <div className="text-sm text-gray-600">
               <div className="flex items-center gap-2">
                 <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span> Not Started: {OpenTasks?.data?.find((item) => item?._id === 'Not Started')?.count}
@@ -166,9 +148,9 @@ export default function TaskDashboard() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Select User</label>
               <select value={selectedUser || ''} onChange={(e) => setSelectedUser(e.target.value)} className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
                 <option value="">-- Choose User --</option>
-                {UserData?.data?.map((u) => (
+                {AllUserData?.data?.map((u) => (
                   <option key={u._id} value={u._id}>
-                    {u.name || u.username || u._id}
+                    {u?.full_name} ({u?.username})
                   </option>
                 ))}
               </select>
