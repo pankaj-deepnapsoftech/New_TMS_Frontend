@@ -224,7 +224,7 @@ export default function TicketsPage() {
               tickets?.data?.map((ticket) => (
                 <div
                   key={ticket._id}
-                  className="bg-white/90 backdrop-blur-md border border-gray-200/50 rounded-2xl shadow-md hover:shadow-xl transform hover:-translate-y-1.5 hover:scale-[1.01] transition-all duration-300 p-6 cursor-pointer relative group overflow-hidden"
+                  className="bg-white/90  border border-gray-200/50 rounded-2xl shadow-md hover:shadow-xl transform hover:-translate-y-1.5 hover:scale-[1.01] transition-all duration-300 p-6 cursor-pointer relative group overflow-hidden"
                   onClick={() => handleTicketClick(ticket)}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-sky-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -261,6 +261,12 @@ export default function TicketsPage() {
                       <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{getCurrentStatus(ticket)}</span>
                       <span className={`bg-gradient-to-r ${getPriorityColor(ticket.priority)} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{ticket.priority}</span>
                       <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">{ticket?.department?.name}</span>
+                      {(currentUser?.admin || currentUser?._id === ticket?.creator) && (
+                        <span className="bg-gradient-to-r from-sky-100 to-sky-200 text-sky-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">
+                          Tasks ({ticket?.task?.length || 0})
+                        </span>
+                      )}
+
                     </div>
 
                     <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-800 transition-colors duration-300">{ticket.title}</h3>
@@ -363,6 +369,7 @@ export default function TicketsPage() {
                       <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{getCurrentStatus(ticket)}</span> 
                       <span className={`bg-gradient-to-r ${getPriorityColor(ticket?.priority)} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{ticket?.priority}</span>
                       <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">{ticket?.department?.name}</span>
+                      
                     </div>
 
                     <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-800 transition-colors duration-300">{ticket.title}</h3>
@@ -450,6 +457,11 @@ export default function TicketsPage() {
                         <span className={`bg-gradient-to-r ${getStatusColor(getCurrentStatus(ticket))} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{getCurrentStatus(ticket)}</span>
                         <span className={`bg-gradient-to-r ${getPriorityColor(ticket.priority)} px-3 py-1.5 rounded-full font-semibold shadow-sm border border-gray-200/50`}>{ticket.priority}</span>
                         <span className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">{ticket?.department?.name}</span>
+                        {(currentUser?.admin || currentUser?._id === ticket?.creator) && (
+                          <span className="bg-gradient-to-r from-sky-100 to-sky-200 text-sky-700 px-3 py-1.5 rounded-full font-semibold shadow-sm border border-purple-200/50">
+                            Tasks ({ticket?.task?.length || 0})
+                          </span>
+                        )}
                       </div>
 
                       <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-800 transition-colors duration-300">{ticket.title}</h3>

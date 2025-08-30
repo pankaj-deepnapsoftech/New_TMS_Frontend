@@ -17,7 +17,7 @@ const Header = () => {
   const [showUserModal, setShowUserModal] = useState(false)
   const userModalRef = useRef(null);
 
-  console.log(currentUser)
+  // console.log(currentUser)
 
 
   const handleMarkAsRead = (id) => {
@@ -228,35 +228,37 @@ const Header = () => {
           {showUserModal && (
             <div
               ref={userModalRef}
-              className="absolute z-50 top-12 right-0 w-96 bg-white border border-gray-200 rounded-lg shadow-xl"
+              className="absolute z-50 top-12 right-0 w-96 bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden"
             >
-              <div className="p-5 border-b border-gray-200 bg-gray-50 rounded-t-lg">
-                <h3 className="text-lg  font-[500] text-gray-800">User Profile</h3>
-               
+              {/* Header */}
+              <div className="p-5 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
+                <h3 className="text-lg font-semibold text-gray-800">User Profile</h3>
               </div>
 
-              <div className="p-5 space-y-4 text-sm text-gray-700">
-                <div className='flex gap-1'>
-                  <span className="font-medium text-gray-600">Full Name:</span>
-                  <p>{currentUser?.full_name || "N/A"}</p>
+              {/* Body */}
+              <div className="p-6 space-y-4 text-sm bg-gray-50 text-gray-700">
+                <div className="flex gap-2">
+                  <span className="font-semibold text-gray-700">Full Name:</span>
+                  <p className="text-gray-600">{currentUser?.full_name || "N/A"}</p>
                 </div>
 
-                <div className='flex gap-1'>
-                  <span className="font-medium text-gray-600">Username:</span>
-                  <p>{currentUser?.username || "N/A"}</p>
+                <div className="flex gap-2">
+                  <span className="font-semibold text-gray-700">Username:</span>
+                  <p className="text-gray-600">{currentUser?.username || "N/A"}</p>
                 </div>
 
-                <div className='flex gap-1'>
-                  <span className="font-medium text-gray-600">Email:</span>
-                  <p>{currentUser?.email || "N/A"}</p>
+                <div className="flex gap-2">
+                  <span className="font-semibold text-gray-700">Email:</span>
+                  <p className="text-gray-600">{currentUser?.email || "N/A"}</p>
                 </div>
 
-                <div className='flex gap-1'>
-                  <span className="font-medium text-gray-600">Phone:</span>
-                  <p>{currentUser?.phone || "N/A"}</p>
-                </div>          
+                <div className="flex gap-2">
+                  <span className="font-semibold text-gray-700">Phone:</span>
+                  <p className="text-gray-600">{currentUser?.phone || "N/A"}</p>
+                </div>
               </div>
             </div>
+
           )}
 
 

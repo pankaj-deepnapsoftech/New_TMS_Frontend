@@ -569,7 +569,7 @@ export default function TicketDetails() {
 
 
           {/* Tasks Section */}
-          <div className="bg-white rounded-2xl h-screen shadow-md p-6 overflow-y-scroll">
+          <div className="bg-white rounded-2xl  shadow-md p-6 overflow-y-scroll">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h3 className="text-xl font-bold text-gray-800">Tasks ({tasks.length})</h3>
@@ -642,20 +642,47 @@ export default function TicketDetails() {
                       ) : (
                         <p className="text-gray-400 text-sm mb-3 italic">No description provided</p>
                       )}
-                      <div className="flex justify-between items-center text-sm">
-                        <div className="flex items-center gap-4">
-                          <span className="text-gray-500">
-                            Assigned:{' '}
-                            <span className="font-medium">
-                              {task.assign && typeof task.assign === 'object' && task.assign.full_name ? `${task.assign.full_name} (${task.assign.username})` : typeof task.assign === 'string' ? UserData?.find((user) => user._id === task.assign)?.full_name || 'Not assigned' : 'Not assigned'}
-                            </span>
-                          </span>
-                          <span className={`${task.due_date && new Date(task.due_date) < new Date() ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
-                            Due: <span className="font-medium">{task.due_date ? formatDate(task.due_date) : 'Not set'}</span>
-                            {task.due_date && new Date(task.due_date) < new Date() && <span className="ml-1 text-red-500">⏳ Overdue</span>}
-                          </span>
+                      <div className="bg-gray-50  rounded-xl p-4 text-sm shadow-sm">
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <p className="text-gray-500 font-medium">Assigned By</p>
+                            <p className="text-gray-800">
+                              {task.creator && typeof task.creator === 'object' && task.creator.full_name
+                                ? `${task.creator.full_name} (${task.creator.username})`
+                                : typeof task.creator === 'string'
+                                  ? UserData?.find((user) => user._id === task.creator)?.full_name || 'Not assigned'
+                                  : 'Not assigned'}
+                            </p>
+                          </div>
+
+                          <div>
+                            <p className="text-gray-500 font-medium">Assigned To</p>
+                            <p className="text-gray-800">
+                              {task.assign && typeof task.assign === 'object' && task.assign.full_name
+                                ? `${task.assign.full_name} (${task.assign.username})`
+                                : typeof task.assign === 'string'
+                                  ? UserData?.find((user) => user._id === task.assign)?.full_name || 'Not assigned'
+                                  : 'Not assigned'}
+                            </p>
+                          </div>
+
+                          <div>
+                            <p className="text-gray-500 font-medium">Due Date</p>
+                            <p
+                              className={`${task.due_date && new Date(task.due_date) < new Date()
+                                  ? 'text-red-500 font-semibold'
+                                  : 'text-gray-800'
+                                }`}
+                            >
+                              {task.due_date ? formatDate(task.due_date) : 'Not set'}
+                              {task.due_date && new Date(task.due_date) < new Date() && (
+                                <span className="ml-1 text-red-500 text-xs">⏳ Overdue</span>
+                              )}
+                            </p>
+                          </div>
                         </div>
                       </div>
+
 
                       {task.status && task.status.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
