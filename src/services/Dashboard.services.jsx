@@ -37,8 +37,14 @@ const DashboardService = Api.injectEndpoints({
         query: (id) => `/dashboard/user-tasks/${id}`,
         providesTags: ['Dashboard'],
     }),
+
+    // -------------- get overdue tickets here -------------------
+    getOverdueTickets : build.query({
+      query : () => '/dashboard/overdue-tickets',
+      providesTags:['Dashboard'],
+    }),
   }),
 });
 
 // ---------------- all query here ----------------------
-export const { useGetTicketOverviewQuery, useGetWorkstreamActivityQuery, useGetOpenTasksQuery, useGetCompletedTasksQuery,useGetCardsDataQuery, useGetUserDataQuery } = DashboardService;
+export const { useGetTicketOverviewQuery, useGetWorkstreamActivityQuery, useGetOpenTasksQuery, useGetCompletedTasksQuery,useGetCardsDataQuery, useGetUserDataQuery, useGetOverdueTicketsQuery } = DashboardService;

@@ -6,7 +6,7 @@ import { Donut } from '@components/charts/DonutChart';
 import { useGetAdminTicketcardDataQuery } from '@/services/Ticket.service';
 import { CardsDataa, StatusPie } from '@/constant/dynomicData';
 import { useSelector } from 'react-redux';
-import { useGetCardsDataQuery, useGetCompletedTasksQuery, useGetOpenTasksQuery, useGetTicketOverviewQuery, useGetUserDataQuery, useGetWorkstreamActivityQuery } from '@/services/Dashboard.services';
+import { useGetCardsDataQuery, useGetCompletedTasksQuery, useGetOpenTasksQuery, useGetOverdueTicketsQuery, useGetTicketOverviewQuery, useGetUserDataQuery, useGetWorkstreamActivityQuery } from '@/services/Dashboard.services';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { useGetAssigneUserQuery } from '@/services/Users.service';
@@ -14,7 +14,6 @@ import { useNavigate } from 'react-router-dom';
 
 // --- Main Dashboard ---
 export default function TaskDashboard() {
-  const [selectedProject, setSelectedProject] = useState('Project Alpha');
   const [selectedUser, setSelectedUser] = useState('');
 
   const navigate = useNavigate();
@@ -36,6 +35,8 @@ export default function TaskDashboard() {
 
   const { data: AllUserData, isloading: AllUsersDataLoading, refetch: GetAllUsersAgaian } = useGetAssigneUserQuery();
 
+  const { data: OverdueTickets, isLoading: OverdueTicketsLoad, refetch: OverdueTicketsRefetch } = useGetOverdueTicketsQuery();
+
   const STATUS_COLORS = ['#6A5AE0', '#27AE60', '#F5A623', '#2D9CDB'];
 
   const handlePercentage = (data) => {
@@ -44,6 +45,8 @@ export default function TaskDashboard() {
     const percentage = (notStarted * 100) / total;
     return percentage.toFixed();
   };
+
+  console.log(OverdueTickets);
 
   useEffect(() => {
     if (user) {
@@ -55,10 +58,11 @@ export default function TaskDashboard() {
       CardsDataRefetch();
       UserDataRefetch();
       GetAllUsersAgaian();
+      OverdueTicketsRefetch();
     }
   }, [user, refetch]);
 
-  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad || UserDataLoad || AllUsersDataLoading) {
+  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad || UserDataLoad || AllUsersDataLoading || OverdueTicketsLoad) {
     return <div>loading.....</div>;
   }
 
@@ -233,10 +237,8 @@ export default function TaskDashboard() {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={StatusPie(AdminCarddata?.data?.statusCounts)} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
-                  {StatusPie(AdminCarddata?.data?.statusCounts).map((e, idx) => (
-                    <Cell key={idx} fill={STATUS_COLORS[idx % STATUS_COLORS.length]} />
-                  ))}
+                <Pie data={[{ name: 'Overdue', value: OverdueTickets?.overdureTicket || 0 }]} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
+                  <Cell fill={STATUS_COLORS[0]} />
                 </Pie>
                 <Legend />
                 <Tooltip />
