@@ -13,7 +13,7 @@ import { useSelector } from "react-redux";
 
 // --------------------- ProtectedRoute ---------------------
 const ProtectedRoute = ({ user, children }) => {
-  if (!user && window.location.pathname === "/login") {
+  if (!user && window.location.pathname !== "/login") {
     return <Navigate to="/login" replace />;
   }
 

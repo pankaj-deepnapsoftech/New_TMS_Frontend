@@ -4,6 +4,7 @@ import { useGetNotificationQuery, useUpdatedStatusMutation } from '@/services/No
 import { socket } from '@/Socket';
 import { useSelector } from 'react-redux';
 import { FaUserLarge } from "react-icons/fa6";
+import sound from "@/soundes/noti.mp3"
 
 
 
@@ -17,15 +18,16 @@ const Header = () => {
   const [showUserModal, setShowUserModal] = useState(false)
   const userModalRef = useRef(null);
 
-  // console.log(currentUser)
-
+  const handleSound = () => {
+    new Audio(sound).play()
+  }
 
   const handleMarkAsRead = (id) => {
     updatedNotification({ id, status: "read" });
     setNotifications((prev) =>
       prev.map((n) =>
         n._id === id ? { ...n, status: "read" } : n
-      ) 
+      )
     );
   };
 
@@ -45,16 +47,19 @@ const Header = () => {
         );
         if (filtered.length > 0) {
           setNotifications((prev) =>
-            sortByDateDesc([...filtered, ...prev]) 
+            sortByDateDesc([...filtered, ...prev])
           );
+
+          handleSound()
         }
       } else if (
         newNotification &&
         currentUser?._id === newNotification?.recipientId?._id
       ) {
         setNotifications((prev) =>
-          sortByDateDesc([newNotification, ...prev]) 
+          sortByDateDesc([newNotification, ...prev])
         );
+        handleSound()
       }
     };
 
@@ -222,7 +227,7 @@ const Header = () => {
             </div>
           )}
 
-          <div onClick={() => setShowUserModal(true) } className="w-8 h-8 border border-gray-500 bg  flex items-center justify-center rounded-full overflow-hidden cursor-pointer">
+          <div onClick={() => setShowUserModal(true)} className="w-8 h-8 border border-gray-500 bg  flex items-center justify-center rounded-full overflow-hidden cursor-pointer">
             <FaUserLarge color='gray' />
           </div>
           {showUserModal && (
@@ -265,7 +270,7 @@ const Header = () => {
         </div>
       </div>
 
-     
+
     </header>
   );
 };
