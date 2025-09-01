@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDeleteTicketMutation, useGetAdminTicketcardDataQuery, useGetAssignedTicketQuery, useGetTicketQuery } from '@/services/Ticket.service';
 import { useSelector } from 'react-redux';
 import Pagination from '@/components/ui/Pagination';
+import { useGetOverdueTicketsQuery } from '@/services/Dashboard.services';
 
 export default function TicketsPage() {
   const [page, setPage] = useState(1);
@@ -20,9 +21,9 @@ export default function TicketsPage() {
   const [editTicket, setEditTicket] = useState(null);
   const [DeleteTicket] = useDeleteTicketMutation();
   const { data: AdminCarddata, isLoading: adminCardDataload, refetch } = useGetAdminTicketcardDataQuery();
-
+  const { data: OverDueTicket } = useGetOverdueTicketsQuery()
   const [limit, setLimit] = useState(10);
-
+  console.log(OverDueTicket)
   const { data: tickets, isLoading: getTicketloading, error: ticketError, refetch: refreshTicket } = useGetTicketQuery({ page, limit });
 
   const { data: assignedTicket, isLoading: assignedLoading, refetch: refreshAssignTicket } = useGetAssignedTicketQuery({ assignTicktPage, limit });
@@ -156,7 +157,7 @@ export default function TicketsPage() {
           { title: 'Not Started', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === 'Not Started')?.count || 0, icon: <AlertCircle className="text-blue-100" size={14} />, color: 'from-blue-300 to-blue-500', bgColor: 'bg-gradient-to-br from-blue-50 to-cyan-50' },
           { title: 'On Hold', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === 'On Hold')?.count || 0, icon: <Clock className="text-indigo-100" size={14} />, color: 'from-indigo-300 to-indigo-500', bgColor: 'bg-gradient-to-br from-indigo-50 to-purple-50' },
           { title: 'Re Open', count: AdminCarddata?.data?.statusCounts.find((item) => item.status === 'Re Open')?.count || 0, icon: <CheckCircle className="text-green-100" size={14} />, color: 'from-green-300 to-green-500', bgColor: 'bg-gradient-to-br from-green-50 to-emerald-50' },
-          { title: 'Overdue', count: AdminCarddata?.data?.overdue, icon: <Clock className="text-red-100" size={14} />, color: 'from-red-300 to-red-500', bgColor: 'bg-gradient-to-br from-red-50 to-pink-50' },
+          { title: 'Overdue', count: OverDueTicket?.overdureTicket || 0, icon: <Clock className="text-red-100" size={14} />, color: 'from-red-300 to-red-500', bgColor: 'bg-gradient-to-br from-red-50 to-pink-50' },
         ].map((stat, i) => (
           <div key={i} className={`group ${stat.bgColor} border border-gray-200/60 backdrop-blur-md rounded-3xl shadow-md hover:shadow-xl p-6 flex items-center justify-between transform hover:scale-105 transition-all duration-300`}>
             <div>
