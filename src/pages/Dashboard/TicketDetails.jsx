@@ -210,7 +210,7 @@ export default function TicketDetails() {
 
   const handleTaskCommentSubmit = async (e, taskId) => {
     e.preventDefault();
-    const text = taskComment[taskId] || "";  
+    const text = taskComment[taskId] || "";
 
     if (!text.trim() && !taskImageFile) return;
 
@@ -230,7 +230,7 @@ export default function TicketDetails() {
         file: imageUrl,
       }).unwrap();
 
-   
+
       setTaskComment((prev) => ({ ...prev, [taskId]: "" }));
       setTaskImagePreview(null);
       setTaskImageFile(null);
@@ -569,7 +569,7 @@ export default function TicketDetails() {
 
 
           {/* Tasks Section */}
-          <div className="bg-white rounded-2xl  shadow-md p-6 overflow-y-scroll">
+          <div className="bg-white rounded-2xl max-h-screen  shadow-md p-6 overflow-y-scroll">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h3 className="text-xl font-bold text-gray-800">Tasks ({tasks.length})</h3>
@@ -642,8 +642,9 @@ export default function TicketDetails() {
                       ) : (
                         <p className="text-gray-400 text-sm mb-3 italic">No description provided</p>
                       )}
-                      <div className="bg-gray-50  rounded-xl p-4 text-sm shadow-sm">
+                      <div className="bg-gray-50 rounded-xl p-4 text-sm shadow-sm">
                         <div className="grid grid-cols-3 gap-4">
+                          {/* Assigned By */}
                           <div>
                             <p className="text-gray-500 font-medium">Assigned By</p>
                             <p className="text-gray-800">
@@ -655,6 +656,7 @@ export default function TicketDetails() {
                             </p>
                           </div>
 
+                          {/* Assigned To */}
                           <div>
                             <p className="text-gray-500 font-medium">Assigned To</p>
                             <p className="text-gray-800">
@@ -666,12 +668,13 @@ export default function TicketDetails() {
                             </p>
                           </div>
 
+                          {/* Due Date */}
                           <div>
                             <p className="text-gray-500 font-medium">Due Date</p>
                             <p
                               className={`${task.due_date && new Date(task.due_date) < new Date()
-                                  ? 'text-red-500 font-semibold'
-                                  : 'text-gray-800'
+                                ? 'text-red-500 font-semibold'
+                                : 'text-gray-800'
                                 }`}
                             >
                               {task.due_date ? formatDate(task.due_date) : 'Not set'}
@@ -681,7 +684,47 @@ export default function TicketDetails() {
                             </p>
                           </div>
                         </div>
+
+                        {/* Schedule Details (only if isSchedule is true) */}
+                        {task.isSchedule && task.schedule && (
+                          <div className="mt-4 border-t pt-4">
+                            <h3 className="text-gray-700 font-semibold mb-2">Schedule Details</h3>
+                            <div className="grid grid-cols-3 gap-4">
+                              <div>
+                                <p className="text-gray-500 font-medium">Schedule Type</p>
+                                <p className="text-gray-800">{task.schedule.schedule_type}</p>
+                              </div>
+
+                              <div>
+                                <p className="text-gray-500 font-medium">Days</p>
+                                <p className="text-gray-800">
+                                  {task.schedule.weekly?.length > 0
+                                    ? task.schedule.weekly.join(', ')
+                                    : 'No days selected'}
+                                </p>
+                              </div>
+
+                              <div>
+                                <p className="text-gray-500 font-medium">Scheduled Time</p>
+                                <p className="text-gray-800">
+                                  {task.schedule?.time
+                                    ? new Date(task.schedule.time).toLocaleString('en-US', {
+                                      day: '2-digit',
+                                      month: 'short',
+                                      year: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                      hour12: true,
+                                    })
+                                    : 'Not set'}
+                                </p>
+
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
+
 
 
                       {task.status && task.status.length > 0 && (
@@ -1064,7 +1107,7 @@ export default function TicketDetails() {
                 {addTaskForm.touched.due_date && addTaskForm.errors.due_date && <p className="text-xs text-red-600 mt-1">{addTaskForm.errors.due_date}</p>}
               </div>
 
-              
+
               {/* Is Schedule Checkbox */}
               <div>
                 <label className="flex items-center gap-2">
