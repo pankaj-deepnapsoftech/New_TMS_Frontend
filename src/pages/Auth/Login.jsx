@@ -8,10 +8,13 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
+import { useState } from 'react';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 function LoginForm() {
   const [login, { isLoading }] = useLoginMutation();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   // Validation schema
   const validationSchema = Yup.object({
@@ -93,11 +96,18 @@ function LoginForm() {
 
                 <div className="relative">
                   <Field
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     name="password"
                     placeholder="Password"
-                    className="w-full border rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                    className="w-full border rounded-md p-3 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                  >
+                    {!showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
                   <ErrorMessage
                     name="password"
                     component="div"
