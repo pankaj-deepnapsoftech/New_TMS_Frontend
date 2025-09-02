@@ -15,7 +15,7 @@ const Sidebar = () => {
   const [allowedPaths, setAllowedPaths] = useState([]);
 
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const [sidebarOpen, setSidebarOpen] = useState(false); // hover to expand
 

@@ -43,6 +43,12 @@ const DashboardService = Api.injectEndpoints({
       query : () => '/dashboard/overdue-tickets',
       providesTags:['Dashboard'],
     }),
+
+    // --------------- get all departments here -------------------
+    getDepartments : build.query({
+      query: () => '/dashboard/department-tasks',
+      providesTags: ['Dashboard'],
+    }),
   }),
 });
 
