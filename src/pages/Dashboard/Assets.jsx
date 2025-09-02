@@ -1,17 +1,9 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, FileText, FileCheck } from 'lucide-react';
-// import { useCreateAssetMutation, useDeleteAssetMutation, useGetAssetQuery, useUpdateAssetMutation } from '@/services/Asset.services';
-// import { useGetAssignedTicketQuery } from '@/services/Ticket.service';
 
 export default function AssetsPage() {
   const [openModal, setOpenModal] = useState(false);
   const [editingAsset, setEditingAsset] = useState(null);
-
-
-  // const [ createAssetsData, {isLoading: createAssetDataLoad} ] = useCreateAssetMutation();
-  // const { data: getAssetData, isLoading: getAssetDataLoad} = useGetAssignedTicketQuery();
-  // const { updateAssetData, isLoading: updateAssetDataLoad } = useUpdateAssetMutation();
-  // const {deleteAssetData, isLoading: deleteAssetDataLoad} = useDeleteAssetMutation();
 
   const [assets, setAssets] = useState([
     {
