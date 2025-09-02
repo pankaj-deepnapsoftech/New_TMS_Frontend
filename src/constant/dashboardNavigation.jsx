@@ -22,7 +22,7 @@ export const DashbaordNavLinks = [
     component: <UsersPage />,
   },
   {
-    label: 'Department',                
+    label: 'Department',
     value: '/department',
     icon: Store,
     component: <Department />,
@@ -33,7 +33,12 @@ export const DashbaordNavLinks = [
     icon: UserCog,
     component: <Roles />,
   },
-  
+  {
+    label: 'Assets',
+    value: '/assets',
+    icon: Layers,
+    component: <Assets />,
+  },
   {
     label: 'Tickets',
     value: '/ticket',
@@ -51,11 +56,5 @@ export const DashbaordNavLinks = [
     value: '/important',
     icon: NotebookTabs,
     component: <ImportantNotes />,
-  },
-  {            
-    label: 'Assets',
-    value: '/assets',
-    icon: Layers,
-    component: <Assets/>
   },
 ];

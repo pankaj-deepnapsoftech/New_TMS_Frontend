@@ -182,13 +182,41 @@ function AssetModal({ onClose, onSave, asset }) {
         <h2 className="text-xl font-semibold text-gray-800 mb-4">{asset ? 'Edit Asset' : 'Add Asset'}</h2>
 
         <div className="grid grid-cols-2 gap-4">
-         
-          <input type="text" name="product_name" placeholder="Product Name" value={form.product_name} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
-          <input type="date" name="purchase_date" value={form.purchase_date} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
-          <input type="date" name="warranty" value={form.warranty} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
-          <input type="text" name="brand_name" placeholder="Brand Name" value={form.brand_name} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
-          <input type="text" name="assets_types" placeholder="Asset Type" value={form.assets_types} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
-          <textarea name="specification" placeholder="Specification"  value={form.specification} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full col-span-2" rows={3} />
+          {/* Product Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+            <input type="text" name="product_name" placeholder="Enter product name" value={form.product_name} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
+          </div>
+
+          {/* Purchase Date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+            <input type="date" name="purchase_date" value={form.purchase_date} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
+          </div>
+
+          {/* Warranty Expiry */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Warranty Expiry</label>
+            <input type="date" name="warranty" value={form.warranty} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
+          </div>
+
+          {/* Brand Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Brand Name</label>
+            <input type="text" name="brand_name" placeholder="Enter brand name" value={form.brand_name} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
+          </div>
+
+          {/* Asset Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Asset Type</label>
+            <input type="text" name="assets_types" placeholder="Enter asset type" value={form.assets_types} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
+          </div>
+
+          {/* Specification */}
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Specification</label>
+            <textarea name="specification" placeholder="Enter specifications" value={form.specification} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" rows={3} />
+          </div>
 
           {/* File upload inputs */}
           <div className="col-span-2">
@@ -207,6 +235,7 @@ function AssetModal({ onClose, onSave, asset }) {
           </div>
         </div>
 
+        {/* Footer buttons */}
         <div className="flex justify-end gap-3 mt-6">
           <button onClick={onClose} className="px-4 py-2 rounded-lg border border-gray-600 text-gray-600 hover:bg-gray-100">
             Cancel
