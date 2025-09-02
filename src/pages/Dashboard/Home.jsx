@@ -46,8 +46,6 @@ export default function TaskDashboard() {
     return percentage.toFixed();
   };
 
-  console.log(OverdueTickets);
-
   useEffect(() => {
     if (user) {
       refetch();
