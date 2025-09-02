@@ -1,22 +1,24 @@
 import { useState } from "react";
 import { useAllRolesQuery } from "../../services/Roles.service";
 import { useAllDepartmentsQuery } from "../../services/Department.service";
-import { useUpdateUserMutation } from "../../services/Auth.service";
+import { useRegisterMutation } from "../../services/Auth.service";
 import { toast } from "react-toastify";
 
 export function UserModal({ onClose, id, refetch }) {
   const { data: roles, isLoading: roleLoad } = useAllRolesQuery();
   const { data: departments, isLoading: departmentLoad } = useAllDepartmentsQuery();
-  const [UpdateUser, { isLoading: userUpdateLoading }] = useUpdateUserMutation();
+  const [register, { isLoading: RegisteruserLoad }] = useRegisterMutation();
 
   const [formData, setFormData] = useState({
-    fullName: "",
+    full_name: "",
     username: "",
     email: "",
     password: "",
     phone: "",
     role: "",
     department: "",
+    verification:true,
+    admin:false
   });
 
   const handleChange = (e) => {
@@ -30,7 +32,7 @@ export function UserModal({ onClose, id, refetch }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await UpdateUser({ id, data: formData }).unwrap();
+      const res = await register(formData).unwrap();
       toast.success(res.message || "User saved successfully");
       onClose();
       refetch();
@@ -64,8 +66,8 @@ export function UserModal({ onClose, id, refetch }) {
             <label className="block text-sm text-gray-700 mb-1">Full Name</label>
             <input
               type="text"
-              name="fullName"
-              value={formData.fullName}
+              name="full_name"
+              value={formData.full_name}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2"
               required
@@ -172,11 +174,11 @@ export function UserModal({ onClose, id, refetch }) {
               Cancel
             </button>
             <button
-              disabled={userUpdateLoading}
+              disabled={RegisteruserLoad}
               type="submit"
               className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
             >
-              {userUpdateLoading ? "Saving..." : "Save"}
+              {RegisteruserLoad ? "Saving..." : "Save"}
             </button>
           </div>
         </form>
