@@ -66,7 +66,6 @@ export default function TaskDashboard() {
     }
   }, [user, refetch]);
 
-
   return (
     <main className="flex-1  px-6 py-6 space-y-6">
       {/* // ------------- Cards ------------- // */}
@@ -179,16 +178,16 @@ export default function TaskDashboard() {
             </div>
 
             {/* User Task Details */}
-            {selectedUser && (
-              <div className="bg-white shadow-md border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition duration-200">
-                {UserDataLoad ? (
+            <div className="bg-white shadow-md border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition duration-200 min-h-[120px] flex items-center justify-center">
+              {selectedUser ? (
+                UserDataLoad ? (
                   <p className="text-gray-500 text-center">Loading...</p>
                 ) : error ? (
                   <p className="text-red-500 text-center">Failed to load data</p>
                 ) : UserData?.data?.length === 0 ? (
                   <p className="text-gray-500 text-center">No tasks found</p>
                 ) : (
-                  <div className="max-h-72 overflow-y-auto pr-2 space-y-4">
+                  <div className="max-h-72 overflow-y-auto pr-2 space-y-4 w-full">
                     {UserData?.data?.map((task) => (
                       <div key={task._id} className="p-4 border border-gray-200 rounded-xl hover:shadow-sm transition">
                         <h3 className="text-base font-semibold text-gray-900">{task.title}</h3>
@@ -198,9 +197,11 @@ export default function TaskDashboard() {
                       </div>
                     ))}
                   </div>
-                )}
-              </div>
-            )}
+                )
+              ) : (
+                <p className="text-gray-400 text-center">No user selected</p>
+              )}
+            </div>
           </div>
         </Card>
 
