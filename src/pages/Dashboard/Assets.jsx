@@ -40,7 +40,7 @@ export default function AssetsPage() {
 
   const handleSave = async (asset) => {
     try {
-      if (editingAsset) await updateAsset({ id: editingAsset.assets_id, ...asset }).unwrap();
+      if (editingAsset) await updateAsset({ id: editingAsset._id, data:asset }).unwrap();
       else await createAsset(asset).unwrap();
       await refetchAssets();
       setOpenModal(false);
@@ -283,19 +283,19 @@ function AssetModal({ onClose, onSave, asset }) {
     let data = { ...form };
 
     // Upload files
-    if (data?.attached_invoice) {
+    if (data?.attached_invoice && !asset) {
       const fd = new FormData();
       fd.append('file', data.attached_invoice);
       data.attached_invoice = await ImageUploader(fd);
     }
 
-    if (data?.warranty_card) {
+    if (data?.warranty_card && !asset) {
       const fd = new FormData();
       fd.append('file', data.warranty_card);
       data.warranty_card = await ImageUploader(fd);
     }
 
-    if (data?.product_image?.length > 0) {
+    if (data?.product_image?.length > 0  && !asset) {
       const uploadTasks = data.product_image.map((file) => {
         const fd = new FormData();
         fd.append('file', file);
