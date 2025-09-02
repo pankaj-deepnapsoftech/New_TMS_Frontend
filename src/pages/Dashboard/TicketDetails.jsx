@@ -14,6 +14,7 @@ import { useAddCommentMutation } from '@/services/Comment.service';
 import axios from 'axios';
 import { LuImagePlus } from "react-icons/lu";
 import LoadingPage from '@/components/Loading/Loading';
+import { ImageUploader } from '@/utils/ImageUploader';
 export default function TicketDetails() {
 
 
@@ -60,17 +61,7 @@ export default function TicketDetails() {
   const [taskImageFile, setTaskImageFile] = useState(null);
 
 
-  const ImageUploader = async (formData) => {
 
-    try {
-      const res = await axios.post("https://images.deepmart.shop/upload", formData);
-      // console.log(res.data?.[0])
-      return res.data?.[0];
-    } catch (error) {
-      console.error("Image upload failed:", error);
-      return null;
-    }
-  };
 
   const handleDownload = async (url, name) => {
     try {

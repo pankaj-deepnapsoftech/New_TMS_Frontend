@@ -1,27 +1,26 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, FileText, FileCheck } from 'lucide-react';
 import LoadingPage from '@/components/Loading/Loading';
+import { ImageUploader } from '@/utils/ImageUploader';
+import { useCreateAssetMutation } from '@/services/Asset.services';
 
 export default function AssetsPage() {
   const [openModal, setOpenModal] = useState(false);
   const [editingAsset, setEditingAsset] = useState(null);
+  const [createAsset] = useCreateAssetMutation();
 
   const [assets, setAssets] = useState([
-    {
-      assets_id: 'AST001',
-      product_name: 'Dell Laptop',
-      purchase_date: '2024-06-01',
-      warranty: '2026-06-01',
-      brand_name: 'Dell',
-      assets_types: 'Electronics',
-      specification: 'Intel',
-      attached_invoice: 'invoice.pdf',
-      product_image: ['/images.jpg'],
-      warranty_card: 'warranty.pdf',
-    },
+
   ]);
 
-  const handleSave = (asset) => {
+  const handleSave = async (asset) => {
+
+    try {
+      const res = await createAsset(asset).unwrap();
+      console.log(res)
+    } catch (error) {
+      console.log(error)
+    }
     if (editingAsset) {
       setAssets(assets.map((a) => (a.assets_id === editingAsset.assets_id ? asset : a)));
     } else {
@@ -146,13 +145,13 @@ export default function AssetsPage() {
 function AssetModal({ onClose, onSave, asset }) {
   const [form, setForm] = useState(
     asset || {
-      assets_id: '',
       product_name: '',
       purchase_date: '',
       warranty: '',
       brand_name: '',
       assets_types: '',
       specification: '',
+      company_name: "",
       attached_invoice: null,
       product_image: [],
       warranty_card: null,
@@ -172,8 +171,32 @@ function AssetModal({ onClose, onSave, asset }) {
     }
   };
 
-  const handleSave = () => {
-    onSave(form);
+  const handleSave = async () => {
+    const formData = new FormData();
+    let data = form;
+    if (data?.attached_invoice) {
+      formData.append("file", data?.attached_invoice)
+      let image = await ImageUploader(formData)
+      data = { ...data, attached_invoice: image }
+    }
+    if (data?.warranty_card) {
+      formData.append("file", data?.warranty_card)
+      let image = await ImageUploader(formData)
+      data = { ...data, warranty_card: image }
+    }
+    if (data?.product_image && data?.product_image?.length > 0) {
+      const formDataList = data?.product_image?.map((item) => {
+        const fd = new FormData();
+        fd.append("file", item);
+        return ImageUploader(fd);
+      });
+
+      const image = await Promise.all(formDataList);
+
+      data = { ...data, product_image: image }
+    }
+    
+    onSave(data)
   };
 
   return (
