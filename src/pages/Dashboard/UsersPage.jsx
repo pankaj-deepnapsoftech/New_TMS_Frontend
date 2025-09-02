@@ -1,22 +1,35 @@
 import { useState } from 'react';
 import { UserModal } from '@components/Modals/UserModal';
 import { useGetUserQuery } from '../../services/Users.service';
+import { Trash2 } from 'lucide-react';
+import LoadingPage from '@/components/Loading/Loading';
 
 export default function UsersPage() {
   const [open, setOpen] = useState(false);
   const { data, isLoading, refetch } = useGetUserQuery();
+  // eslint-disable-next-line no-unused-vars
   const [updateId, setUpdateId] = useState('');
 
   if (isLoading) {
-    return <div className="p-6 text-center text-gray-600">Loading...</div>;
+    return <LoadingPage />;
   }
 
   return (
     <div className="p-4 sm:p-6">
       {/* Heading & Tagline */}
-      <div className="mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">User Management</h1>
-        <p className="text-gray-500 text-sm sm:text-base">Manage and assign users efficiently</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">User Management</h1>
+          <p className="text-gray-500 text-sm sm:text-base">Manage and assign users efficiently</p>
+        </div>
+
+        <button
+          className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm sm:text-base font-medium 
+               hover:bg-blue-700 shadow-md transition"
+          onClick={() => setOpen(true)}
+        >
+          + Add User
+        </button>
       </div>
 
       {/* Responsive Table Wrapper */}
@@ -44,6 +57,12 @@ export default function UsersPage() {
                   <td className="px-3 sm:px-4 py-2">{user?.role?.role || '-'}</td>
                   <td className="px-3 sm:px-4 py-2">{user?.department?.name || '-'}</td>
                   <td className="px-3 sm:px-4 py-2">
+                    <button className="p-2 text-red-500 hover:text-red-700 rounded-lg transition">
+                      <Trash2 size={18} />
+                    </button>
+                  </td>
+
+                  {/* <td className="px-3 sm:px-4 py-2">
                     <button
                       onClick={() => {
                         setOpen(true);
@@ -54,7 +73,7 @@ export default function UsersPage() {
                     >
                       Assign
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))
             ) : (

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Plus, X, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useCreateImportantNotesMutation, useDeleteImportantNotesMutation, useGetImportantNotesQuery, useUpdateImportantNotesMutation } from '@/services/ImportantNotes.services';
+import LoadingPage from '@/components/Loading/Loading';
 
 // 🔹 Reusable Chip/Badge MultiInput Component
 function MultiInput({ label, values, setValues, placeholder }) {
@@ -110,7 +111,7 @@ export default function ImportantNotesPage() {
   };
 
   // -------------- Render ---------------
-  if (isLoading) return <div className="p-6">Loading notes...</div>;
+  if (isLoading) return <LoadingPage/>;
 
   return (
     <div className="p-4 sm:p-6">

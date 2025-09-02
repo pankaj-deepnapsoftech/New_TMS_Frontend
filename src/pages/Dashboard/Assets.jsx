@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, FileText, FileCheck } from 'lucide-react';
+import LoadingPage from '@/components/Loading/Loading';
 
 export default function AssetsPage() {
   const [openModal, setOpenModal] = useState(false);
@@ -36,6 +37,10 @@ export default function AssetsPage() {
       setAssets(assets.filter((a) => a.assets_id !== id));
     }
   };
+
+  // if (isLoading) {
+  //   return <LoadingPage />;
+  // }
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">

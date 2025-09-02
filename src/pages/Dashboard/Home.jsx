@@ -11,6 +11,7 @@ import { useGetCardsDataQuery, useGetCompletedTasksQuery, useGetOpenTasksQuery, 
 import { motion } from 'framer-motion';
 import { useGetAssigneUserQuery } from '@/services/Users.service';
 import { useNavigate } from 'react-router-dom';
+import LoadingPage from '@/components/Loading/Loading';
 
 // --- Main Dashboard ---
 export default function TaskDashboard() {
@@ -61,7 +62,7 @@ export default function TaskDashboard() {
   }, [user, refetch]);
 
   if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad || UserDataLoad || AllUsersDataLoading || OverdueTicketsLoad) {
-    return <div>loading.....</div>;
+    return <LoadingPage/>
   }
 
   return (
