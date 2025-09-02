@@ -182,13 +182,13 @@ function AssetModal({ onClose, onSave, asset }) {
         <h2 className="text-xl font-semibold text-gray-800 mb-4">{asset ? 'Edit Asset' : 'Add Asset'}</h2>
 
         <div className="grid grid-cols-2 gap-4">
-          <input type="text" name="assets_id" placeholder="Asset ID" value={form.assets_id} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
+         
           <input type="text" name="product_name" placeholder="Product Name" value={form.product_name} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
           <input type="date" name="purchase_date" value={form.purchase_date} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
           <input type="date" name="warranty" value={form.warranty} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
           <input type="text" name="brand_name" placeholder="Brand Name" value={form.brand_name} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
           <input type="text" name="assets_types" placeholder="Asset Type" value={form.assets_types} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
-          <textarea name="specification" placeholder="Specification" value={form.specification} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full col-span-2" rows={3} />
+          <textarea name="specification" placeholder="Specification"  value={form.specification} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full col-span-2" rows={3} />
 
           {/* File upload inputs */}
           <div className="col-span-2">
