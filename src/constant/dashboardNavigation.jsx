@@ -1,4 +1,4 @@
-import { LayoutDashboard, Store, UserCog, BrickWallFire, UserRoundPlus, RefreshCcw, NotebookTabs } from 'lucide-react';
+import { LayoutDashboard, Store, UserCog, BrickWallFire, UserRoundPlus, RefreshCcw, NotebookTabs, Layers } from 'lucide-react';
 import TaskDashboard from '@pages/Dashboard/Home';
 import Department from '@pages/Dashboard/Department';
 import Roles from '@pages/Dashboard/Roles';
@@ -6,6 +6,7 @@ import UsersPage from '@pages/Dashboard/UsersPage';
 import TicketsPage from '@pages/Dashboard/Ticket';
 import Renuals from '@pages/Dashboard/Renuals';
 import ImportantNotes from '@pages/Dashboard/ImportantNotes';
+import Assets from '@/pages/Dashboard/Assets';
 
 export const DashbaordNavLinks = [
   {
@@ -21,7 +22,7 @@ export const DashbaordNavLinks = [
     component: <UsersPage />,
   },
   {
-    label: 'Department',
+    label: 'Department',                
     value: '/department',
     icon: Store,
     component: <Department />,
@@ -31,6 +32,12 @@ export const DashbaordNavLinks = [
     value: '/role',
     icon: UserCog,
     component: <Roles />,
+  },
+  {            
+    label: 'Assets',
+    value: '/assets',
+    icon: Layers,
+    component: <Assets/>
   },
   {
     label: 'Tickets',
