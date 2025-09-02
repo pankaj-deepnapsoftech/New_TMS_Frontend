@@ -25,8 +25,19 @@ const App = () => {
   }, [data])
 
   if (isLoading) {
-    return <div>
-      loading ......
+    return  <div className="p-8 bg-gray-50 min-h-screen">
+      <div className="animate-pulse bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
+        <div className="h-12 bg-gray-100" />
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center gap-4 p-4 border-b border-gray-100">
+            <div className="h-4 bg-gray-200 rounded w-24" />
+            <div className="h-4 bg-gray-200 rounded w-32" />
+            <div className="h-4 bg-gray-200 rounded w-20" />
+            <div className="h-4 bg-gray-200 rounded w-28" />
+            <div className="h-4 bg-gray-200 rounded w-16" />
+          </div>
+        ))}
+      </div>
     </div>
   }
 
