@@ -211,6 +211,17 @@ function AssetModal({ onClose, onSave, asset }) {
             <label className="block text-sm font-medium text-gray-700 mb-1">Asset Type</label>
             <input type="text" name="assets_types" placeholder="Enter asset type" value={form.assets_types} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full" />
           </div>
+          {/* Company name */}
+          <div>
+            <label htmlFor="company_name" className="block text-sm font-medium text-gray-700 mb-1">
+              Company Name
+            </label>
+            <select id="company_name" name="company_name" value={form.company_name} onChange={handleChange} className="border border-gray-400 p-2 rounded-lg w-full">
+              <option value="">-- Select Company --</option>
+              <option value="Dryish ercs">Dryish ercs</option>
+              <option value="Deepnap Softech">Deepnap Softech</option>
+            </select>
+          </div>
 
           {/* Specification */}
           <div className="col-span-2">
