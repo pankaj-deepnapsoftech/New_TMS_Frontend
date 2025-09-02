@@ -6,7 +6,7 @@ import { Donut } from '@components/charts/DonutChart';
 import { useGetAdminTicketcardDataQuery } from '@/services/Ticket.service';
 import { CardsDataa, StatusPie } from '@/constant/dynomicData';
 import { useSelector } from 'react-redux';
-import { useGetCardsDataQuery, useGetCompletedTasksQuery, useGetOpenTasksQuery, useGetOverdueTicketsQuery, useGetTicketOverviewQuery, useGetUserDataQuery, useGetWorkstreamActivityQuery } from '@/services/Dashboard.services';
+import { useGetCardsDataQuery, useGetCompletedTasksQuery, useGetDepartmentsQuery, useGetOpenTasksQuery, useGetOverdueTicketsQuery, useGetTicketOverviewQuery, useGetUserDataQuery, useGetWorkstreamActivityQuery } from '@/services/Dashboard.services';
 // eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
 import { useGetAssigneUserQuery } from '@/services/Users.service';
@@ -38,6 +38,10 @@ export default function TaskDashboard() {
 
   const { data: OverdueTickets, isLoading: OverdueTicketsLoad, refetch: OverdueTicketsRefetch } = useGetOverdueTicketsQuery();
 
+  const { data: DepartmentAll, isLoading: DepartmentAllLoad, refetch: DepartmentAllRefetch } = useGetDepartmentsQuery();
+
+  console.log(DepartmentAll);
+
   const STATUS_COLORS = ['#6A5AE0', '#27AE60', '#F5A623', '#2D9CDB'];
 
   const handlePercentage = (data) => {
@@ -58,12 +62,10 @@ export default function TaskDashboard() {
       UserDataRefetch();
       GetAllUsersAgaian();
       OverdueTicketsRefetch();
+      DepartmentAllRefetch();
     }
   }, [user, refetch]);
 
-  // if (TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad || UserDataLoad || AllUsersDataLoading || OverdueTicketsLoad) {
-  //   return <LoadingPage/>
-  // }
 
   return (
     <main className="flex-1  px-6 py-6 space-y-6">
@@ -93,51 +95,64 @@ export default function TaskDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Overall Progress */}
         <Card title="Ticket Overview" subtitle="vs last month">
-          <div className="flex items-center gap-6">
-            <div className="flex-1 h-28">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={TicketOverviews?.data} margin={{ top: 6, right: 6, bottom: 0, left: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-                  <XAxis dataKey="m" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} interval={0} minTickGap={0} className="p-4" />
-
-                  <YAxis hide />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="v" stroke="#6A5AE0" strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
+          {TicketOverviewLoad ? (
+            <p className="text-gray-500 text-sm">Loading...</p>
+          ) : (
+            <div className="flex items-center gap-6">
+              <div className="flex-1 h-28">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={TicketOverviews?.data} margin={{ top: 6, right: 6, bottom: 0, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                    <XAxis dataKey="m" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} interval={0} />
+                    <YAxis hide />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="v" stroke="#6A5AE0" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-          </div>
+          )}
         </Card>
 
         {/* Workstream Activity */}
         <Card title="Ticket Activity" subtitle="Created vs Completed">
-          <div className="h-36">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={WorkstreamActivity?.data}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="created" fill="#e5e7eb" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="completed" fill="#27AE60" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {WorkstreamActivityLoad ? (
+            <p className="text-gray-500 text-sm">Loading...</p>
+          ) : (
+            <div className="h-36">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={WorkstreamActivity?.data}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis dataKey="name" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="created" fill="#e5e7eb" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="completed" fill="#27AE60" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </Card>
 
         <Card title="Open Tasks">
-          <div className="flex items-center justify-between">
-            <Donut percent={handlePercentage(OpenTasks?.data || [])} value={OpenTasks?.data?.reduce((i, r) => i + r.count, 0)} label="open" color="#2563eb" />
-            <div className="text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span> Not Started: {OpenTasks?.data?.find((item) => item?._id === 'Not Started')?.count}
-              </div>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span> Re Open: {OpenTasks?.data?.find((item) => item?._id === 'Re Open')?.count}
+          {OpenTasksLoad ? (
+            <p className="text-gray-500 text-sm">Loading...</p>
+          ) : (
+            <div className="flex items-center justify-between">
+              <Donut percent={handlePercentage(OpenTasks?.data || [])} value={OpenTasks?.data?.reduce((i, r) => i + r.count, 0)} label="open" color="#2563eb" />
+              <div className="text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-2 h-2 rounded-full bg-blue-600"></span>
+                  Not Started: {OpenTasks?.data?.find((item) => item?._id === 'Not Started')?.count}
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span>
+                  Re Open: {OpenTasks?.data?.find((item) => item?._id === 'Re Open')?.count}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </Card>
       </div>
 
@@ -149,14 +164,18 @@ export default function TaskDashboard() {
             {/* Dropdown */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Select User</label>
-              <select value={selectedUser || ''} onChange={(e) => setSelectedUser(e.target.value)} className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
-                <option value="">-- Choose User --</option>
-                {AllUserData?.data?.map((u) => (
-                  <option key={u._id} value={u._id}>
-                    {u?.full_name} ({u?.username})
-                  </option>
-                ))}
-              </select>
+              {AllUsersDataLoading ? (
+                <p className="text-gray-500 text-sm">Loading users...</p>
+              ) : (
+                <select value={selectedUser || ''} onChange={(e) => setSelectedUser(e.target.value)} className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+                  <option value="">-- Choose User --</option>
+                  {AllUserData?.data?.map((u) => (
+                    <option key={u._id} value={u._id}>
+                      {u?.full_name} ({u?.username})
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {/* User Task Details */}
@@ -188,28 +207,41 @@ export default function TaskDashboard() {
         {/* Right column donuts */}
         <div className="space-y-6">
           <Card title="Completed Tasks">
-            <div className="flex items-center justify-between">
-              <Donut percent={(CompletedTasks?.overdueCompleted * 100) / CompletedTasks?.totalCompleted} value={CompletedTasks?.totalCompleted} label="completed" color="#16a34a" />
-              <div className="text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <span className="inline-block w-2 h-2 rounded-full bg-green-600"></span> Completed: {CompletedTasks?.totalCompleted}
-                </div>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span> Overdue: {CompletedTasks?.overdueCompleted}
+            {CompletedTasksLoad ? (
+              <p className="text-gray-500 text-sm">Loading...</p>
+            ) : (
+              <div className="flex items-center justify-between">
+                <Donut percent={(CompletedTasks?.overdueCompleted * 100) / (CompletedTasks?.totalCompleted || 1)} value={CompletedTasks?.totalCompleted} label="completed" color="#16a34a" />
+                <div className="text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-green-600"></span>
+                    Completed: {CompletedTasks?.totalCompleted}
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span>
+                    Overdue: {CompletedTasks?.overdueCompleted}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </Card>
-          <Card title="Top Labels" right={<span className="text-xs text-gray-500">this month</span>}>
+
+          <Card title="All Departments" right={<span className="text-xs text-gray-500">this month</span>}>
             <div className="space-y-3">
-              {['frontend', 'bug', 'ux', 'documentation', 'infra'].map((tag, i) => (
-                <div key={tag} className="flex items-center justify-between">
-                  <a className="text-sky-600 hover:underline" href="#">
-                    {tag}
-                  </a>
-                  <span className="text-gray-700">{(i + 1) * 1320}</span>
-                </div>
-              ))}
+              {DepartmentAllLoad ? (
+                <p className="text-gray-500 text-sm">Loading...</p>
+              ) : DepartmentAll?.data && DepartmentAll.data.length > 0 ? (
+                DepartmentAll.data.map((dept, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <a className="text-sky-600 hover:underline" href="#">
+                      {dept.department}
+                    </a>
+                    <span className="text-gray-700">{dept.totalTasks}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-sm">No departments found</p>
+              )}
             </div>
           </Card>
         </div>
@@ -217,33 +249,47 @@ export default function TaskDashboard() {
 
       {/* Status distribution */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {adminCardDataload ? <div className='flex-1'  >loading....</div> : <Card title="Task Status Distribution">
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={StatusPie(AdminCarddata?.data?.statusCounts)} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
-                  {StatusPie(AdminCarddata?.data?.statusCounts).map((e, idx) => (
-                    <Cell key={idx} fill={STATUS_COLORS[idx % STATUS_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Legend />
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>}
+        {adminCardDataload ? (
+          <div className="flex-1">loading....</div>
+        ) : (
+          <Card title="Task Status Distribution">
+            <div className="h-64 flex items-center justify-center">
+              {adminCardDataload ? (
+                <p className="text-gray-500">Loading chart...</p>
+              ) : !AdminCarddata?.data?.statusCounts ? (
+                <p className="text-gray-500">No data available</p>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={StatusPie(AdminCarddata?.data?.statusCounts)} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
+                      {StatusPie(AdminCarddata?.data?.statusCounts).map((e, idx) => (
+                        <Cell key={idx} fill={STATUS_COLORS[idx % STATUS_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Legend />
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </Card>
+        )}
         <Card title="Overdue Tickets">
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={[{ name: 'Overdue', value: OverdueTickets?.overdureTicket || 0 }]} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
-                  <Cell fill={STATUS_COLORS[0]} />
-                </Pie>
-                <Legend />
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          {OverdueTicketsLoad ? (
+            <p className="text-gray-500 text-sm">Loading...</p>
+          ) : (
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={[{ name: 'Overdue', value: OverdueTickets?.overdureTicket || 0 }]} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
+                    <Cell fill={STATUS_COLORS[0]} />
+                  </Pie>
+                  <Legend />
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </Card>
 
         <Card title="Notes">

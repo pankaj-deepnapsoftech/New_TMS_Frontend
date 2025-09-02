@@ -53,4 +53,4 @@ const DashboardService = Api.injectEndpoints({
 });
 
 // ---------------- all query here ----------------------
-export const { useGetTicketOverviewQuery, useGetWorkstreamActivityQuery, useGetOpenTasksQuery, useGetCompletedTasksQuery,useGetCardsDataQuery, useGetUserDataQuery, useGetOverdueTicketsQuery } = DashboardService;
+export const { useGetTicketOverviewQuery, useGetWorkstreamActivityQuery, useGetOpenTasksQuery, useGetCompletedTasksQuery,useGetCardsDataQuery, useGetUserDataQuery, useGetOverdueTicketsQuery, useGetDepartmentsQuery } = DashboardService;
