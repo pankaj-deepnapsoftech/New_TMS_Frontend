@@ -61,9 +61,9 @@ export default function TaskDashboard() {
     }
   }, [user, refetch]);
 
-  if (adminCardDataload || TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad || UserDataLoad || AllUsersDataLoading || OverdueTicketsLoad) {
-    return <LoadingPage/>
-  }
+  // if (TicketOverviewLoad || WorkstreamActivityLoad || OpenTasksLoad || CompletedTasksLoad || CardsDataLoad || UserDataLoad || AllUsersDataLoading || OverdueTicketsLoad) {
+  //   return <LoadingPage/>
+  // }
 
   return (
     <main className="flex-1  px-6 py-6 space-y-6">
@@ -217,7 +217,7 @@ export default function TaskDashboard() {
 
       {/* Status distribution */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        <Card title="Task Status Distribution">
+        {adminCardDataload ? <div className='flex-1'  >loading....</div> : <Card title="Task Status Distribution">
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -231,7 +231,7 @@ export default function TaskDashboard() {
               </PieChart>
             </ResponsiveContainer>
           </div>
-        </Card>
+        </Card>}
         <Card title="Overdue Tickets">
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
