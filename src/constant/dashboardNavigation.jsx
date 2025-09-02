@@ -33,12 +33,7 @@ export const DashbaordNavLinks = [
     icon: UserCog,
     component: <Roles />,
   },
-  {            
-    label: 'Assets',
-    value: '/assets',
-    icon: Layers,
-    component: <Assets/>
-  },
+  
   {
     label: 'Tickets',
     value: '/ticket',
@@ -56,5 +51,11 @@ export const DashbaordNavLinks = [
     value: '/important',
     icon: NotebookTabs,
     component: <ImportantNotes />,
+  },
+  {            
+    label: 'Assets',
+    value: '/assets',
+    icon: Layers,
+    component: <Assets/>
   },
 ];

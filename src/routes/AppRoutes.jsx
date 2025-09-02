@@ -6,33 +6,48 @@ import Adminlayout from "./layout/Admin.layout";
 import { DashbaordNavLinks } from "@/constant/dashboardNavigation";
 import TicketDetails from "@pages/Dashboard/TicketDetails";
 import { useSelector } from "react-redux";
-
-
-
-
-
-// --------------------- ProtectedRoute ---------------------
-const ProtectedRoute = ({ user, children }) => {
-  if (!user && window.location.pathname !== "/login") {
-    return <Navigate to="/login" replace />;
-  }
-
-
-  return children;
-};
- 
-
-// --------------------- PublicRoute ------------------------
-const PublicRoute = ({ user, children }) => {
-  if (user ) {
-    return <Navigate to="/" replace />;
-  }
-  return children;
-};
+import { useEffect, useState } from "react";
 
 // --------------------- AppRoutes --------------------------
 const AppRoutes = () => {
   const user = useSelector((state) => state.Auth.user);
+  const [allowedPaths, setAllowedPaths] = useState([]);
+
+
+  // --------------------- ProtectedRoute ---------------------
+  const ProtectedRoute = ({ user, children }) => {
+    if (!user && window.location.pathname !== "/login") {
+      return <Navigate to="/login" replace />;
+    }
+    return children;
+  };
+
+  // --------------------- PublicRoute ------------------------
+  const PublicRoute = ({ user, children }) => {
+    if (user) {
+      return <Navigate to={allowedPaths[0]?.value || "/"} replace />;
+    }
+    return children;
+  };
+
+  // --------------------- Compute allowed routes -------------
+  const computeAllowedRoutes = () => {
+    const routes = user?.role?.allowedPage || [];
+
+    if (!user?.admin) {
+      return DashbaordNavLinks.filter((item) =>
+        routes.some((access) => access.value === item.value)
+      );
+    }else {
+      return DashbaordNavLinks;
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      setAllowedPaths(computeAllowedRoutes());
+    }
+  }, [user]);
 
   return (
     <Router>
@@ -71,7 +86,7 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         >
-          {DashbaordNavLinks.map((item) => (
+          {allowedPaths.map((item) => (
             <Route key={item.value} path={item.value} element={item.component} />
           ))}
           <Route path="/tickets/:ticketId" element={<TicketDetails />} />
