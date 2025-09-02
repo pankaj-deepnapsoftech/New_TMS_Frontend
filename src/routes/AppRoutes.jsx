@@ -13,7 +13,6 @@ const AppRoutes = () => {
   const user = useSelector((state) => state.Auth.user);
   const [allowedPaths, setAllowedPaths] = useState([]);
 
-
   // --------------------- ProtectedRoute ---------------------
   const ProtectedRoute = ({ user, children }) => {
     if (!user && window.location.pathname !== "/login") {
@@ -25,6 +24,7 @@ const AppRoutes = () => {
   // --------------------- PublicRoute ------------------------
   const PublicRoute = ({ user, children }) => {
     if (user) {
+      // redirect logged-in user to their first allowed path
       return <Navigate to={allowedPaths[0]?.value || "/"} replace />;
     }
     return children;
@@ -38,9 +38,8 @@ const AppRoutes = () => {
       return DashbaordNavLinks.filter((item) =>
         routes.some((access) => access.value === item.value)
       );
-    }else {
-      return DashbaordNavLinks;
     }
+    return DashbaordNavLinks;
   };
 
   useEffect(() => {
@@ -86,9 +85,12 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         >
+          {/* Render ONLY allowed routes */}
           {allowedPaths.map((item) => (
             <Route key={item.value} path={item.value} element={item.component} />
           ))}
+
+          {/* Ticket details (extra route if always allowed) */}
           <Route path="/tickets/:ticketId" element={<TicketDetails />} />
         </Route>
 
@@ -97,10 +99,12 @@ const AppRoutes = () => {
           path="*"
           element={
             user ? (
+              // if user is logged in but path not allowed → 404
               <h1 className="text-center mt-10 text-xl font-semibold">
                 404 - Page Not Found
               </h1>
             ) : (
+              // if not logged in → redirect to login
               <Navigate to="/login" replace />
             )
           }

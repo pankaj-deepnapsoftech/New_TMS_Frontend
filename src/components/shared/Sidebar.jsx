@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LayoutDashboard, CheckSquare, Users, FileText, LogOut, Calendar, MessageSquare } from 'lucide-react';
 import { SidebarItem } from '@components/ui/SideItems';
 import { useLogoutMutation } from '@/services/Auth.service';
 import { useNavigate } from 'react-router-dom';
 import { DashbaordNavLinks } from '@/constant/dashboardNavigation';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { removeUser } from '@store/slice/AuthSlice';
 import { toast } from 'react-toastify';
 
 const Sidebar = () => {
   const [logout, { isLoading }] = useLogoutMutation();
+  
+  const user = useSelector((state) => state.Auth.user);
+  const [allowedPaths, setAllowedPaths] = useState([]);
 
   const navigate = useNavigate();
   const dispatch = useDispatch()
@@ -29,6 +32,23 @@ const Sidebar = () => {
     }
   };
 
+  const computeAllowedRoutes = () => {
+      const routes = user?.role?.allowedPage || [];
+  
+      if (!user?.admin) {
+        return DashbaordNavLinks.filter((item) =>
+          routes.some((access) => access.value === item.value)
+        );
+      }
+      return DashbaordNavLinks;
+    };
+  
+    useEffect(() => {
+      if (user) {
+        setAllowedPaths(computeAllowedRoutes());
+      }
+    }, [user]);
+
   const isActive = (route) => {
     const path = window.location.pathname;
     return route === path;
@@ -43,7 +63,7 @@ const Sidebar = () => {
 
       {/* Nav Items */}
       <nav className="p-3 space-y-1">
-        {DashbaordNavLinks.map((item) => (
+        {allowedPaths.map((item) => (
           <React.Fragment key={item.value}>
             <SidebarItem icon={item.icon} label={item.label} expanded={sidebarOpen} onClick={() => navigate(item.value)} active={isActive(item.value)} />
           </React.Fragment>
