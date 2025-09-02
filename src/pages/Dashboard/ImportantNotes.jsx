@@ -238,14 +238,20 @@ export default function ImportantNotesPage() {
               <div>
                 <label className="block mb-1 font-medium">Leads</label>
                 <input
-                  type="number"
+                  type="text"
                   name="leads"
-                  value={formData.leads}
-                  onChange={(e) =>
-                    setFormData({ ...formData, leads: e.target.value })
-                  }
+                  inputMode="numeric"           
+                  pattern="[0-9]*"            
+                  value={formData.leads} 
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^\d*$/.test(value)) {  // Allow only digits
+                      setFormData({ ...formData, leads: value });
+                    }  
+                  }}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500"
                 />
+
               </div>
 
               {/* Deals MultiInput */}
