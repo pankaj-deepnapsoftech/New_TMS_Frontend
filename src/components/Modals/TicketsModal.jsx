@@ -103,11 +103,6 @@ const TicketModal = ({ isOpen, onClose, editTicket }) => {
               {formik.errors.due_date && formik.touched.due_date && <p className="text-sm text-red-600 mt-1">{formik.errors.due_date}</p>}
             </div>
 
-            <div>
-              <label className="text-sm font-medium">Team Assignment (0)</label>
-              <input type="text" placeholder="Search employees..." className="mt-1 w-full border border-gray-400 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none" />
-            </div>
-
 
             <div className="flex justify-end gap-3 border-t border-gray-300 pt-4">
               <button
