@@ -12,7 +12,7 @@ export default function DepartmentTable() {
   const [page, setPage] = useState(1);
 
   const [create] = useCreateMutation();
-  const { data, isLoading, refetch } = useGetDepartmentQuery();
+  const { data, isLoading, refetch } = useGetDepartmentQuery(page);
   const [deleteDepartment, { isLoading: DepDeleteLoad }] = useDeleteDepartmentMutation();
   const [updateDapartment] = useUpdateDapartmentMutation();
 
