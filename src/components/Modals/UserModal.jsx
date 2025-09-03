@@ -13,18 +13,21 @@ export function UserModal({ onClose, refetch, editable }) {
   const [userData, { isLoading: userDataLoad }] = usePutUserDataMutation();
   const [showPassword, setShowPassword] = useState(false);
 
-
-  const [formData, setFormData] = useState(editable ? { ...editable, department: editable?.department?._id, role: editable?.role?._id } : {
-    full_name: '',
-    username: '',
-    email: '',
-    password: '',
-    phone: '',
-    role: '',
-    department: '',
-    verification: true,
-    admin: false,
-  });
+  const [formData, setFormData] = useState(
+    editable
+      ? { ...editable, department: editable?.department?._id, role: editable?.role?._id }
+      : {
+          full_name: '',
+          username: '',
+          email: '',
+          password: '',
+          phone: '',
+          role: '',
+          department: '',
+          verification: true,
+          admin: false,
+        },
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,12 +41,33 @@ export function UserModal({ onClose, refetch, editable }) {
     e.preventDefault();
     try {
       if (editable) {
-        const res = await userData({id:formData._id,body:formData}).unwrap();
+        const res = await userData({ id: formData._id, body: formData }).unwrap();
         toast.success(res.message || 'User Update successfully');
+        setFormData({
+          full_name: '',
+          username: '',
+          email: '',
+          password: '',
+          phone: '',
+          role: '',
+          department: '',
+          verification: true,
+          admin: false,
+        });
       } else {
         const res = await register(formData).unwrap();
         toast.success(res.message || 'User saved successfully');
-
+        setFormData({
+          full_name: '',
+          username: '',
+          email: '',
+          password: '',
+          phone: '',
+          role: '',
+          department: '',
+          verification: true,
+          admin: false,
+        });
       }
       onClose();
       refetch();

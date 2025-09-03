@@ -6,6 +6,7 @@ import { useGetUserQuery } from '@/services/Users.service';
 
 export default function UsersPage() {
   const [open, setOpen] = useState(false);
+  
   const { data, isLoading, refetch } = useGetUserQuery();
   const [editable, setEditable] = useState(null);
 

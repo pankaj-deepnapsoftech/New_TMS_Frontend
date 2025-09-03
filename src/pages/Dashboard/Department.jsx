@@ -227,7 +227,7 @@ export default function DepartmentTable() {
             )}
           </Droppable>
         </DragDropContext>
-      </div>
+      </div> 
 
       {/* Pagination */}
       <div className="mt-6 mb-4">
