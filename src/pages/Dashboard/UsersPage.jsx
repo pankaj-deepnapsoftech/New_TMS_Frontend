@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { UserModal } from '@components/Modals/UserModal';
-import { useGetUserQuery } from '../../services/Users.service';
-import { Trash2 } from 'lucide-react';
+import { Edit2 } from 'lucide-react';
 import LoadingPage from '@/components/Loading/Loading';
+import { useGetUserQuery, usePutUserDataMutation } from '@/services/Users.service';
 
 export default function UsersPage() {
   const [open, setOpen] = useState(false);
   const { data, isLoading, refetch } = useGetUserQuery();
   // eslint-disable-next-line no-unused-vars
   const [updateId, setUpdateId] = useState('');
+
+  const [userData, { isLoading: userDataLoad }] = usePutUserDataMutation();
 
   if (isLoading) {
     return <LoadingPage />;
@@ -56,9 +58,16 @@ export default function UsersPage() {
                   <td className="px-3 sm:px-4 py-2">{user?.phone || '-'}</td>
                   <td className="px-3 sm:px-4 py-2">{user?.role?.role || '-'}</td>
                   <td className="px-3 sm:px-4 py-2">{user?.department?.name || '-'}</td>
+
                   <td className="px-3 sm:px-4 py-2">
-                    <button className="p-2 text-red-500 hover:text-red-700 rounded-lg transition">
-                      <Trash2 size={18} />
+                    <button
+                      className="p-2 text-blue-500 hover:text-blue-700 rounded-lg transition"
+                      onClick={() => {
+                        setUpdateId(userData._id);
+                        setOpen(true);
+                      }}
+                    >
+                      <Edit2 size={18} />
                     </button>
                   </td>
 

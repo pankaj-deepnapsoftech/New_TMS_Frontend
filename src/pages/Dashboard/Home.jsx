@@ -40,8 +40,6 @@ export default function TaskDashboard() {
 
   const { data: DepartmentAll, isLoading: DepartmentAllLoad, refetch: DepartmentAllRefetch } = useGetDepartmentsQuery();
 
-  console.log(DepartmentAll);
-
   const STATUS_COLORS = ['#6A5AE0', '#27AE60', '#F5A623', '#2D9CDB'];
 
   const handlePercentage = (data) => {
@@ -72,26 +70,28 @@ export default function TaskDashboard() {
     <main className="flex-1  px-6 py-6 space-y-6">
       {/* // ------------- Cards ------------- // */}
 
-      {user.admin && <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {CardsDataa(CardsData?.data).map((card, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            whileHover={{ scale: 1.05, boxShadow: '0 8px 20px rgba(0,0,0,0.1)' }}
-            onClick={() => navigate(card.path)}
-            className={`p-5 rounded-2xl border border-gray-100 bg-gradient-to-br ${card.bg} transition`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">{card.title}</span>
-              <div className={`p-2 rounded-xl ${card.iconBg}`}>{card.icon}</div>
-            </div>
-            <div className="mt-4 text-3xl font-bold text-gray-900">{card.value}</div>
-            <p className="text-xs text-gray-500 mt-1">{card.caption}</p>
-          </motion.div>
-        ))}
-      </div>}
+      {user.admin && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {CardsDataa(CardsData?.data).map((card, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              whileHover={{ scale: 1.05, boxShadow: '0 8px 20px rgba(0,0,0,0.1)' }}
+              onClick={() => navigate(card.path)}
+              className={`p-5 rounded-2xl border border-gray-100 bg-gradient-to-br ${card.bg} transition`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-600">{card.title}</span>
+                <div className={`p-2 rounded-xl ${card.iconBg}`}>{card.icon}</div>
+              </div>
+              <div className="mt-4 text-3xl font-bold text-gray-900">{card.value}</div>
+              <p className="text-xs text-gray-500 mt-1">{card.caption}</p>
+            </motion.div>
+          ))}
+        </div>
+      )}
       {/* Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Overall Progress */}
@@ -158,98 +158,101 @@ export default function TaskDashboard() {
       </div>
 
       {/* Row 2 */}
-   { user.admin &&  <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Latest Updates */}
-        <Card title="Latest Updates" className="xl:col-span-2">
-          <div className="space-y-6">
-            {/* Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Select User</label>
-              {AllUsersDataLoading ? (
-                <p className="text-gray-500 text-sm">Loading users...</p>
-              ) : (
-                <select value={selectedUser || ''} onChange={(e) => setSelectedUser(e.target.value)} className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
-                  <option value="">-- Choose User --</option>
-                  {AllUserData?.data?.map((u) => (
-                    <option key={u._id} value={u._id}>
-                      {u?.full_name} ({u?.username})
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-
-            {/* User Task Details */}
-            <div className="bg-white shadow-md border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition duration-200 min-h-[120px] flex items-center justify-center">
-              {selectedUser ? (
-                UserDataLoad ? (
-                  <p className="text-gray-500 text-center">Loading...</p>
-                ) : error ? (
-                  <p className="text-red-500 text-center">Failed to load data</p>
-                ) : UserData?.data?.length === 0 ? (
-                  <p className="text-gray-500 text-center">No tasks found</p>
+      {user.admin && (
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* Latest Updates */}
+          <Card title="Latest Updates" className="xl:col-span-2">
+            <div className="space-y-6">
+              {/* Dropdown */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Select User</label>
+                {AllUsersDataLoading ? (
+                  <p className="text-gray-500 text-sm">Loading users...</p>
                 ) : (
-                  <div className="max-h-72 overflow-y-auto pr-2 space-y-4 w-full">
-                    {UserData?.data?.map((task) => (
-                      <div key={task._id} className="p-4 border border-gray-200 rounded-xl hover:shadow-sm transition">
-                        <h3 className="text-base font-semibold text-gray-900">{task.title}</h3>
-                        <p className="text-sm text-gray-600 mb-2">{task.description || 'No description'}</p>
-                        <p className="text-xs text-gray-500">Due: {new Date(task.due_date).toLocaleString()}</p>
-                        <p className={`mt-2 text-sm font-medium ${task.status?.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'}`}>Status: {task.status?.status}</p>
-                      </div>
+                  <select value={selectedUser || ''} onChange={(e) => setSelectedUser(e.target.value)} className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+                    <option value="">-- Choose User --</option>
+                    {AllUserData?.data?.map((u) => (
+                      <option key={u._id} value={u._id}>
+                        {u?.full_name} ({u?.username})
+                      </option>
                     ))}
-                  </div>
-                )
-              ) : (
-                <p className="text-gray-400 text-center">No user selected</p>
-              )}
-            </div>
-          </div>
-        </Card>
-
-        {/* Right column donuts */}
-        <div className="space-y-6">
-          <Card title="Completed Tasks">
-            {CompletedTasksLoad ? (
-              <p className="text-gray-500 text-sm">Loading...</p>
-            ) : (
-              <div className="flex items-center justify-between">
-                <Donut percent={(CompletedTasks?.overdueCompleted * 100) / (CompletedTasks?.totalCompleted || 1)} value={CompletedTasks?.totalCompleted} label="completed" color="#16a34a" />
-                <div className="text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-block w-2 h-2 rounded-full bg-green-600"></span>
-                    Completed: {CompletedTasks?.totalCompleted}
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span>
-                    Overdue: {CompletedTasks?.overdueCompleted}
-                  </div>
-                </div>
+                  </select>
+                )}
               </div>
-            )}
+
+              {/* User Task Details */}
+              <div className="bg-white shadow-md border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition duration-200 min-h-[120px] flex items-center justify-center">
+                {selectedUser ? (
+                  UserDataLoad ? (
+                    <p className="text-gray-500 text-center">Loading...</p>
+                  ) : error ? (
+                    <p className="text-red-500 text-center">Failed to load data</p>
+                  ) : UserData?.data?.length === 0 ? (
+                    <p className="text-gray-500 text-center">No tasks found</p>
+                  ) : (
+                    <div className="max-h-72 overflow-y-auto pr-2 space-y-4 w-full">
+                      {UserData?.data?.map((task) => (
+                        <div key={task._id} className="p-4 border border-gray-200 rounded-xl hover:shadow-sm transition">
+                          <h3 className="text-base font-semibold text-gray-900">{task.title}</h3>
+                          <p className="text-sm text-gray-600 mb-2">{task.description || 'No description'}</p>
+                          <p className="text-xs text-gray-500">Due: {new Date(task.due_date).toLocaleString()}</p>
+                          <p className={`mt-2 text-sm font-medium ${task.status?.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'}`}>Status: {task.status?.status}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  <p className="text-gray-400 text-center">No user selected</p>
+                )}
+              </div>
+            </div>
           </Card>
 
-          {user.admin && <Card title="All Departments" right={<span className="text-xs text-gray-500">this month</span>}>
-            <div className="space-y-3">
-              {DepartmentAllLoad ? (
+          {/* Right column donuts */}
+          <div className="space-y-6">
+            <Card title="Completed Tasks">
+              {CompletedTasksLoad ? (
                 <p className="text-gray-500 text-sm">Loading...</p>
-              ) : DepartmentAll?.data && DepartmentAll.data.length > 0 ? (
-                DepartmentAll.data.map((dept, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <a className="text-sky-600 hover:underline" href="#">
-                      {dept.department}
-                    </a>
-                    <span className="text-gray-700">{dept.totalTasks}</span>
-                  </div>
-                ))
               ) : (
-                <p className="text-gray-500 text-sm">No departments found</p>
+                <div className="flex items-center justify-between">
+                  <Donut percent={(CompletedTasks?.overdueCompleted * 100) / (CompletedTasks?.totalCompleted || 1)} value={CompletedTasks?.totalCompleted} label="completed" color="#16a34a" />
+                  <div className="text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block w-2 h-2 rounded-full bg-green-600"></span>
+                      Completed: {CompletedTasks?.totalCompleted}
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="inline-block w-2 h-2 rounded-full bg-gray-300"></span>
+                      Overdue: {CompletedTasks?.overdueCompleted}
+                    </div>
+                  </div>
+                </div>
               )}
-            </div>
-          </Card>}
+            </Card>
+
+            {user.admin && (
+              <Card title="All Departments" right={<span className="text-xs text-gray-500">this month</span>}>
+                <div className="space-y-3">
+                  {DepartmentAllLoad ? (
+                    <p className="text-gray-500 text-sm">Loading...</p>
+                  ) : DepartmentAll?.data && DepartmentAll.data.length > 0 ? (
+                    DepartmentAll.data.map((dept, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <a className="text-sky-600 hover:underline" href="#">
+                          {dept.department}
+                        </a>
+                        <span className="text-gray-700">{dept.totalTasks}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-sm">No departments found</p>
+                  )}
+                </div>
+              </Card>
+            )}
+          </div>
         </div>
-      </div>
-}
+      )}
       {/* Status distribution */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {adminCardDataload ? (

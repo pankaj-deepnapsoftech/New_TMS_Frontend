@@ -11,9 +11,18 @@ const UserService = Api.injectEndpoints({
       query: () => `/user/get-all-users`,
       providesTags: ['user'],
     }),
-    
+    putUserData: build.mutation({
+      query: ({ id }) => ({
+        url: `/user/update-user/${id}`,
+        method: 'PUT',
+      }),
+      invalidatesTags: ['user'],
+    }),
   }),
 });
 
 // ---------------------- all queries here --------------------
-export const { useGetUserQuery,useGetAssigneUserQuery } = UserService;
+export const { useGetUserQuery, useGetAssigneUserQuery } = UserService;
+
+// --------------------- all mutations here --------------------
+export const { usePutUserDataMutation } = UserService;
