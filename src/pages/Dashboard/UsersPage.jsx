@@ -3,14 +3,13 @@ import { UserModal } from '@components/Modals/UserModal';
 import { Edit2 } from 'lucide-react';
 import LoadingPage from '@/components/Loading/Loading';
 import { useGetUserQuery } from '@/services/Users.service';
+import Pagination from '@components/ui/Pagination';
 
 export default function UsersPage() {
   const [open, setOpen] = useState(false);
-  
-  const { data, isLoading, refetch } = useGetUserQuery();
+  const [page, setPage] = useState(1);
+  const { data, isLoading, refetch } = useGetUserQuery(page);
   const [editable, setEditable] = useState(null);
-
- 
 
   if (isLoading) {
     return <LoadingPage />;
@@ -96,8 +95,13 @@ export default function UsersPage() {
         </table>
       </div>
 
+      {/* Pagination */}
+      <div className="mt-6">
+        <Pagination currentPage={page} onPageChange={setPage} totalPages={data?.totalPage} />
+      </div>
+
       {/* Modal */}
-      {open && <UserModal editable={editable} onClose={() => setOpen(false)} refetch={refetch}  />}
+      {open && <UserModal editable={editable} onClose={() => setOpen(false)} refetch={refetch} />}
     </div>
   );
 }

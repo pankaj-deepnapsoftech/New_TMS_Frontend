@@ -4,7 +4,7 @@ const UserService = Api.injectEndpoints({
   endpoints: (build) => ({
     // --------------- Users service here ------------
     getUser: build.query({
-      query: () => `/user/all-users`,
+      query: (page) => `/user/all-users?page=${page}`,
       providesTags: ['user'],
     }),
     getAssigneUser: build.query({
