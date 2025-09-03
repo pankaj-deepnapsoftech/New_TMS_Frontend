@@ -14,7 +14,7 @@ const DepartmentService = Api.injectEndpoints({
 
     // --------------- get department here --------------
     getDepartment: build.query({
-      query: (page) => `/department/get?page=${page}`,
+      query: ({page, limit}) => `/department/get?page=${page}&limit=${limit}`,
       providesTags: ['Departments'],
     }),
 
