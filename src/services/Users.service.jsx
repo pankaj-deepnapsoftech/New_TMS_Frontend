@@ -12,9 +12,10 @@ const UserService = Api.injectEndpoints({
       providesTags: ['user'],
     }),
     putUserData: build.mutation({
-      query: ({ id }) => ({
+      query: ({ id,body }) => ({
         url: `/user/update-user/${id}`,
         method: 'PUT',
+        body
       }),
       invalidatesTags: ['user'],
     }),

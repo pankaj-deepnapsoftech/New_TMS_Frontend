@@ -2,15 +2,14 @@ import { useState } from 'react';
 import { UserModal } from '@components/Modals/UserModal';
 import { Edit2 } from 'lucide-react';
 import LoadingPage from '@/components/Loading/Loading';
-import { useGetUserQuery, usePutUserDataMutation } from '@/services/Users.service';
+import { useGetUserQuery } from '@/services/Users.service';
 
 export default function UsersPage() {
   const [open, setOpen] = useState(false);
   const { data, isLoading, refetch } = useGetUserQuery();
-  // eslint-disable-next-line no-unused-vars
-  const [updateId, setUpdateId] = useState('');
+  const [editable, setEditable] = useState(null);
 
-  const [userData, { isLoading: userDataLoad }] = usePutUserDataMutation();
+ 
 
   if (isLoading) {
     return <LoadingPage />;
@@ -63,7 +62,7 @@ export default function UsersPage() {
                     <button
                       className="p-2 text-blue-500 hover:text-blue-700 rounded-lg transition"
                       onClick={() => {
-                        setUpdateId(userData._id);
+                        setEditable(user);
                         setOpen(true);
                       }}
                     >
@@ -97,7 +96,7 @@ export default function UsersPage() {
       </div>
 
       {/* Modal */}
-      {open && <UserModal onClose={() => setOpen(false)} refetch={refetch} id={updateId} />}
+      {open && <UserModal editable={editable} onClose={() => setOpen(false)} refetch={refetch}  />}
     </div>
   );
 }

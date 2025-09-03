@@ -4,14 +4,17 @@ import { useAllDepartmentsQuery } from '../../services/Department.service';
 import { useRegisterMutation } from '../../services/Auth.service';
 import { toast } from 'react-toastify';
 import { Eye, EyeOff } from 'lucide-react';
+import { usePutUserDataMutation } from '@/services/Users.service';
 
-export function UserModal({ onClose, id, refetch }) {
+export function UserModal({ onClose, refetch, editable }) {
   const { data: roles, isLoading: roleLoad } = useAllRolesQuery();
   const { data: departments, isLoading: departmentLoad } = useAllDepartmentsQuery();
   const [register, { isLoading: RegisteruserLoad }] = useRegisterMutation();
+  const [userData, { isLoading: userDataLoad }] = usePutUserDataMutation();
   const [showPassword, setShowPassword] = useState(false);
 
-  const [formData, setFormData] = useState({
+
+  const [formData, setFormData] = useState(editable ? { ...editable, department: editable?.department?._id, role: editable?.role?._id } : {
     full_name: '',
     username: '',
     email: '',
@@ -34,8 +37,14 @@ export function UserModal({ onClose, id, refetch }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await register(formData).unwrap();
-      toast.success(res.message || 'User saved successfully');
+      if (editable) {
+        const res = await userData({id:formData._id,body:formData}).unwrap();
+        toast.success(res.message || 'User Update successfully');
+      } else {
+        const res = await register(formData).unwrap();
+        toast.success(res.message || 'User saved successfully');
+
+      }
       onClose();
       refetch();
     } catch (error) {
@@ -53,7 +62,7 @@ export function UserModal({ onClose, id, refetch }) {
       <div className="bg-white rounded-2xl shadow-lg w-[600px] max-h-[90vh] overflow-y-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">{id ? 'Update User' : 'Add New User'}</h2>
+          <h2 className="text-xl font-semibold">{editable ? 'Update User' : 'Add New User'}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-800">
             ✕
           </button>
@@ -89,7 +98,7 @@ export function UserModal({ onClose, id, refetch }) {
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full border rounded-lg px-3 py-2 pr-10"
-                required={!id} // password required only when creating
+                required={!editable} // password required only when creating
               />
               <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
                 {!showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -134,7 +143,7 @@ export function UserModal({ onClose, id, refetch }) {
             <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg border text-gray-600 hover:bg-gray-100">
               Cancel
             </button>
-            <button disabled={RegisteruserLoad} type="submit" className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+            <button disabled={RegisteruserLoad || userDataLoad} type="submit" className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
               {RegisteruserLoad ? 'Saving...' : 'Save'}
             </button>
           </div>
