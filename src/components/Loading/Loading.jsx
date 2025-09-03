@@ -12,7 +12,7 @@ export default function LoadingPage() {
       </div>
 
       {/* Loading Text */}
-      <p className="text-gray-700 font-medium mb-4">Loading your dashboard...</p>
+      <p className="text-gray-700 font-medium mb-4">Loading your Task Management System...</p>
 
       {/* Progress Bar */}
       <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -24,7 +24,7 @@ export default function LoadingPage() {
 
       {/* Tailwind custom animation */}
       <style>
-        {`
+        {`     
           @keyframes progress {
             0% { transform: translateX(-100%); }
             50% { transform: translateX(0%); }
