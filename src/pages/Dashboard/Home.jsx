@@ -58,11 +58,13 @@ export default function TaskDashboard() {
       WorkstreamActivityRefetch();
       OpenTasksRefetch();
       CompletedTasksRefetch();
-      CardsDataRefetch();
       UserDataRefetch();
-      GetAllUsersAgaian();
       OverdueTicketsRefetch();
-      DepartmentAllRefetch();
+      if (user.admin) {
+        CardsDataRefetch();
+        DepartmentAllRefetch();
+        GetAllUsersAgaian();
+      }
     }
   }, [user, refetch]);
 
@@ -70,7 +72,7 @@ export default function TaskDashboard() {
     <main className="flex-1  px-6 py-6 space-y-6">
       {/* // ------------- Cards ------------- // */}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {user.admin && <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {CardsDataa(CardsData?.data).map((card, i) => (
           <motion.div
             key={i}
@@ -89,7 +91,7 @@ export default function TaskDashboard() {
             <p className="text-xs text-gray-500 mt-1">{card.caption}</p>
           </motion.div>
         ))}
-      </div>
+      </div>}
       {/* Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Overall Progress */}
@@ -156,7 +158,7 @@ export default function TaskDashboard() {
       </div>
 
       {/* Row 2 */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+   { user.admin &&  <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Latest Updates */}
         <Card title="Latest Updates" className="xl:col-span-2">
           <div className="space-y-6">
@@ -227,7 +229,7 @@ export default function TaskDashboard() {
             )}
           </Card>
 
-          <Card title="All Departments" right={<span className="text-xs text-gray-500">this month</span>}>
+          {user.admin && <Card title="All Departments" right={<span className="text-xs text-gray-500">this month</span>}>
             <div className="space-y-3">
               {DepartmentAllLoad ? (
                 <p className="text-gray-500 text-sm">Loading...</p>
@@ -244,10 +246,10 @@ export default function TaskDashboard() {
                 <p className="text-gray-500 text-sm">No departments found</p>
               )}
             </div>
-          </Card>
+          </Card>}
         </div>
       </div>
-
+}
       {/* Status distribution */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {adminCardDataload ? (
