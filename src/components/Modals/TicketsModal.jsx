@@ -2,17 +2,17 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFormik } from 'formik';
 import { useCreateTicketMutation, useUpdateTicketMutation } from '../../services/Ticket.service';
-import { useGetDepartmentQuery } from '../../services/Department.service';
+import { useAllDepartmentsQuery } from '../../services/Department.service';
 import { TicketvalidationSchema } from '../../Validation/TicketCreateValidation';
-import { useGetCurrentUserQuery } from '@/services/Auth.service';
 
 
 
 
 const TicketModal = ({ isOpen, onClose, editTicket }) => {
   const [createTicket, { isLoading }] = useCreateTicketMutation();
-  const { data } = useGetDepartmentQuery();
+  const { data } = useAllDepartmentsQuery();
   const DepartmentData = data?.data || [];
+  console.log("this is just testing",DepartmentData)
   const [UpdatedTicket] = useUpdateTicketMutation();
   // console.log(currentUser)
   // console.log(editTicket)
